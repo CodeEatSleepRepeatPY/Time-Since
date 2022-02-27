@@ -2,7 +2,7 @@
 
 [Architecture](docs/Architecture.md)
 
-[Branching Strategy](docs/BranchingStrategy.md)
+[Branching Strategy](docs/Workflow.md)
 
 [Coding Style](docs/CodingStyle.md)
 
