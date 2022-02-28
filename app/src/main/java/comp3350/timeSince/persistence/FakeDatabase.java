@@ -1,13 +1,16 @@
-import java.util.ArrayList;
-
 package comp3350.timeSince.persistence;
 
-public class FakeDatabase implements I_FakeDatabase{
+import java.util.ArrayList;
+import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
+
+public class FakeDatabase implements I_Database{
 
     //----------------------------------------
     // instance variables
     //----------------------------------------
-    
+
     private final int MAX_SIZE_INCREASE = 50;
     private int maxCapacity;
     private ArrayList<UserDSO> usersDatabase;
@@ -49,7 +52,7 @@ public class FakeDatabase implements I_FakeDatabase{
     public void addEvent(UserDSO user, EventDSO event){
         if(user == null || event == null)
             return;
-        
+
         for(int i = 0; i < usersDatabase.size(); i++){
             if(user.getUuid().equals(usersDatabase.get(i).getUuid())){
                 eventsDatabase.get(i).add(event);
@@ -61,7 +64,7 @@ public class FakeDatabase implements I_FakeDatabase{
     public void removeEvent(UserDSO user, EventDSO event){
         if(user == null || event == null)
             return;
-        
+
         int index = -1;
         for(int i = 0; i < usersDatabase.size(); i++){
             if(user.getUuid().equals(usersDatabase.get(i).getUuid())){
@@ -71,8 +74,8 @@ public class FakeDatabase implements I_FakeDatabase{
         }
         if(index != -1) {
             for(int i = 0; i < eventsDatabase.get(index).size(); i++) {
-                // if the name and description of the event we want to remove 
-                // matches the name and description of the event in the database 
+                // if the name and description of the event we want to remove
+                // matches the name and description of the event in the database
                 // then remove that event from the database
                 if(event.getName().equals(eventsDatabase.get(index).get(i).getName()) && event.getDescription().equals(eventsDatabase.get(index).get(i).getDescription())) {
                     eventsDatabase.get(index).remove(i);
@@ -85,7 +88,7 @@ public class FakeDatabase implements I_FakeDatabase{
     //----------------------------------------
     // getters
     //----------------------------------------
-    
+
     public ArrayList<UserDSO> getUsers(){
         return usersDatabase;
     }
