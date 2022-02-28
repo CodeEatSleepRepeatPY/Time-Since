@@ -28,22 +28,11 @@ public class FakeDatabase implements I_FakeDatabase{
     //----------------------------------------
 
     public void addUser(UserDSO user){
-        if(user == null)
-            return;
-        
-        boolean userFound = false;
-        for(int i = 0; i < usersDatabase.size(); i++){
-            if(usersDatabase.get(i).getUuid().equals(user.getUuid())){ //check to see if the user is already in the database
-                userFound = true;
-            }
-        }
-        if(!userFound){ //if the user is not in the database then add the user
-            usersDatabase.add(user);
-            if(usersDatabase.size() >= maxCapacity){ //increase capacity when we reach max capacity
-                maxCapacity += MAX_SIZE_INCREASE;
-                for(int i = 0; i < MAX_SIZE_INCREASE; i++){
-                    eventsDatabase.add(new ArrayList<EventDSO>());
-                }
+        usersDatabase.add(user);
+        if(usersDatabase.size() >= maxCapacity){ //increase capacity when we reach max capacity
+            maxCapacity += MAX_SIZE_INCREASE;
+            for(int i = 0; i < MAX_SIZE_INCREASE; i++){
+                eventsDatabase.add(new ArrayList<EventDSO>());
             }
         }
     }
@@ -82,17 +71,10 @@ public class FakeDatabase implements I_FakeDatabase{
         }
         if(index != -1) {
             for(int i = 0; i < eventsDatabase.get(index).size(); i++) {
-                if(event.getDescription() != null){
-                    // if the name and description of the event we want to remove 
-                    // matches the name and description of the event in the database 
-                    // then remove that event
-                    if(event.getName().equals(eventsDatabase.get(index).get(i).getName()) && event.getDescription().equals(eventsDatabase.get(index).get(i).getDescription())) {
-                        eventsDatabase.get(index).remove(i);
-                        break;
-                    }
-                }
-                //if there is a match but no description (case of: description = null)
-                else if(event.getName().equals(eventsDatabase.get(index).get(i).getName()) && eventsDatabase.get(index).get(i).getDescription() == null){
+                // if the name and description of the event we want to remove 
+                // matches the name and description of the event in the database 
+                // then remove that event from the database
+                if(event.getName().equals(eventsDatabase.get(index).get(i).getName()) && event.getDescription().equals(eventsDatabase.get(index).get(i).getDescription())) {
                     eventsDatabase.get(index).remove(i);
                     break;
                 }
@@ -103,6 +85,10 @@ public class FakeDatabase implements I_FakeDatabase{
     //----------------------------------------
     // getters
     //----------------------------------------
+    
+    public ArrayList<UserDSO> getUsers(){
+        return usersDatabase;
+    }
 
     public ArrayList<EventDSO> getUserEvents(UserDSO user){
         for(int i = 0; i < usersDatabase.size(); i++){
