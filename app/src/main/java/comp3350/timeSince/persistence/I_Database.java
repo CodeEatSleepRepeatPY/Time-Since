@@ -12,4 +12,6 @@ public interface I_Database {
     public ArrayList<EventDSO> getUserEvents(UserDSO user);
 
     public UserDSO getUser(String uuid);
+    
+    public ArrayList<UserDSO> getUsers();
 }
