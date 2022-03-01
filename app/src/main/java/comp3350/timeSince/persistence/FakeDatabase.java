@@ -40,12 +40,12 @@ public class FakeDatabase implements I_Database{
         }
     }
 
-    public void removeUser(String uuid){
-        for(int i = 0; i < usersDatabase.size(); i++){
-            if(usersDatabase.get(i).getUuid().equals(uuid)){
-                usersDatabase.remove(i);
-                break;
-            }
+    public void removeUser(UserDSO user){
+        int index = getUserIndex(user);
+
+        if(index != -1){
+            usersDatabase.remove(index);
+            eventsDatabase.remove(index);
         }
     }
 
@@ -53,11 +53,10 @@ public class FakeDatabase implements I_Database{
         if(user == null || event == null)
             return;
 
-        for(int i = 0; i < usersDatabase.size(); i++){
-            if(user.getUuid().equals(usersDatabase.get(i).getUuid())){
-                eventsDatabase.get(i).add(event);
-                break;
-            }
+        int index = getUserIndex(user);
+
+        if(index != -1) {
+            eventsDatabase.get(index).add(event);
         }
     }
 
@@ -65,13 +64,8 @@ public class FakeDatabase implements I_Database{
         if(user == null || event == null)
             return;
 
-        int index = -1;
-        for(int i = 0; i < usersDatabase.size(); i++){
-            if(user.getUuid().equals(usersDatabase.get(i).getUuid())){
-                index = i;
-                break;
-            }
-        }
+        int index = getUserIndex(user);
+
         if(index != -1) {
             for(int i = 0; i < eventsDatabase.get(index).size(); i++) {
                 // if the name and description of the event we want to remove
@@ -94,12 +88,13 @@ public class FakeDatabase implements I_Database{
     }
 
     public ArrayList<EventDSO> getUserEvents(UserDSO user){
-        for(int i = 0; i < usersDatabase.size(); i++){
-            if(user.getUuid().equals(usersDatabase.get(i).getUuid())){
-                return eventsDatabase.get(i);
-            }
+        int index = getUserIndex(user);
+
+        if(index != -1) {
+            return eventsDatabase.get(index);
         }
-        return new ArrayList<EventDSO>(); //reutrn empty list if the user doesn't exist in the database
+
+        return new ArrayList<EventDSO>(); //return empty list if the user doesn't exist in the database
     }
 
     public UserDSO getUser(String uuid){
@@ -109,6 +104,19 @@ public class FakeDatabase implements I_Database{
             }
         }
         return null;
+    }
+
+    private int getUserIndex(UserDSO user){
+        int index = -1;
+
+        for(int i = 0; i < usersDatabase.size(); i++){
+            if(user.getUuid().equals(usersDatabase.get(i).getUuid())){
+                index = i;
+                break;
+            }
+        }
+
+        return index;
     }
 
 }

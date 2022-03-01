@@ -8,7 +8,7 @@ import comp3350.timeSince.objects.EventLabelDSO;
 public interface I_Database {
     public void addUser(UserDSO user);
 
-    public void removeUser(String uuid);
+    public void removeUser(UserDSO user);
 
     public void addEvent(UserDSO user, EventDSO event);
 
