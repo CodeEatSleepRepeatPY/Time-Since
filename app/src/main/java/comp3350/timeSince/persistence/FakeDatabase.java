@@ -31,6 +31,9 @@ public class FakeDatabase implements I_Database{
     //----------------------------------------
 
     public void addUser(UserDSO user){
+        if(user == null)
+            return;
+
         usersDatabase.add(user);
         if(usersDatabase.size() >= maxCapacity){ //increase capacity when we reach max capacity
             maxCapacity += MAX_SIZE_INCREASE;
@@ -41,6 +44,9 @@ public class FakeDatabase implements I_Database{
     }
 
     public void removeUser(UserDSO user){
+        if(user == null)
+            return;
+
         int index = getUserIndex(user);
 
         if(index != -1){
@@ -109,7 +115,7 @@ public class FakeDatabase implements I_Database{
     private int getUserIndex(UserDSO user){
         int index = -1;
 
-        for(int i = 0; i < usersDatabase.size(); i++){
+        for(int i = 0; i < usersDatabase.size() && user != null; i++){
             if(user.getUuid().equals(usersDatabase.get(i).getUuid())){
                 index = i;
                 break;
