@@ -18,6 +18,7 @@
             </intent-filter>
         </activity>
 
+
         <activity
             android:name=".presentation.RegisterActivity"
             android:label="@string/register"
