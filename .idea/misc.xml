@@ -11,15 +11,9 @@
         <entry key="app/src/main/res/font/dancing_script_bold.xml" value="0.2677083333333333" />
         <entry key="app/src/main/res/layout-v26/activity_home.xml" value="0.2375" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.165" />
-        <entry key="app/src/main/res/layout/activity_login.xml" value="0.10677083333333333" />
-        <entry key="app/src/main/res/layout/activity_login2.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_register_view.xml" value="0.21927083333333333" />
-        <entry key="app/src/main/res/layout/content_login.xml" value="0.10677083333333333" />
-        <entry key="app/src/main/res/layout/event_overview.xml" value="0.2375" />
-        <entry key="app/src/main/res/layout/fragment_first.xml" value="0.10677083333333333" />
-        <entry key="app/src/main/res/layout/fragment_second.xml" value="0.10677083333333333" />
         <entry key="app/src/main/res/layout/home_screen_view.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/user_registration_view.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/user_registration_view.xml" value="0.25" />
       </map>
     </option>
   </component>
