@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/registration"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/time_since_background"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:visibility="visible"
+    tools:context=".presentation.RegisterActivity">
+
+    <TextView
+        android:id="@+id/register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="25dp"
+        android:layout_marginTop="60dp"
+        android:gravity="center"
+        android:text="@string/register"
+        android:textColor="@color/black"
+        android:textSize="35sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/username"
+        android:layout_width="@dimen/activity_button_width"
+        android:layout_height="@dimen/activity_button_height"
+        android:layout_marginTop="@dimen/home_layout_margin_top"
+        android:autofillHints="emailAddress"
+        android:background="@drawable/white_with_black_border"
+        android:drawableStart="@drawable/ic_baseline_person_outline_24"
+        android:drawablePadding="10dp"
+        android:hint="@string/prompt_email"
+        android:inputType="textEmailAddress"
+        android:padding="15dp"
+        android:selectAllOnFocus="true"
+        android:textSize="@dimen/text_size_small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/register" />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="@dimen/activity_button_width"
+        android:layout_height="@dimen/activity_button_height"
+        android:layout_marginTop="@dimen/home_layout_margin_top"
+        android:background="@drawable/white_with_black_border"
+        android:drawableStart="@android:drawable/ic_secure"
+        android:drawablePadding="10dp"
+        android:hint="@string/prompt_password"
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        android:padding="15dp"
+        android:selectAllOnFocus="true"
+        android:textSize="@dimen/text_size_small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/username" />
+
+    <EditText
+        android:id="@+id/confirm_password"
+        android:layout_width="@dimen/activity_button_width"
+        android:layout_height="@dimen/activity_button_height"
+        android:layout_marginTop="@dimen/home_layout_margin_top"
+        android:background="@drawable/white_with_black_border"
+        android:drawableStart="@android:drawable/ic_secure"
+        android:drawablePadding="10dp"
+        android:hint="@string/confirm_password"
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        android:padding="15dp"
+        android:selectAllOnFocus="true"
+        android:textSize="@dimen/text_size_small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/password" />
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="150dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="@dimen/home_layout_margin_top"
+        android:background="@drawable/light_green_black_border"
+        android:onClick="buttonRegisterOnClick"
+        android:text="@string/action_sign_in"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_small"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirm_password" />
+    <!--should include android:enabled="false"-->
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="64dp"
+        android:layout_marginBottom="64dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/password"
+        app:layout_constraintStart_toStartOf="@+id/password"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.3" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

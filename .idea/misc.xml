@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="app/src/main/res/drawable/green_with_black_border.xml" value="0.201" />
+        <entry key="app/src/main/res/drawable/ic_baseline_person_outline_24.xml" value="0.159" />
+        <entry key="app/src/main/res/drawable/light_green_black_border.xml" value="0.199" />
+        <entry key="app/src/main/res/drawable/medium_green_black_border.xml" value="0.199" />
+        <entry key="app/src/main/res/drawable/white_with_black_border.xml" value="0.1" />
+        <entry key="app/src/main/res/font/dancing_script_bold.xml" value="0.2677083333333333" />
+        <entry key="app/src/main/res/layout-v26/activity_home.xml" value="0.2375" />
+        <entry key="app/src/main/res/layout/activity_home.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.10677083333333333" />
+        <entry key="app/src/main/res/layout/activity_login2.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_register_view.xml" value="0.21927083333333333" />
+        <entry key="app/src/main/res/layout/content_login.xml" value="0.10677083333333333" />
+        <entry key="app/src/main/res/layout/event_overview.xml" value="0.2375" />
+        <entry key="app/src/main/res/layout/fragment_first.xml" value="0.10677083333333333" />
+        <entry key="app/src/main/res/layout/fragment_second.xml" value="0.10677083333333333" />
+        <entry key="app/src/main/res/layout/home_screen_view.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/user_registration_view.xml" value="0.1" />
+      </map>
+    </option>
+  </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
