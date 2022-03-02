@@ -45,10 +45,10 @@ public class fakeDBUnitTests {
         database.addUser(user2);
         database.addUser(user3);
 
-        assertEquals("Size of database should be 3", database.getUsers().size(), 3);
-        assertEquals("Name of first user should be guy1", database.getUser("uid1").getName(), "guy1");
-        assertEquals("Name of second user should be guy2", database.getUser("uid2").getName(), "guy2");
-        assertEquals("Name of third user should be guy3", database.getUser("uid3").getName(), "guy3");
+        assertEquals("Size of database should be 3", 3, database.getUsers().size());
+        assertEquals("Name of first user should be guy1", "guy1", database.getUser("uid1").getName());
+        assertEquals("Name of second user should be guy2", "guy2", database.getUser("uid2").getName());
+        assertEquals("Name of third user should be guy3", "guy3", database.getUser("uid3").getName());
     }
 
     @Test
