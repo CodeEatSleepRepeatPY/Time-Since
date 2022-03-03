@@ -7,6 +7,7 @@
 package comp3350.timeSince.objects;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class UserDSO{
     //----------------------------------------
@@ -25,28 +26,28 @@ public class UserDSO{
     private String name;
     private MembershipType membershipType;
     private String uuid; // could be email, or randomly generated
-    private String dateRegistered;
+    private final Date DATE_REGISTERED; // generated when creating new object
     private String passwordHash;
     private ArrayList<EventLabelDSO> userLabels;
-    //private ArrayList<EventDSO> userEvents;
-    //private ArrayList<EventDSO> favoritesList; // favorite Events
+    private ArrayList<EventDSO> userEvents;
+    private ArrayList<EventDSO> favoritesList; // favorite Events
 
     //----------------------------------------
     // constructors
     //----------------------------------------
 
     public UserDSO(String name, MembershipType membershipType, String uuid,
-                   String dateRegistered, String passwordHash){
+                   String passwordHash){
         this.name = name;
         this.membershipType = membershipType;
         this.uuid = uuid;
-        this.dateRegistered = dateRegistered;
+        this.DATE_REGISTERED = new Date(System.currentTimeMillis());
         this.passwordHash = passwordHash;
 
         // initialize ArrayLists
-        this.userLabels = new ArrayList<EventLabelDSO>();
-        // this.userEvents = new ArrayList<EventDSO>();
-        // this.favoritesList = new ArrayList<EventDSO>();
+        this.userLabels = new ArrayList<>();
+        this.userEvents = new ArrayList<EventDSO>();
+        this.favoritesList = new ArrayList<EventDSO>();
     }
 
     //----------------------------------------
@@ -65,8 +66,8 @@ public class UserDSO{
         return uuid;
     }
 
-    public String getDateRegistered() {
-        return dateRegistered;
+    public Date getDateRegistered() {
+        return DATE_REGISTERED;
     }
 
     public String getPasswordHash() {
@@ -77,13 +78,13 @@ public class UserDSO{
         return userLabels;
     }
 
-//    public ArrayList<EventDSO> getUserEvents() {
-//        return userEvents;
-//    }
-//
-//    public ArrayList<EventDSO> getFavoritesList() {
-//        return favoritesList;
-//    }
+    public ArrayList<EventDSO> getUserEvents() {
+        return userEvents;
+    }
+
+    public ArrayList<EventDSO> getFavoritesList() {
+        return favoritesList;
+    }
 
     //----------------------------------------
     // setters

@@ -31,7 +31,7 @@ public class EventLabelDSO{
 
     public EventLabelDSO(String name){
         this.name = name;
-        this.color = null; // will have to change this to be some default
+        this.color = Color.blue; // setting the default to be blue
     }
 
     public EventLabelDSO(String name, Color color){
