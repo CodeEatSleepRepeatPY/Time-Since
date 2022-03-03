@@ -67,9 +67,9 @@ public class FakeDBUnitTests {
         database.addUser(user2);
         database.addUser(user3);
 
-        EventDSO event1 = new EventDSO("event1", currentDateTime);
-        EventDSO event2 = new EventDSO("event2", currentDateTime);
-        EventDSO event3 = new EventDSO("event3", currentDateTime);
+        EventDSO event1 = new EventDSO("event1");
+        EventDSO event2 = new EventDSO("event2");
+        EventDSO event3 = new EventDSO("event3");
 
         database.addEvent(user2, event2);
         database.addEvent(user3, event3);
@@ -81,12 +81,10 @@ public class FakeDBUnitTests {
         database.removeUser(user2);
         assertEquals("Size of database should be 1", 1, database.getUsers().size());
         assertNull("user2 should be null", database.getUser("uid2"));
-        assertEquals("user2 shouldn't have any events", 0, database.getUserEvents(user2).size());
 
         database.removeUser(user3);
         assertEquals("Size of database should be 0", 0, database.getUsers().size());
         assertNull("user3 should be null", database.getUser("uid3"));
-        assertEquals("user3 shouldn't have any events", 0, database.getUserEvents(user3).size());
     }
 
     @Test
@@ -102,21 +100,21 @@ public class FakeDBUnitTests {
         database.addUser(user2);
         database.addUser(user3);
 
-        EventDSO event1 = new EventDSO("event1", currentDateTime);
-        EventDSO event2 = new EventDSO("event2", currentDateTime);
-        EventDSO event3 = new EventDSO("event3", currentDateTime);
+        EventDSO event1 = new EventDSO("event1");
+        EventDSO event2 = new EventDSO("event2");
+        EventDSO event3 = new EventDSO("event3");
 
         database.addEvent(user1, event1);
         database.addEvent(user2, event2);
         database.addEvent(user3, event3);
 
-        assertEquals("user1 should have 1 event", 1, database.getUserEvents(user1).size());
-        assertEquals("user2 should have 1 event", 1, database.getUserEvents(user2).size());
-        assertEquals("user3 should have 1 event", 1, database.getUserEvents(user3).size());
+        assertEquals("user1 should have 1 event", 1, user1.getUserEvents().size());
+        assertEquals("user2 should have 1 event", 1, user2.getUserEvents().size());
+        assertEquals("user3 should have 1 event", 1, user3.getUserEvents().size());
 
-        assertEquals("event1 object should have the name 'event1'", "event1", database.getUserEvents(user1).get(0).getName());
-        assertEquals("event2 object should have the name 'event2'", "event2", database.getUserEvents(user2).get(0).getName());
-        assertEquals("event3 object should have the name 'event3'", "event3", database.getUserEvents(user3).get(0).getName());
+        assertEquals("event1 object should have the name 'event1'", "event1", user1.getUserEvents().get(0).getName());
+        assertEquals("event2 object should have the name 'event2'", "event2", user2.getUserEvents().get(0).getName());
+        assertEquals("event3 object should have the name 'event3'", "event3", user3.getUserEvents().get(0).getName());
     }
 
     @Test
@@ -132,12 +130,12 @@ public class FakeDBUnitTests {
         database.addUser(user2);
         database.addUser(user3);
 
-        EventDSO event1 = new EventDSO("event1", currentDateTime);
-        EventDSO event2 = new EventDSO("event2", currentDateTime);
-        EventDSO event3 = new EventDSO("event3", currentDateTime);
+        EventDSO event1 = new EventDSO("event1");
+        EventDSO event2 = new EventDSO("event2");
+        EventDSO event3 = new EventDSO("event3");
 
         database.removeEvent(user1, event1);
-        assertEquals("user1 should have 0 events", 0, database.getUserEvents(user1).size());
+        assertEquals("user1 should have 0 events", 0, user1.getUserEvents().size());
 
         database.addEvent(user1, event1);
         database.addEvent(user2, event2);
@@ -146,15 +144,15 @@ public class FakeDBUnitTests {
         database.removeEvent(user1, event1);
         database.removeEvent(user3, event3);
 
-        assertEquals("user1 should have 0 events", 0, database.getUserEvents(user1).size());
-        assertEquals("user2 should still have 1 event", 1, database.getUserEvents(user2).size());
-        assertEquals("user3 should have 0 events", 0, database.getUserEvents(user3).size());
+        assertEquals("user1 should have 0 events", 0, user1.getUserEvents().size());
+        assertEquals("user2 should still have 1 event", 1, user2.getUserEvents().size());
+        assertEquals("user3 should have 0 events", 0, user3.getUserEvents().size());
 
         database.removeEvent(user2, event2);
-        assertEquals("user2 should have 0 events", 0, database.getUserEvents(user2).size());
+        assertEquals("user2 should have 0 events", 0, user2.getUserEvents().size());
 
         database.removeEvent(user2, event2);
-        assertEquals("user2 should still have 0 events", 0, database.getUserEvents(user2).size());
+        assertEquals("user2 should still have 0 events", 0, user2.getUserEvents().size());
     }
 
     @Test
@@ -173,33 +171,6 @@ public class FakeDBUnitTests {
 
         database.addUser(user3);
         assertEquals("getUsers().size() should return 3", 3, database.getUsers().size());
-    }
-
-    @Test
-    public void getUserEventsTest(){
-        FakeDatabase database = new FakeDatabase();
-        Date currentDateTime = new Date(System.currentTimeMillis());
-
-        UserDSO user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
-        database.addUser(user1);
-
-        EventDSO event1 = new EventDSO("event1", currentDateTime);
-        EventDSO event2 = new EventDSO("event2", currentDateTime);
-        EventDSO event3 = new EventDSO("event3", currentDateTime);
-
-        assertEquals("user1 should have 0 events", 0, database.getUserEvents(user1).size());
-
-        database.addEvent(user1, event1);
-        database.addEvent(user1, event2);
-        database.addEvent(user1, event3);
-
-        assertEquals("user1 should have 3 events", 3, database.getUserEvents(user1).size());
-        assertEquals("first event should be called event1", "event1", database.getUserEvents(user1).get(0).getName());
-        assertEquals("first event should be called event2", "event2", database.getUserEvents(user1).get(1).getName());
-        assertEquals("first event should be called event3", "event3", database.getUserEvents(user1).get(2).getName());
-
-        database.removeEvent(user1, event1);
-        assertEquals("user1 should only have 2 events", 2, database.getUserEvents(user1).size());
     }
 
     @Test

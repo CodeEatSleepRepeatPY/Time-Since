@@ -17,9 +17,9 @@ public class EventDSO{
     private long timeRemaining;
     private String favourite;
 
-    public EventDSO(String name, final Date dateCreated) {
+    public EventDSO(String name) {
         this.name = name;
-        this.dataCreated = dateCreated; //must be System.CurrentTimeMillis() when created
+        this.dataCreated = new Date(System.currentTimeMillis());
         description = "";
         //this.tags = new DSO.EventLabelDSO(null, null);
     }
