@@ -136,6 +136,9 @@ public class FakeDBUnitTests {
         EventDSO event2 = new EventDSO("event2", currentDateTime);
         EventDSO event3 = new EventDSO("event3", currentDateTime);
 
+        database.removeEvent(user1, event1);
+        assertEquals("user1 should have 0 events", 0, database.getUserEvents(user1).size());
+
         database.addEvent(user1, event1);
         database.addEvent(user2, event2);
         database.addEvent(user3, event3);
@@ -183,6 +186,8 @@ public class FakeDBUnitTests {
         EventDSO event1 = new EventDSO("event1", currentDateTime);
         EventDSO event2 = new EventDSO("event2", currentDateTime);
         EventDSO event3 = new EventDSO("event3", currentDateTime);
+
+        assertEquals("user1 should have 0 events", 0, database.getUserEvents(user1).size());
 
         database.addEvent(user1, event1);
         database.addEvent(user1, event2);
