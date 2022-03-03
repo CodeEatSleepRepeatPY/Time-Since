@@ -71,15 +71,16 @@ public class FakeDatabase implements I_Database{
             return;
 
         int index = getUserIndex(user);
+        boolean foundEvent = false;
 
         if(index != -1) {
-            for(int i = 0; i < eventsDatabase.get(index).size(); i++) {
+            for(int i = 0; i < eventsDatabase.get(index).size() && !foundEvent; i++) {
                 // if the name and description of the event we want to remove
                 // matches the name and description of the event in the database
                 // then remove that event from the database
                 if(event.getName().equals(eventsDatabase.get(index).get(i).getName()) && event.getDescription().equals(eventsDatabase.get(index).get(i).getDescription())) {
                     eventsDatabase.get(index).remove(i);
-                    break;
+                    foundEvent = true;
                 }
             }
         }
@@ -95,34 +96,42 @@ public class FakeDatabase implements I_Database{
 
     public ArrayList<EventDSO> getUserEvents(UserDSO user){
         int index = getUserIndex(user);
+        ArrayList<EventDSO> userEvents = new ArrayList<EventDSO>();
 
         if(index != -1) {
-            return eventsDatabase.get(index);
+            userEvents = eventsDatabase.get(index);
         }
 
-        return new ArrayList<EventDSO>(); //return empty list if the user doesn't exist in the database
+        return userEvents; //return empty list if the user doesn't exist in the database
     }
 
     public UserDSO getUser(String uuid){
-        for(int i = 0; i < usersDatabase.size(); i++){
+        UserDSO user = null;
+        boolean foundUser = false;
+
+        for(int i = 0; i < usersDatabase.size() && !foundUser; i++){
             if(usersDatabase.get(i).getUuid().equals(uuid)){
-                return usersDatabase.get(i);
+                user = usersDatabase.get(i);
+                foundUser = true;
             }
         }
-        return null;
+
+        return user;
     }
 
     private int getUserIndex(UserDSO user){
         int index = -1;
+        boolean foundUser = false;
 
-        for(int i = 0; i < usersDatabase.size() && user != null; i++){
-            if(user.getUuid().equals(usersDatabase.get(i).getUuid())){
-                index = i;
-                break;
+        if(user != null) {
+            for (int i = 0; i < usersDatabase.size() && !foundUser; i++) {
+                if (user.getUuid().equals(usersDatabase.get(i).getUuid())) {
+                    index = i;
+                    foundUser = true;
+                }
             }
         }
 
         return index;
     }
-
 }
