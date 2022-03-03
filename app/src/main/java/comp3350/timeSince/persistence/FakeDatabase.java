@@ -11,7 +11,6 @@ public class FakeDatabase implements I_Database{
     // instance variables
     //----------------------------------------
 
-    private int maxCapacity;
     private ArrayList<UserDSO> usersDatabase;
 
     //----------------------------------------
@@ -19,7 +18,6 @@ public class FakeDatabase implements I_Database{
     //----------------------------------------
 
     public FakeDatabase(){
-        maxCapacity = 1;
         usersDatabase = new ArrayList<UserDSO>();
     }
 
