@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class fakeDBUnitTests {
+public class FakeDBUnitTests {
 
     @Test
     public void createDatabaseTest(){
