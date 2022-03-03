@@ -1,46 +1,45 @@
 package comp3350.timeSince.tests.persistence;
 
 import comp3350.timeSince.persistence.FakeDatabase;
-import comp3350.timeSince.persistence.I_Database;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.objects.EventDSO;
-import comp3350.timeSince.objects.EventLabelDSO;
 
-import static java.lang.String.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class FakeDBUnitTests {
 
+    FakeDatabase database;
+    UserDSO user1;
+    UserDSO user2;
+    UserDSO user3;
+
+    @Before
+    public void setup(){
+        database = new FakeDatabase();
+
+        user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
+        user2 = new UserDSO("guy2", UserDSO.MembershipType.free, "uid2", "hash2");
+        user3 = new UserDSO("guy3", UserDSO.MembershipType.free, "uid3", "hash3");
+    }
+
     @Test
     public void createDatabaseTest(){
-        FakeDatabase database = new FakeDatabase();
         assertNotNull("Newly created database object should not be null", database);
         assertEquals("The database should be empty",  0, database.getUsers().size());
     }
 
     @Test
     public void emptyDatabaseTest(){
-        FakeDatabase database = new FakeDatabase();
         assertEquals("The database should be empty", 0, database.getUsers().size());
     }
 
     @Test
     public void addUserTest(){
-        FakeDatabase database = new FakeDatabase();
-        UserDSO user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
-        UserDSO user2 = new UserDSO("guy2", UserDSO.MembershipType.free, "uid2", "hash2");
-        UserDSO user3 = new UserDSO("guy3", UserDSO.MembershipType.free, "uid3", "hash3");
-
         database.addUser(user1);
         database.addUser(user2);
         database.addUser(user3);
@@ -53,13 +52,6 @@ public class FakeDBUnitTests {
 
     @Test
     public void removeUserTest(){
-        FakeDatabase database = new FakeDatabase();
-        Date currentDateTime = new Date(System.currentTimeMillis());
-
-        UserDSO user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
-        UserDSO user2 = new UserDSO("guy2", UserDSO.MembershipType.free, "uid2", "hash2");
-        UserDSO user3 = new UserDSO("guy3", UserDSO.MembershipType.free, "uid3", "hash3");
-
         database.removeUser(user1);
         assertEquals("Size of database should be 0", 0, database.getUsers().size());
 
@@ -89,13 +81,6 @@ public class FakeDBUnitTests {
 
     @Test
     public void addEventTest(){
-        FakeDatabase database = new FakeDatabase();
-        Date currentDateTime = new Date(System.currentTimeMillis());
-
-        UserDSO user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
-        UserDSO user2 = new UserDSO("guy2", UserDSO.MembershipType.free, "uid2", "hash2");
-        UserDSO user3 = new UserDSO("guy3", UserDSO.MembershipType.free, "uid3", "hash3");
-
         database.addUser(user1);
         database.addUser(user2);
         database.addUser(user3);
@@ -119,13 +104,6 @@ public class FakeDBUnitTests {
 
     @Test
     public void removeEventTest(){
-        FakeDatabase database = new FakeDatabase();
-        Date currentDateTime = new Date(System.currentTimeMillis());
-
-        UserDSO user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
-        UserDSO user2 = new UserDSO("guy2", UserDSO.MembershipType.free, "uid2", "hash2");
-        UserDSO user3 = new UserDSO("guy3", UserDSO.MembershipType.free, "uid3", "hash3");
-
         database.addUser(user1);
         database.addUser(user2);
         database.addUser(user3);
@@ -157,12 +135,6 @@ public class FakeDBUnitTests {
 
     @Test
     public void getUsersTest(){
-        FakeDatabase database = new FakeDatabase();
-
-        UserDSO user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
-        UserDSO user2 = new UserDSO("guy2", UserDSO.MembershipType.free, "uid2", "hash2");
-        UserDSO user3 = new UserDSO("guy3", UserDSO.MembershipType.free, "uid3", "hash3");
-
         database.addUser(user1);
         assertEquals("getUsers().size() should return 1", 1, database.getUsers().size());
 
@@ -175,12 +147,6 @@ public class FakeDBUnitTests {
 
     @Test
     public void getUserTest(){
-        FakeDatabase database = new FakeDatabase();
-
-        UserDSO user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
-        UserDSO user2 = new UserDSO("guy2", UserDSO.MembershipType.free, "uid2", "hash2");
-        UserDSO user3 = new UserDSO("guy3", UserDSO.MembershipType.free, "uid3", "hash3");
-
         assertNull("database should not contain any users", database.getUser("uid1"));
         assertNull("database should not contain any users", database.getUser("uid2"));
         assertNull("database should not contain any users", database.getUser("uid3"));
