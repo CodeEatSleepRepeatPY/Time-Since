@@ -2,14 +2,13 @@ package comp3350.timeSince.business;
 
 import java.util.List;
 
+import comp3350.timeSince.application.Services;
 import comp3350.timeSince.objects.UserDSO;
-import comp3350.timeSince.persistence.FakeDatabase;
 import comp3350.timeSince.persistence.I_Database;
 
 public class UserManager {
-    //private UserDSO user;
     private List<UserDSO> userList;
-    private static I_Database databasePersistence = new FakeDatabase();
+    private I_Database databasePersistence;
 
     public UserManager(){
         //userList = null;    //an empty default user list
@@ -21,17 +20,12 @@ public class UserManager {
         userList = databasePersistence.getUsers();
     }
 
-    public I_Database getDatabasePersistence(){
-        return databasePersistence;
-    }
-
     //-----------------------------------------
     // User account Manager Registration
     //-----------------------------------------
 
     public boolean uniqueName(String userName){
         boolean unique = true;
-        //String username = user.getName();
 
         accessUsers();
 
