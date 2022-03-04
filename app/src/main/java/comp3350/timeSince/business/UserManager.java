@@ -12,7 +12,7 @@ public class UserManager {
     private I_Database databasePersistence;
 
     public UserManager(){
-        databasePersistence = new FakeDatabase();
+        databasePersistence = Services.getDatabase();
         accessUsers();
     }
 
