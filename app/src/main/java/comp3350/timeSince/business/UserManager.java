@@ -4,6 +4,7 @@ import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.FakeDatabase;
 import comp3350.timeSince.persistence.I_Database;
 
 public class UserManager {
@@ -11,7 +12,6 @@ public class UserManager {
     private I_Database databasePersistence;
 
     public UserManager(){
-        //userList = null;    //an empty default user list
         databasePersistence = new FakeDatabase();
         accessUsers();
     }
