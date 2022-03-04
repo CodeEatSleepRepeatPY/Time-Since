@@ -26,13 +26,15 @@ public class FakeDatabase implements I_Database{
     //----------------------------------------
 
     public void addUser(UserDSO user){
-        if(user != null)
+        if(user != null) {
             usersDatabase.add(user);
+        }
     }
 
     public void removeUser(UserDSO user){
+        int index = getUserIndex(user);
+
         if(user != null) {
-            int index = getUserIndex(user);
             if (index != -1) {
                 usersDatabase.remove(index);
             }
@@ -40,8 +42,9 @@ public class FakeDatabase implements I_Database{
     }
 
     public void addEvent(UserDSO user, EventDSO event){
+        int index = getUserIndex(user);
+
         if(user != null && event != null) {
-            int index = getUserIndex(user);
             if (index != -1) {
                 usersDatabase.get(index).getUserEvents().add(event);
             }
@@ -49,12 +52,12 @@ public class FakeDatabase implements I_Database{
     }
 
     public void removeEvent(UserDSO user, EventDSO event){
-        if(user != null && event != null) {
-            int index = getUserIndex(user);
-            boolean foundEvent = false;
-            EventDSO currEvent;
-            UserDSO userObj;
+        int index = getUserIndex(user);
+        boolean foundEvent = false;
+        EventDSO currEvent;
+        UserDSO userObj;
 
+        if(user != null && event != null) {
             if (index != -1) {
                 userObj = usersDatabase.get(index);
                 for (int i = 0; i < userObj.getUserEvents().size() && !foundEvent; i++) {

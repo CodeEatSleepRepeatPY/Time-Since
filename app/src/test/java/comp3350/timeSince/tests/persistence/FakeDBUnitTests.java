@@ -13,10 +13,9 @@ import static org.junit.Assert.assertNull;
 
 public class FakeDBUnitTests {
 
-    FakeDatabase database;
-    UserDSO user1;
-    UserDSO user2;
-    UserDSO user3;
+    private FakeDatabase database;
+    private UserDSO user1, user2, user3;
+    private EventDSO event1, event2, event3;
 
     @Before
     public void setup(){
@@ -25,6 +24,10 @@ public class FakeDBUnitTests {
         user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
         user2 = new UserDSO("guy2", UserDSO.MembershipType.free, "uid2", "hash2");
         user3 = new UserDSO("guy3", UserDSO.MembershipType.free, "uid3", "hash3");
+
+        event1 = new EventDSO("event1");
+        event2 = new EventDSO("event2");
+        event3 = new EventDSO("event3");
     }
 
     @Test
@@ -59,10 +62,6 @@ public class FakeDBUnitTests {
         database.addUser(user2);
         database.addUser(user3);
 
-        EventDSO event1 = new EventDSO("event1");
-        EventDSO event2 = new EventDSO("event2");
-        EventDSO event3 = new EventDSO("event3");
-
         database.addEvent(user2, event2);
         database.addEvent(user3, event3);
 
@@ -85,10 +84,6 @@ public class FakeDBUnitTests {
         database.addUser(user2);
         database.addUser(user3);
 
-        EventDSO event1 = new EventDSO("event1");
-        EventDSO event2 = new EventDSO("event2");
-        EventDSO event3 = new EventDSO("event3");
-
         database.addEvent(user1, event1);
         database.addEvent(user2, event2);
         database.addEvent(user3, event3);
@@ -107,10 +102,6 @@ public class FakeDBUnitTests {
         database.addUser(user1);
         database.addUser(user2);
         database.addUser(user3);
-
-        EventDSO event1 = new EventDSO("event1");
-        EventDSO event2 = new EventDSO("event2");
-        EventDSO event3 = new EventDSO("event3");
 
         database.removeEvent(user1, event1);
         assertEquals("user1 should have 0 events", 0, user1.getUserEvents().size());
