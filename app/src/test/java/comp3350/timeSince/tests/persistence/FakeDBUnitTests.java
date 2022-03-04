@@ -1,7 +1,8 @@
 package comp3350.timeSince.tests.persistence;
 
 import comp3350.timeSince.persistence.FakeDatabase;
-
+import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.objects.EventDSO;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,9 +20,9 @@ public class FakeDBUnitTests {
     public void setup(){
         database = new FakeDatabase();
 
-        user1 = new UserDSO("guy1", UserDSO.MembershipType.free, "uid1", "hash1");
-        user2 = new UserDSO("guy2", UserDSO.MembershipType.free, "uid2", "hash2");
-        user3 = new UserDSO("guy3", UserDSO.MembershipType.free, "uid3", "hash3");
+        user1 = new UserDSO("uid1", UserDSO.MembershipType.free, "hash1");
+        user2 = new UserDSO("uid2", UserDSO.MembershipType.free, "hash2");
+        user3 = new UserDSO("uid3", UserDSO.MembershipType.free, "hash3");
 
         event1 = new EventDSO("event1");
         event2 = new EventDSO("event2");
@@ -46,9 +47,6 @@ public class FakeDBUnitTests {
         database.addUser(user3);
 
         assertEquals("Size of database should be 3", 3, database.getUsers().size());
-        assertEquals("Name of first user should be guy1", "guy1", database.getUser("uid1").getName());
-        assertEquals("Name of second user should be guy2", "guy2", database.getUser("uid2").getName());
-        assertEquals("Name of third user should be guy3", "guy3", database.getUser("uid3").getName());
     }
 
     @Test
@@ -144,9 +142,9 @@ public class FakeDBUnitTests {
         database.addUser(user2);
         database.addUser(user3);
 
-        assertEquals("user1 should have uid1", "guy1", database.getUser("uid1").getName());
-        assertEquals("user2 should have uid2", "guy2", database.getUser("uid2").getName());
-        assertEquals("user3 should have uid3", "guy3", database.getUser("uid3").getName());
+        assertNotNull("user1, with uid1, should be in the database", database.getUser("uid1"));
+        assertNotNull("user2, with uid2, should be in the database", database.getUser("uid2"));
+        assertNotNull("user3, with uid3, should be in the database", database.getUser("uid3"));
 
         database.removeUser(user1);
         assertNull("database should not contain user1 so null should be returned", database.getUser(user1.getUuid()));

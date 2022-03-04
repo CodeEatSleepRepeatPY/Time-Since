@@ -10,9 +10,9 @@ public class EventDSO{
     private String favorite;
     private Date targetFinishTime;
 
-    public EventDSO(final String name, final Date dateCreated) {
+    public EventDSO(final String name) {
         this.NAME = name;
-        this.DATE_CREATED = dateCreated; //must be System.CurrentTimeMillis() when created
+        this.DATE_CREATED = new Date(System.currentTimeMillis());
         this.tags = new ArrayList<>();
         description = "";
         targetFinishTime = null;
