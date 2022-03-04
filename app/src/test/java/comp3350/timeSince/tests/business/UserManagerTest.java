@@ -3,6 +3,7 @@ package comp3350.timeSince.tests.business;
 import org.junit.Before;
 import org.junit.Test;
 
+import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.objects.UserDSO;
 
@@ -16,13 +17,13 @@ public class UserManagerTest {
     public void setUp(){
         userManger = new UserManager();
 
-        userManger.getDatabasePersistence().addUser(new UserDSO("kevin@qq.com", UserDSO.MembershipType.paid,
+        Services.getDatabase().addUser(new UserDSO("kevin@qq.com", UserDSO.MembershipType.paid,
                 "Kevin12345"));
-        userManger.getDatabasePersistence().addUser(new UserDSO("bob23@qq.com", UserDSO.MembershipType.free,
+        Services.getDatabase().addUser(new UserDSO("bob23@qq.com", UserDSO.MembershipType.free,
                 "Bob1234"));
-        userManger.getDatabasePersistence().addUser(new UserDSO("James98@qq.com", UserDSO.MembershipType.free,
+        Services.getDatabase().addUser(new UserDSO("James98@qq.com", UserDSO.MembershipType.free,
                 "James1234"));
-        userManger.getDatabasePersistence().addUser(new UserDSO("Jack233@qq.com", UserDSO.MembershipType.paid,
+        Services.getDatabase().addUser(new UserDSO("Jack233@qq.com", UserDSO.MembershipType.paid,
                 "JACK1234"));
     }
 
