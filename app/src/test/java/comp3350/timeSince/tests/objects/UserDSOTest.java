@@ -9,27 +9,25 @@ import java.util.Date;
 
 public class UserDSOTest {
     private UserDSO userDSO;
-    private String name;
     private UserDSO.MembershipType membershipType;
     private String uuid;
     private String passwordHash;
 
     @Before
     public void setUp() {
-        this.name = "Bob";
-        this.membershipType = UserDSO.MembershipType.free;
         this.uuid = "bobby_g@gmail.com";
+        this.membershipType = UserDSO.MembershipType.free;
         this.passwordHash = "p4ssw0rd";
 
-        this.userDSO = new UserDSO(name, membershipType, uuid, passwordHash);
+        this.userDSO = new UserDSO(uuid, membershipType, passwordHash);
     }
 
     @Test
     public void testGetName() {
         String message = String.format("Initial name should be set to %s",
-                this.name);
+                this.uuid);
 
-        Assert.assertEquals(message, this.name, this.userDSO.getName());
+        Assert.assertEquals(message, this.uuid, this.userDSO.getName());
     }
 
     @Test

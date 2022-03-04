@@ -36,9 +36,9 @@ public class UserDSO{
     // constructors
     //----------------------------------------
 
-    public UserDSO(String name, MembershipType membershipType, String uuid,
+    public UserDSO(String uuid, MembershipType membershipType,
                    String passwordHash){
-        this.name = name;
+        this.name = uuid; // defaults to the uuid
         this.membershipType = membershipType;
         this.uuid = uuid;
         this.DATE_REGISTERED = new Date(System.currentTimeMillis());
@@ -46,8 +46,8 @@ public class UserDSO{
 
         // initialize ArrayLists
         this.userLabels = new ArrayList<>();
-        this.userEvents = new ArrayList<EventDSO>();
-        this.favoritesList = new ArrayList<EventDSO>();
+        this.userEvents = new ArrayList<>();
+        this.favoritesList = new ArrayList<>();
     }
 
     //----------------------------------------

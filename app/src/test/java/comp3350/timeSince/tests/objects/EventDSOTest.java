@@ -15,10 +15,10 @@ public class EventDSOTest {
 
     @Before
     public void instantiateObject(){
-        String message = String.format("The event should not be null");
+        String message = "The event should not be null";
         name = "event0";
         date = new Date( System.currentTimeMillis() );
-        event = new EventDSO(name, date);
+        event = new EventDSO(name);
         assertNotNull(message, event);
         targetDate = new Date(System.currentTimeMillis());
     }
@@ -32,7 +32,7 @@ public class EventDSOTest {
 
     @Test
     public void getDateCreated() {
-        String message = String.format("The event's date_created should not be null");
+        String message = "The event's date_created should not be null";
         assertNotNull(message, event.getDateCreated());
     }
 
