@@ -3,6 +3,8 @@ package comp3350.timeSince.tests.persistence;
 import comp3350.timeSince.persistence.FakeDatabase;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.persistence.I_Database;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +14,7 @@ import static org.junit.Assert.assertNull;
 
 public class FakeDBUnitTests {
 
-    private FakeDatabase database;
+    private I_Database database;
     private UserDSO user1, user2, user3;
     private EventDSO event1, event2, event3;
 
