@@ -1,8 +1,6 @@
 package comp3350.timeSince.tests.persistence;
 
 import comp3350.timeSince.persistence.FakeDatabase;
-import comp3350.timeSince.objects.UserDSO;
-import comp3350.timeSince.objects.EventDSO;
 
 import org.junit.Before;
 import org.junit.Test;
