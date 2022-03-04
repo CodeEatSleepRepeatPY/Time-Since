@@ -34,20 +34,16 @@ public class FakeDatabase implements I_Database{
     public void removeUser(UserDSO user){
         int index = getUserIndex(user);
 
-        if(user != null) {
-            if (index != -1) {
-                usersDatabase.remove(index);
-            }
+        if(user != null && index != -1) {
+            usersDatabase.remove(index);
         }
     }
 
     public void addEvent(UserDSO user, EventDSO event){
         int index = getUserIndex(user);
 
-        if(user != null && event != null) {
-            if (index != -1) {
-                usersDatabase.get(index).getUserEvents().add(event);
-            }
+        if(user != null && event != null && index != -1) {
+            usersDatabase.get(index).getUserEvents().add(event);
         }
     }
 
@@ -57,19 +53,17 @@ public class FakeDatabase implements I_Database{
         EventDSO currEvent;
         UserDSO userObj;
 
-        if(user != null && event != null) {
-            if (index != -1) {
-                userObj = usersDatabase.get(index);
-                for (int i = 0; i < userObj.getUserEvents().size() && !foundEvent; i++) {
-                    // if the name and description of the event we want to remove
-                    // matches the name and description of the event in the database
-                    // then remove that event from the database
-                    currEvent = userObj.getUserEvents().get(i);
-                    if (event.getName().equals(currEvent.getName()) &&
-                            event.getDescription().equals(currEvent.getDescription())) {
-                        userObj.getUserEvents().remove(i);
-                        foundEvent = true;
-                    }
+        if(user != null && event != null && index != -1) {
+            userObj = usersDatabase.get(index);
+            for (int i = 0; i < userObj.getUserEvents().size() && !foundEvent; i++) {
+                // if the name and description of the event we want to remove
+                // matches the name and description of the event in the database
+                // then remove that event from the database
+                currEvent = userObj.getUserEvents().get(i);
+                if (event.getName().equals(currEvent.getName()) &&
+                        event.getDescription().equals(currEvent.getDescription())) {
+                    userObj.getUserEvents().remove(i);
+                    foundEvent = true;
                 }
             }
         }
