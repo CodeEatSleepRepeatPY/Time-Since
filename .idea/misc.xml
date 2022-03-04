@@ -3,17 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="app/src/main/res/drawable/green_with_black_border.xml" value="0.201" />
-        <entry key="app/src/main/res/drawable/ic_baseline_person_outline_24.xml" value="0.159" />
-        <entry key="app/src/main/res/drawable/light_green_black_border.xml" value="0.199" />
-        <entry key="app/src/main/res/drawable/medium_green_black_border.xml" value="0.199" />
-        <entry key="app/src/main/res/drawable/white_with_black_border.xml" value="0.1" />
-        <entry key="app/src/main/res/font/dancing_script_bold.xml" value="0.2677083333333333" />
-        <entry key="app/src/main/res/layout-v26/activity_home.xml" value="0.2375" />
-        <entry key="app/src/main/res/layout/activity_home.xml" value="0.165" />
-        <entry key="app/src/main/res/layout/activity_register_view.xml" value="0.21927083333333333" />
-        <entry key="app/src/main/res/layout/home_screen_view.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/user_registration_view.xml" value="0.25" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout-w1240dp/activity_user_login.xml" value="0.11211512717536815" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout-w936dp/activity_user_login.xml" value="0.130859375" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/activity_course_students.xml" value="0.1125" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/activity_home.xml" value="0.18020833333333333" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/activity_user_login.xml" value="0.17447916666666666" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/event_overview.xml" value="0.13333333333333333" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/menu_home.xml" value="0.18020833333333333" />
       </map>
     </option>
   </component>

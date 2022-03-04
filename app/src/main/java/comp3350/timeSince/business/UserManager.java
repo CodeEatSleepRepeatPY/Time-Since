@@ -11,8 +11,8 @@ public class UserManager {
     private I_Database databasePersistence;
 
     public UserManager(){
-        userList = null;    //an empty default user list
         databasePersistence = Services.getDatabase();
+        accessUsers();
     }
 
     private void accessUsers(){

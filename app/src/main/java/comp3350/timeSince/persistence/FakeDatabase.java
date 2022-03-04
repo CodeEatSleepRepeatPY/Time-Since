@@ -12,6 +12,7 @@ public class FakeDatabase implements I_Database{
     //----------------------------------------
 
     private ArrayList<UserDSO> usersDatabase;
+    UserDSO user1, user2, user3;
 
     //----------------------------------------
     // constructors
@@ -19,6 +20,14 @@ public class FakeDatabase implements I_Database{
 
     public FakeDatabase(){
         usersDatabase = new ArrayList<UserDSO>();
+
+        user1 = new UserDSO("uid1", UserDSO.MembershipType.free, "hash1");
+        user2 = new UserDSO("uid2", UserDSO.MembershipType.free, "hash2");
+        user3 = new UserDSO("uid3", UserDSO.MembershipType.free, "hash3");
+
+        addUser(user1);
+        addUser(user2);
+        addUser(user3);
     }
 
     //----------------------------------------
