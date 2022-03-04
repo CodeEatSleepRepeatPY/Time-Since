@@ -4,9 +4,11 @@ Directory of classes and their layer locations.
 
 ## Entire Project Architecture
 
-![architecture](Architecture_Iteration1.png)
+![architecture](Architecture.png)
 
 ## Iteration 1
+
+![architectureIteration1](Architecture_Iteration1.png)
 
 ### Presentation Layer
 
