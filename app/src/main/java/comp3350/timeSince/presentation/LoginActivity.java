@@ -58,8 +58,8 @@ public class LoginActivity extends AppCompatActivity {
                 nextIntent = new Intent(this, ViewEventActivity.class);
                 nextIntent.putExtra("email", email);
                 nextIntent.putExtra("password", password);
-                  ( (EditText)findViewById(R.id.username) ).setText("");
-                  ( (EditText)findViewById(R.id.password) ).setText("");
+                ( (EditText)findViewById(R.id.username) ).setText("");
+                ( (EditText)findViewById(R.id.password) ).setText("");
                 startActivity(nextIntent);
                 finish();
             }else{
