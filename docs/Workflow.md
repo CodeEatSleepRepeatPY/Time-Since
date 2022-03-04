@@ -2,10 +2,8 @@
 
 ## Branching Strategy 
 
-We will utilize a combination of Git Flow, and GitLab Flow. There will be two 
-main branches: the main branch, and the develop branch. All feature branches 
-will stem off of the develop branch. When we are ready to deploy (i.e. at the
-end of an iteration), we will merge the develop branch into the main branch. 
+We will utilize a combination of Git Flow, and GitLab Flow. There will be only
+one main branch (main). All feature branches will stem off of the main branch.
 
 Feature branches should have the following syntax: `task-name-or-description`.
 
