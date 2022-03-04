@@ -7,7 +7,7 @@ import comp3350.timeSince.tests.objects.EventDSOTest;
 import comp3350.timeSince.tests.objects.EventLabelDSOTest;
 import comp3350.timeSince.tests.objects.UserDSOTest;
 import comp3350.timeSince.tests.persistence.FakeDBUnitTests;
-import comp3550.timeSince.tests.business.UserManagerTests;
+import comp3350.timeSince.tests.business.UserManagerTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -15,7 +15,7 @@ import comp3550.timeSince.tests.business.UserManagerTests;
         EventDSOTest.class,
         EventLabelDSOTest.class,
         UserDSOTest.class,
-        UserManager.class
+        UserManagerTest.class
 })
 public class AllTests
 {
