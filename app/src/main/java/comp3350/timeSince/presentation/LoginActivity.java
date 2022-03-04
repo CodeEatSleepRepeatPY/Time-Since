@@ -51,8 +51,12 @@ public class LoginActivity extends AppCompatActivity {
         Intent nextIntent;
         try{
             //TODO: if the user account is in the database
-            //if(userManager.accountCheck( email.getText().toString(), password.getText().toString() )){
-              if(email.equals("admin") && password.equals("admin")){
+            //Some preset user list in the fake database:
+            //uid1 hash1
+            //uid2 hash2
+            //uid3 hash3
+            if(userManager.accountCheck( email, password )){
+              //if(email.equals("admin") && password.equals("admin")){
                 String message = "Welcome! "+email;
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                 nextIntent = new Intent(this, ViewEventActivity.class);

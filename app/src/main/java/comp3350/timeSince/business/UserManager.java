@@ -12,8 +12,9 @@ public class UserManager {
     private static I_Database databasePersistence = new FakeDatabase();
 
     public UserManager(){
-        userList = null;    //an empty default user list
+        //userList = null;    //an empty default user list
         databasePersistence = new FakeDatabase();
+        accessUsers();
     }
 
     private void accessUsers(){
