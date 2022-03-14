@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
             if(userManager.accountCheck( email, password )){
                 String message = "Welcome! "+email;
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                nextIntent = new Intent(this, ViewEventActivity.class);
+                nextIntent = new Intent(this, CreateOwnEventActivity.class);
                 nextIntent.putExtra("email", email);
                 nextIntent.putExtra("password", password);
                 ( (EditText)findViewById(R.id.username) ).setText("");
