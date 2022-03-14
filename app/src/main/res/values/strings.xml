@@ -14,4 +14,7 @@
     <string name="action_sign_in">Create Account</string>
     <string name="action_login">Login</string>
     <string name="login_short">Login</string>
+    <string name="event_name">Name</string>
+    <string name="due_datetime">Set the due datetime</string>
+
 </resources>

@@ -8,17 +8,19 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.actions"
+            android:resource="@xml/create_own_event" />
 
         <activity
             android:name=".presentation.HomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".presentation.RegisterActivity"
             android:label="@string/register"
@@ -27,7 +29,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="comp3350.timeSince.presentation.HomeActivity" />
         </activity>
-
         <activity
             android:name=".presentation.LoginActivity"
             android:label="@string/login_short"
@@ -36,7 +37,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="comp3350.timeSince.presentation.HomeActivity" />
         </activity>
-
         <activity
             android:name=".presentation.ViewEventActivity"
             android:parentActivityName=".presentation.RegisterActivity">
@@ -44,8 +44,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="comp3350.timeSince.presentation.RegisterActivity" />
         </activity>
-
-
     </application>
 
 </manifest>
