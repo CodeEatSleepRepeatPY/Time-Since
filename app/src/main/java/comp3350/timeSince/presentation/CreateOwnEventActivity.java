@@ -23,7 +23,6 @@ import comp3350.timeSince.business.UserManager;
 //import comp3350.timeSince.business.exceptions.UserLoginFailedException;
 
 public class CreateOwnEventActivity extends AppCompatActivity implements
-        View.OnClickListener,
         DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener
 
@@ -58,7 +57,12 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         selectTime = findViewById(R.id.select_datetime);
         selectEventTag = findViewById(R.id.select_event_tag);
 
-        favoriteBtn.setOnClickListener(this);
+        favoriteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateFavourite();
+            }
+        });
 
         selectDatetime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +84,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
                 pickEventLabelList();
             }
         });
+
 
         extras = getIntent().getExtras();
 
@@ -124,6 +129,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
     private void pickEventLabelList(){
 
+
     }
 
     public void buttonSetEventOnClick(View v){
@@ -134,11 +140,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         super.onDestroy();
     }
 
-    @Override
-    public void onClick(View view) {
-        updateFavourite();
-
-    }
 
     private void updateFavourite() {
         if(favoriteBtn != null) {

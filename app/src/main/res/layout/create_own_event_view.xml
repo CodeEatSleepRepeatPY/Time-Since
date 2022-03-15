@@ -2,23 +2,27 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout2"
+    android:id="@+id/create_own_event"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".presentation.CreateOwnEventActivity">
 
 
     <TextView
         android:id="@+id/add_event"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
         android:text="@string/add_your_event"
         android:textColor="@color/black"
-        android:textSize="@dimen/text_size_big"
+        android:textSize="30dp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/event_name"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,8 +33,6 @@
         android:id="@+id/event_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginBottom="8dp"
         android:drawablePadding="10dp"
         android:hint="@string/event_name"
         android:inputType="textNoSuggestions"
@@ -45,8 +47,6 @@
         android:id="@+id/event_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginBottom="10dp"
         android:drawablePadding="10dp"
         android:hint="event description"
         android:inputType="textNoSuggestions"
@@ -59,9 +59,8 @@
 
     <TextView
         android:id="@+id/due_date"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="11dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:drawablePadding="10dp"
         android:hint="@string/due_datetime"
         android:importantForAutofill="no"
@@ -76,9 +75,8 @@
 
     <TextView
         android:id="@+id/due_datetime"
-        android:layout_width="375dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:drawablePadding="10dp"
         android:hint="@string/due_datetime"
         android:importantForAutofill="no"
@@ -144,6 +142,19 @@
         app:layout_constraintStart_toEndOf="@id/select_datetime"
         app:layout_constraintTop_toBottomOf="@+id/due_datetime"  />
 
+    <Button
+        android:id="@+id/save_event"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="616dp"
+        android:background="@drawable/green_with_black_border"
+        android:baselineAligned="false"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_small"
+        android:textStyle="bold"
+        android:text="Save"
+        app:layout_constraintStart_toEndOf="@id/select_event_tag"
+        app:layout_constraintTop_toBottomOf="@+id/due_datetime"  />
 
 
 

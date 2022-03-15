@@ -16,7 +16,7 @@
     <string name="login_short">Login</string>
     <string name="event_name">Event Title</string>
     <string name="due_datetime">Set the due datetime</string>
-    <string name="add_your_event">Create your Event!</string>
+    <string name="add_your_event">Create your Event</string>
     <string name="prompt_select_event_tag">Select an Event Tag</string>
 
 
