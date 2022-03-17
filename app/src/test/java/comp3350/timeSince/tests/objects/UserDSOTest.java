@@ -10,24 +10,25 @@ import java.util.Date;
 public class UserDSOTest {
     private UserDSO userDSO;
     private UserDSO.MembershipType membershipType;
-    private String uuid;
+    private String id;
     private String passwordHash;
 
     @Before
     public void setUp() {
-        this.uuid = "bobby_g@gmail.com";
+        this.id = "bobby_g@gmail.com";
         this.membershipType = UserDSO.MembershipType.free;
         this.passwordHash = "p4ssw0rd";
 
-        this.userDSO = new UserDSO(uuid, membershipType, passwordHash);
+        this.userDSO = new UserDSO(id, passwordHash);
+        this.userDSO.setMembershipType(membershipType);
     }
 
     @Test
     public void testGetName() {
         String message = String.format("Initial name should be set to %s",
-                this.uuid);
+                this.id);
 
-        Assert.assertEquals(message, this.uuid, this.userDSO.getName());
+        Assert.assertEquals(message, this.id, this.userDSO.getName());
     }
 
     @Test
@@ -40,11 +41,11 @@ public class UserDSOTest {
     }
 
     @Test
-    public void testGetUuid() {
+    public void testGetID() {
         String message = String.format("Initial uuid should be set to %s",
-                this.uuid);
+                this.id);
 
-        Assert.assertEquals(message, this.uuid, this.userDSO.getUuid());
+        Assert.assertEquals(message, this.id, this.userDSO.getID());
     }
 
     @Test
@@ -123,9 +124,9 @@ public class UserDSOTest {
         String newUuid = "cheese@gmail.com";
         String message = String.format("The user's uuid should now be" +
                 "set to %s", newUuid);
-        this.userDSO.setUuid(newUuid);
+        this.userDSO.setID(newUuid);
 
-        Assert.assertEquals(message, newUuid, this.userDSO.getUuid());
+        Assert.assertEquals(message, newUuid, this.userDSO.getID());
     }
 
     @Test

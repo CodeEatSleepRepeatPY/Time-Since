@@ -4,19 +4,19 @@ import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.objects.UserDSO;
-import comp3350.timeSince.persistence.I_Database;
+import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserManager {
     private List<UserDSO> userList;
-    private I_Database databasePersistence;
+    private IUserPersistence databasePersistence;
 
     public UserManager(){
-        databasePersistence = Services.getDatabase();
+        databasePersistence = Services.getUserPersistence();
         accessUsers();
     }
 
     private void accessUsers(){
-        userList = databasePersistence.getUsers();
+        userList = databasePersistence.getUserList();
     }
 
     //-----------------------------------------
@@ -29,7 +29,7 @@ public class UserManager {
         accessUsers();
 
         for (int i = 0; i < userList.size() && unique; i++){
-            if (userName.equals(userList.get(i).getUuid())){
+            if (userName.equals(userList.get(i).getID())){
                 unique = false;
             }
         }
@@ -71,7 +71,7 @@ public class UserManager {
         accessUsers();
 
         for(int i=0;i < userList.size()&&!exist;i++){
-            if(typedUserName.equals(userList.get(i).getUuid())){
+            if(typedUserName.equals(userList.get(i).getID())){
                 exist = true;
                 accountIndex = i;
             }
