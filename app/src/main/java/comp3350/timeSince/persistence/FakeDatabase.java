@@ -1,6 +1,8 @@
 package comp3350.timeSince.persistence;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
@@ -12,7 +14,9 @@ public class FakeDatabase implements I_Database{
     //----------------------------------------
 
     private ArrayList<UserDSO> usersDatabase;
+    private ArrayList<EventLabelDSO> evenLabelDatabase;
     UserDSO user1, user2, user3;
+    EventLabelDSO label1, label2, label3;
 
     //----------------------------------------
     // constructors
@@ -20,6 +24,7 @@ public class FakeDatabase implements I_Database{
 
     public FakeDatabase(){
         usersDatabase = new ArrayList<UserDSO>();
+        evenLabelDatabase = new ArrayList<EventLabelDSO>();
 
         user1 = new UserDSO("uid1", UserDSO.MembershipType.free, "hash1");
         user2 = new UserDSO("uid2", UserDSO.MembershipType.free, "hash2");
@@ -28,11 +33,30 @@ public class FakeDatabase implements I_Database{
         addUser(user1);
         addUser(user2);
         addUser(user3);
+
+        label1 = new EventLabelDSO("label1");
+        label2 = new EventLabelDSO("label2");
+        label3 = new EventLabelDSO("label3");
+
+        addEventLabel(label1);
+        addEventLabel(label2);
+        addEventLabel(label3);
+
     }
 
     //----------------------------------------
     // typical methods for a database
     //----------------------------------------
+
+    public void addEventLabel(EventLabelDSO label){
+        if(label != null){
+            evenLabelDatabase.add(label);
+        }
+    }
+
+    public List<EventLabelDSO> getAllEventLabels(){
+        return evenLabelDatabase;
+    }
 
     public void addUser(UserDSO user){
         if(user != null) {
@@ -77,6 +101,7 @@ public class FakeDatabase implements I_Database{
             }
         }
     }
+
 
     //----------------------------------------
     // getters
