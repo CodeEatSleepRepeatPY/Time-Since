@@ -62,4 +62,16 @@ public class EventLabelDSO{
     public void setColor(Color newColor){
         this.color = newColor;
     }
+
+    //----------------------------------------
+    // general
+    //----------------------------------------
+
+    public String toString() {
+        return String.format("#%s", name);
+    }
+
+    public boolean equals(EventLabelDSO other) {
+        return this.name.equals(other.getName());
+    }
 }

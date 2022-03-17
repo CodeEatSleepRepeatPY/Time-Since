@@ -17,13 +17,13 @@ public class UserManagerTest {
     public void setUp(){
         userManger = new UserManager();
 
-        Services.getDatabase().addUser(new UserDSO("kevin@qq.com", UserDSO.MembershipType.paid,
+        Services.getUserPersistence().insertUser(new UserDSO("kevin@qq.com",
                 "Kevin12345"));
-        Services.getDatabase().addUser(new UserDSO("bob23@qq.com", UserDSO.MembershipType.free,
+        Services.getUserPersistence().insertUser(new UserDSO("bob23@qq.com",
                 "Bob1234"));
-        Services.getDatabase().addUser(new UserDSO("James98@qq.com", UserDSO.MembershipType.free,
+        Services.getUserPersistence().insertUser(new UserDSO("James98@qq.com",
                 "James1234"));
-        Services.getDatabase().addUser(new UserDSO("Jack233@qq.com", UserDSO.MembershipType.paid,
+        Services.getUserPersistence().insertUser(new UserDSO("Jack233@qq.com",
                 "JACK1234"));
     }
 

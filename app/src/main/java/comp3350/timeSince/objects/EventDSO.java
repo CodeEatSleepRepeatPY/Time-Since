@@ -1,25 +1,44 @@
 package comp3350.timeSince.objects;
-import java.util.*;
 
-public class EventDSO{
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-    private final String NAME;
+public class EventDSO {
+
+    private int id;
+    private String eventName;
     private final Date DATE_CREATED;
     private String description;
-    private List<EventLabelDSO> tags;
-    private String favorite;
+
     private Date targetFinishTime;
+    private boolean isFavorite;
+    private List<EventLabelDSO> tags;
+
+    //----------------------------------------
+    // constructor
+    //----------------------------------------
 
     public EventDSO(final String name) {
-        this.NAME = name;
-        this.DATE_CREATED = new Date(System.currentTimeMillis());
-        this.tags = new ArrayList<>();
+        id = -1;
+        eventName = name;
+        DATE_CREATED = new Date(System.currentTimeMillis());
         description = "";
         targetFinishTime = null;
+        isFavorite = false;
+        tags = new ArrayList<>();
+    }
+
+    //----------------------------------------
+    // getters
+    //----------------------------------------
+
+    public int getID() {
+        return this.id;
     }
 
     public String getName(){
-        return NAME;
+        return eventName;
     }
 
     public Date getDateCreated() {
@@ -30,24 +49,52 @@ public class EventDSO{
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public Date getTargetFinishTime() {
+        return targetFinishTime;
     }
 
-    public void appendDescription(String newDescription){
-        description += newDescription;
-    }
-
-    public String getFavorite(){
-        return favorite;
-    }
-
-    public void setFavorite(String favorite){
-        this.favorite = favorite;
+    public boolean isFavorite() {
+        return isFavorite;
     }
 
     public List<EventLabelDSO> getEventTags(){
         return tags;
+    }
+
+    //----------------------------------------
+    // setters
+    //----------------------------------------
+
+    public void setID(int id) {
+        this.id = id;
+    }
+
+    public void setName(String newName) {
+        this.eventName = newName;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setTargetFinishTime(Date target) {
+        targetFinishTime = target;
+    }
+
+    public void setFavorite() {
+        isFavorite = true;
+    }
+
+    public void unsetFavorite() {
+        isFavorite = false;
+    }
+
+    //----------------------------------------
+    // general
+    //----------------------------------------
+
+    public void appendDescription(String newDescription) {
+        description += newDescription;
     }
 
     public boolean addTag(EventLabelDSO eventLabelDSO){
@@ -66,6 +113,14 @@ public class EventDSO{
             result = true;
         }
         return result;
+    }
+
+    public String toString() {
+        return String.format("EventID: %d, Name: %s", id, eventName);
+    }
+
+    public boolean equals(EventDSO other) {
+        return this.id == other.getID() && this.eventName.equals(other.getName());
     }
 
 }
