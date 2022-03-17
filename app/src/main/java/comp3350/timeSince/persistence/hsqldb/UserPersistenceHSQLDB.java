@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserPersistenceHSQLDB implements IUserPersistence {
 
@@ -28,53 +29,47 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         final String uID = rs.getString("userID");
         final UserDSO.MembershipType membershipType = UserDSO.MembershipType.valueOf(rs.getString("membership"));
         final String hash = rs.getString("password");
-        return new UserDSO(uID, membershipType, hash);
+        return new UserDSO(uID, hash);
     }
 
     @Override
     public List<UserDSO> getUserList() {
-
+        return null;
     }
 
     @Override
     public UserDSO getUserByID(String uID) {
-
+        return null;
     }
 
     @Override
     public UserDSO insertUser(UserDSO newUser) {
         try (final Connection c = connection()) {
             final PreparedStatement st = c.prepareStatement("INSERT INTO users VALUES(?, ?)");
-            st.setString(1, newUser.getUuid());
-            st.setString(2, newUser.getCourseName());
+            st.setString(1, newUser.getID());
 
             st.executeUpdate();
 
             return newUser;
         } catch (final SQLException e) {
-            throw new PersistenceException(e);
+            System.out.println("hello");
+            return null;
         }
-
     }
 
     @Override
     public UserDSO updateUser(UserDSO user) {
-
+        return null;
     }
 
     @Override
     public UserDSO deleteUser(UserDSO user) {
-
+        return null;
     }
 
     @Override
     public int numUsers() {
-
+        return -1;
     }
 
-
-
-
 }
-
-
