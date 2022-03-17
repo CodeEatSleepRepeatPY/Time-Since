@@ -26,9 +26,9 @@ public class FakeDatabase implements I_Database{
         usersDatabase = new ArrayList<UserDSO>();
         evenLabelDatabase = new ArrayList<EventLabelDSO>();
 
-        user1 = new UserDSO("uid1", UserDSO.MembershipType.free, "hash1");
-        user2 = new UserDSO("uid2", UserDSO.MembershipType.free, "hash2");
-        user3 = new UserDSO("uid3", UserDSO.MembershipType.free, "hash3");
+        user1 = new UserDSO("uid1",  "hash1");
+        user2 = new UserDSO("uid2",  "hash2");
+        user3 = new UserDSO("uid3",  "hash3");
 
         addUser(user1);
         addUser(user2);
@@ -116,7 +116,7 @@ public class FakeDatabase implements I_Database{
         boolean foundUser = false;
 
         for(int i = 0; i < usersDatabase.size() && !foundUser; i++){
-            if(usersDatabase.get(i).getUuid().equals(uuid)){
+            if(usersDatabase.get(i).getID().equals(uuid)){
                 user = usersDatabase.get(i);
                 foundUser = true;
             }
@@ -131,7 +131,7 @@ public class FakeDatabase implements I_Database{
 
         if(user != null) {
             for (int i = 0; i < usersDatabase.size() && !foundUser; i++) {
-                if (user.getUuid().equals(usersDatabase.get(i).getUuid())) {
+                if (user.getID().equals(usersDatabase.get(i).getID())) {
                     index = i;
                     foundUser = true;
                 }

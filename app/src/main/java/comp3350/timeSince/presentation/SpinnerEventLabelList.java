@@ -7,20 +7,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-
 import comp3350.timeSince.objects.EventLabelDSO;
 
 public class SpinnerEventLabelList extends ArrayAdapter<EventLabelDSO> {
     private Context mContext;
     private ArrayList<EventLabelDSO> eventTags;
+    private final static int TEXT_SIZE = 16;
+    private final static int TEXT_HEIGHT = 50;
 
-    public SpinnerEventLabelList(Context context,
-                                 int textViewResourceId,
-                                 ArrayList<EventLabelDSO> objects){
+    public SpinnerEventLabelList(Context context, int textViewResourceId, ArrayList<EventLabelDSO> objects){
         super(context, textViewResourceId, objects);
         this.mContext = context;
         this.eventTags = objects;
@@ -44,29 +40,21 @@ public class SpinnerEventLabelList extends ArrayAdapter<EventLabelDSO> {
     @Override
     public View getView(int position, View newView, ViewGroup parent){
         //default state
-        TextView label = new TextView(mContext);
-        label.setTextColor(Color.BLACK);
-        label.setTextSize(16);
-        label.setText(" "); //+eventTags.get(position).getName());
-        label.setHeight(50);
-        label.setGravity(Gravity.LEFT | Gravity.CENTER);
-
-        return label;
+        return new TextView(mContext);
     }
 
     @Override
     public View getDropDownView(int position, View newView, ViewGroup parent){
-        //get the list
+        //get the list, setting of the labels
         TextView label = new TextView(mContext);
         label.setTextColor(Color.BLACK);
-        label.setTextSize(16);
-        label.setText(" "+eventTags.get(position).getName());
-        label.setHeight(50);
+        label.setTextSize(TEXT_SIZE);
+        label.setText(""+eventTags.get(position).getName());
+        label.setHeight(TEXT_HEIGHT);
         label.setGravity(Gravity.LEFT | Gravity.CENTER);
 
         return label;
-
     }
 
-
 }
+

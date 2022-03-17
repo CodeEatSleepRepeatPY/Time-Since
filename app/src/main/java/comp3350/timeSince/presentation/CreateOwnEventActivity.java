@@ -11,13 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,9 +28,8 @@ import java.util.List;
 import comp3350.timeSince.application.Services;
 
 import comp3350.timeSince.R;
-import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.persistence.I_Database;
+import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
 
 public class CreateOwnEventActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener,
@@ -42,20 +39,17 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 {
     private boolean favourite = false;
     private boolean update = false;
+    private EventLabelDSO  eventLabel;
     private Bundle extras;
-    String eventLabelName;
-
     private TextView eventName;
     private TextView dueDate;
     private TextView dueTime;
-
+    private TextView isFavorite;
+    private TextView eventLabelName;
     private Button favoriteBtn;
-    //private Button selectDate;
-    //private Button selectTime;
     private Spinner selectEventLabel;
+    private EventLabelPersistence evenLabelPersistence;
 
-
-    private I_Database dbPersistence;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +61,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         dueTime = findViewById(R.id.due_datetime);
         favoriteBtn = findViewById(R.id.favorite_btn);
         selectEventLabel = findViewById(R.id.select_event_tag);
+        isFavorite = findViewById(R.id.favorite);
+        eventLabelName = findViewById(R.id.event_label);
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,11 +86,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         });
 
         selectEventLabel.setOnItemSelectedListener(this);
-        //selectEventLabel.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View view) {
-        //    }
-        //});
 
         findViewById(R.id.save_event).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,14 +101,14 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         if(adapterView == findViewById(R.id.select_event_tag)){
-            EventLabelDSO eventLabel = (EventLabelDSO) adapterView.getItemAtPosition(position);
-            eventLabelName = eventLabel.getName();
+            eventLabel = (EventLabelDSO) adapterView.getItemAtPosition(position);
+            eventLabelName.setText( eventLabel.getName() );
         }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-        eventLabelName = "";
+        eventLabelName.setText("");
     }
 
 
@@ -127,21 +118,16 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         return true;
     }
 
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        int id = item.getItemId();
-
-        //if(id == R.id.action_settings)
-            //return true;
-        return super.onOptionsItemSelected(item);
-    }
-
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
-        //ArrayAdapter<String> spinnerAdapter;
-        dbPersistence = Services.getDatabase();
-        List<EventLabelDSO> eventLabels = dbPersistence.getAllEventLabels();
+        evenLabelPersistence = (EventLabelPersistence) Services.getEventLabelPersistence();
+
+        //dummy data for test
+        evenLabelPersistence.insertEventLabel(new EventLabelDSO("label1"));
+        evenLabelPersistence.insertEventLabel(new EventLabelDSO("label2"));
+        evenLabelPersistence.insertEventLabel(new EventLabelDSO("label3"));
+
+        List<EventLabelDSO> eventLabels = evenLabelPersistence.getEventLabelList();
         eventLabelsAdapter = new SpinnerEventLabelList(this,
                 R.layout.simple_spinner_dropdown_items, (ArrayList<EventLabelDSO>) eventLabels);
 
@@ -174,7 +160,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         timePickerDialog.show();
     }
 
-
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
         dueDate.setText(String.format("%d/%d/%d",day, month, year));
@@ -191,36 +176,27 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         datePickerDialog.show();
     }
 
-    private void pickEventLabelList(){
-        //TODO implement spinner of event list dropdown menu
-
-    }
-
     public void buttonSetEventOnClick(View v){
         updateFavorite();
     }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
 
     private void updateFavorite() {
         if(favoriteBtn != null) {
             favourite = !favourite;
             update = true;
-            setFavoriteImage();
+            if (favourite) {
+                favoriteBtn.setBackgroundResource(R.drawable.heart_filled);
+                isFavorite.setText("favorite: yes");
+            } else {
+                favoriteBtn.setBackgroundResource(R.drawable.heart_empty);
+                isFavorite.setText("favorite: no");
+            }
         }
     }
 
-    private void setFavoriteImage() {
-        if(favoriteBtn != null) {
-            if (favourite) {
-                favoriteBtn.setBackgroundResource(R.drawable.heart_filled);
-            } else {
-                favoriteBtn.setBackgroundResource(R.drawable.heart_empty);
-            }
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
 }
