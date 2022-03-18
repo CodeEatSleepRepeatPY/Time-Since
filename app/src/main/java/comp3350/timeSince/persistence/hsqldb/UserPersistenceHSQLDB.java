@@ -34,42 +34,74 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public List<UserDSO> getUserList() {
-        return null;
+        final List<UserDSO> users = new ArrayList<>();
+        try (final Connection c = connection()) {
+            final Statement statement = c.createStatement();
+            final ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
+            while (resultSet.next()) {
+                final UserDSO user = fromResultSet(resultSet);
+                users.add(user);
+            }
+            resultSet.close();
+            statement.close();
+            return users;
+        } catch (final SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     public UserDSO getUserByID(String uID) {
-        return null;
+        try (final Connection c = connection()) {
+            return null;
+        } catch (final SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     public UserDSO insertUser(UserDSO newUser) {
         try (final Connection c = connection()) {
-            final PreparedStatement st = c.prepareStatement("INSERT INTO users VALUES(?, ?)");
-            st.setString(1, newUser.getID());
-
-            st.executeUpdate();
-
-            return newUser;
-        } catch (final SQLException e) {
-            System.out.println("hello");
             return null;
+        } catch (final SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
     public UserDSO updateUser(UserDSO user) {
-        return null;
+        try (final Connection c = connection()) {
+            return user;
+        } catch (final SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     public UserDSO deleteUser(UserDSO user) {
-        return null;
+        try (final Connection c = connection()) {
+            return user;
+        } catch (final SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     public int numUsers() {
-        return -1;
+        int users = 0;
+        try (final Connection c = connection()) {
+            final Statement statement = c.createStatement();
+            final ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM users");
+            if (resultSet.next()) {
+                resultSet.last();
+                users = resultSet.getRow();
+            }
+            resultSet.close();
+            statement.close();
+            return users;
+        } catch (final SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
 }
