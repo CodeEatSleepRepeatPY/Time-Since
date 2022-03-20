@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 import comp3350.timeSince.application.Services;
 
@@ -35,7 +36,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener,
         AdapterView.OnItemSelectedListener
-
 {
     private boolean favourite = false;
     private boolean update = false;
@@ -50,17 +50,17 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private Spinner selectEventLabel;
     private EventLabelPersistence evenLabelPersistence;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_own_event_view);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         eventName = findViewById(R.id.event_name);
         dueDate = findViewById(R.id.due_date);
         dueTime = findViewById(R.id.due_datetime);
         favoriteBtn = findViewById(R.id.favorite_btn);
-        selectEventLabel = findViewById(R.id.select_event_tag);
+        selectEventLabel = findViewById(R.id.select_event_label);
         isFavorite = findViewById(R.id.favorite);
         eventLabelName = findViewById(R.id.event_label);
 
@@ -99,8 +99,14 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     }
 
     @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
+
+    @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-        if(adapterView == findViewById(R.id.select_event_tag)){
+        if(adapterView == findViewById(R.id.select_event_label)){
             eventLabel = (EventLabelDSO) adapterView.getItemAtPosition(position);
             eventLabelName.setText( eventLabel.getName() );
         }
@@ -111,17 +117,19 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelName.setText("");
     }
 
-
+    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.memu_event_labels, menu);
+        getMenuInflater().inflate(R.menu.menu_event_labels, menu);
         return true;
     }
+    */
 
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
-        evenLabelPersistence = (EventLabelPersistence) Services.getEventLabelPersistence();
 
+        //TODO this will be replaced by Logic layer function; now it is only for test
+        evenLabelPersistence = (EventLabelPersistence) Services.getEventLabelPersistence();
         //dummy data for test
         evenLabelPersistence.insertEventLabel(new EventLabelDSO("label1"));
         evenLabelPersistence.insertEventLabel(new EventLabelDSO("label2"));

@@ -31,7 +31,7 @@
         </activity>
         <activity
             android:name=".presentation.LoginActivity"
-            android:label="@string/login_short"
+            android:label="@string/action_login"
             android:parentActivityName=".presentation.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

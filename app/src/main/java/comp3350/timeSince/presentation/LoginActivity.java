@@ -25,6 +25,19 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_login_view);
+        login = (Button)findViewById(R.id.login);
+
+        //TODO: the codes is for testing the login button, this will be replaced by User Manager
+        userPersistence = (UserPersistence) Services.getUserPersistence();
+        userPersistence.insertUser(new UserDSO("uid1", "hash1"));
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                email = ( (EditText)findViewById(R.id.username) ).getText().toString();
+                password = ( (EditText)findViewById(R.id.password) ).getText().toString();
+                userLogin();
+            }
+        });
     }
 
     @Override
@@ -32,33 +45,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    public void buttonLoginOnClick(View v) {
-        try{
-            login = (Button)findViewById(R.id.login);
-            email = ( (EditText)findViewById(R.id.username) ).getText().toString();
-            password = ( (EditText)findViewById(R.id.password) ).getText().toString();
-
-            login.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if( email != null && password != null  ){
-                        userLogin();
-                    }
-                }
-            });
-        }catch(Exception exception){
-            exception.printStackTrace();
-        }
-    }
-
     private void userLogin() {
         Intent nextIntent;
         try{
             //Some pre-set user list in the fake database for reference:
             //uid1 hash1
-            userPersistence = (UserPersistence) Services.getUserPersistence();
-            userPersistence.insertUser(new UserDSO("uid1", "hash1"));
-
             if(userManager.accountCheck( email, password )){
                 String message = "Welcome! "+email;
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -67,12 +58,10 @@ public class LoginActivity extends AppCompatActivity {
                 nextIntent.putExtra("password", password);
                 ( (EditText)findViewById(R.id.username) ).setText("");
                 ( (EditText)findViewById(R.id.password) ).setText("");
-                startActivity(nextIntent);
-                finish();
+                LoginActivity.this.startActivity(nextIntent);
             }else{
                 nextIntent = new Intent(this, LoginActivity.class);
-                startActivity(nextIntent);
-                finish();
+                LoginActivity.this.startActivity(nextIntent);
                 throw new UserLoginFailedException("");
             }
         }catch (UserLoginFailedException error){
