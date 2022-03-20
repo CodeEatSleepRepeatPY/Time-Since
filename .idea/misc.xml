@@ -3,14 +3,26 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/drawable-anydpi/ic_action_name.xml" value="0.1" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/drawable/clock.xml" value="0.1" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/drawable/ic_choose_date.xml" value="0.1" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/drawable/white_with_black_border.xml" value="0.1" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout-w1240dp/activity_user_login.xml" value="0.11211512717536815" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout-w936dp/activity_user_login.xml" value="0.130859375" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/activity_course_students.xml" value="0.1125" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/activity_create_event.xml" value="0.11875" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/activity_home.xml" value="0.18020833333333333" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/activity_user_login.xml" value="0.17447916666666666" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/create_own_event.xml" value="0.14175724637681159" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/create_own_event_view.xml" value="0.2" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/event_overview.xml" value="0.13333333333333333" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/simple_spinner_dropdown_items.xml" value="0.15989583333333332" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/user_login_view.xml" value="0.1" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/user_registration_view.xml" value="0.11231884057971014" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/memu_eventLabels.xml" value="0.1546875" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/memu_event_labels.xml" value="0.175" />
+        <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/menu_event_labels.xml" value="0.175" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/menu_home.xml" value="0.18020833333333333" />
-        <entry key="app/src/main/res/layout/activity_home.xml" value="0.11197916666666667" />
       </map>
     </option>
   </component>

@@ -13,5 +13,14 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="action_sign_in">Create Account</string>
     <string name="action_login">Login</string>
-    <string name="login_short">Login</string>
+    <string name="event_name">Event Title</string>
+    <string name="due_date">Set the due date</string>
+    <string name="due_datetime">Set the due time</string>
+    <string name="add_your_event">Create your Event</string>
+    <string name="prompt_select_event_label">Select an Event Tag</string>
+    <string name="event_label_name">Event Label:</string>
+
+
+
+
 </resources>
