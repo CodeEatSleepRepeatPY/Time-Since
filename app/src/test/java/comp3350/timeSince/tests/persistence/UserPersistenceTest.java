@@ -41,7 +41,7 @@ public class UserPersistenceTest {
 
     @Test
     public void testTest() {
-        System.out.println(((UserPersistenceHSQLDB)userDatabase).getUsers());
+
     }
 
     @Test

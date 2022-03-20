@@ -66,8 +66,8 @@ public class UserDSO {
         return DATE_REGISTERED;
     }
 
-    public MembershipType getMembershipType() {
-        return membershipType;
+    public String getMembershipType() {
+        return membershipType.name();
     }
 
     public String getPasswordHash() {
@@ -90,6 +90,13 @@ public class UserDSO {
     // setters
     //----------------------------------------
 
+    /**
+     * @param id
+     * @deprecated We can have this functionality, but then we have to change
+     *     // how the database is stored.
+     *
+     * TODO: Remove this method?
+     */
     public void setID(String id) {
         this.id = id;
     }

@@ -22,6 +22,7 @@ public class EventLabelDSO{
     // instance variables
     //----------------------------------------
 
+    private int id;
     private String name;    // name of the Event Label
     private Color color;  // color of the Event Label
 
@@ -43,6 +44,10 @@ public class EventLabelDSO{
     // getters
     //----------------------------------------
 
+    public int getID() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -54,6 +59,10 @@ public class EventLabelDSO{
     //----------------------------------------
     // setters
     //----------------------------------------
+
+    protected void setID(int id) {
+        this.id = id;
+    }
 
     public void setName(String newName){
         this.name = newName;

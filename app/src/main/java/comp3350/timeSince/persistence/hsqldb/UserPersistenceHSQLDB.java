@@ -1,35 +1,30 @@
 package comp3350.timeSince.persistence.hsqldb;
 
-
-import android.util.Log;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
-import comp3350.timeSince.persistence.utils.DBHelper;
+import comp3350.timeSince.persistence.utils.DateUtils;
 
 public class UserPersistenceHSQLDB implements IUserPersistence {
 
     private final String dbPath;
-    private List<UserDSO> users;
 
     public UserPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
-        loadUsers();
-        System.out.println(users);
     }
 
     private Connection connection() throws SQLException {
-        System.out.println("Start of connection");
         return DriverManager.getConnection("jdbc:hsqldb:file:" + dbPath + ";shutdown=true", "SA", "");
     }
 
@@ -41,54 +36,23 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         UserDSO result = new UserDSO(uID, passwordHash);
         result.setName(userName);
         result.setMembershipType(UserDSO.MembershipType.valueOf(membershipType));
-        System.out.println("RESULT: " + result.toString());
         return result;
-    }
-
-    private void loadUsers() {
-        try (Connection connection = connection()) {
-            final Statement statement = connection.createStatement();
-            final ResultSet resultSet = statement.executeQuery("SELECT * FROM USERS");
-
-            while (resultSet.next()) {
-                final UserDSO user = fromResultSet(resultSet);
-                this.users.add(user);
-            }
-        } catch (final SQLException e) {
-            System.out.println("Connect SQL: " + e.getMessage() + e.getSQLState());
-            e.printStackTrace();
-        }
-
-    }
-
-    public List<UserDSO> getUsers() {
-        loadUsers();
-        return users;
     }
 
     @Override
     public List<UserDSO> getUserList() {
+        final List<UserDSO> users = new ArrayList<>();
         try (Connection c = connection()) {
-            System.out.println("Testing1");
-            Statement statement = c.createStatement();
-            System.out.println("Testing2");
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM USERS");
-            System.out.println("Testing3");
+            final Statement statement = c.createStatement();
+            final ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
             while (resultSet.next()) {
-                System.out.println("Testing4");
                 UserDSO user = fromResultSet(resultSet);
-                System.out.println("Testing5");
                 users.add(user);
-                System.out.println("Testing6");
             }
-            System.out.println("Testing7");
             resultSet.close();
-            System.out.println("Testing8");
             statement.close();
-            System.out.println("Testing9");
             return users;
         } catch (final SQLException e) {
-            System.out.println("Testing10");
             throw new PersistenceException(e);
         }
     }
@@ -96,7 +60,13 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     @Override
     public UserDSO getUserByID(String uID) {
         try (final Connection c = connection()) {
-            return null;
+            final PreparedStatement statement = c.prepareStatement("SELECT * FROM users WHERE uid = ?");
+            statement.setString(1, uID);
+            ResultSet resultSet = statement.executeQuery();
+            UserDSO user = fromResultSet(resultSet);
+            resultSet.close();
+            statement.close();
+            return user;
         } catch (final SQLException e) {
             throw new PersistenceException(e);
         }
@@ -105,7 +75,16 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     @Override
     public UserDSO insertUser(UserDSO newUser) {
         try (final Connection c = connection()) {
-            return null;
+            final PreparedStatement statement = c.prepareStatement("INSERT INTO users VALUES(?, ?, ?, ?, ?)");
+            statement.setString(1, newUser.getID());
+            statement.setString(2, newUser.getName());
+            statement.setTimestamp(3, DateUtils.dateToTimestamp(newUser.getDateRegistered()));
+            statement.setString(4, newUser.getMembershipType());
+            statement.setString(5, newUser.getPasswordHash());
+            statement.executeUpdate();
+            statement.close();
+            c.close();
+            return newUser;
         } catch (final SQLException e) {
             throw new PersistenceException(e);
         }
@@ -114,39 +93,75 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     @Override
     public UserDSO updateUser(UserDSO user) {
         try (final Connection c = connection()) {
+            final PreparedStatement statement = c.prepareStatement("UPDATE users SET user_name = ?, membership_type = ?, password_hash = ? WHERE uid = ?");
+            statement.setString(1, user.getName());
+            statement.setString(2, user.getMembershipType());
+            statement.setString(3, user.getPasswordHash());
+            statement.executeUpdate();
+            statement.close();
+            addLabelConnections(c, user.getUserLabels(), user.getID());
+            addEventConnections(c, user.getUserEvents(), user.getFavoritesList(), user.getID());
+            c.close();
             return user;
         } catch (final SQLException e) {
             throw new PersistenceException(e);
+        }
+    }
+
+    private void addLabelConnections(Connection c, List<EventLabelDSO> labels, String uid) throws SQLException {
+        Iterator<EventLabelDSO> iter = labels.iterator();
+        while (iter.hasNext()) {
+            EventLabelDSO label = iter.next();
+            final PreparedStatement statement = c.prepareStatement("INSERT INTO userslabels VALUES(?, ?)");
+            statement.setString(1, uid);
+            statement.setInt(2, label.getID());
+            statement.executeUpdate();
+            statement.close();
+        }
+    }
+
+    private void addEventConnections(Connection c, List<EventDSO> events, List<EventDSO> favs, String uid) throws SQLException {
+        Iterator<EventDSO> iter = events.iterator();
+        while (iter.hasNext()) {
+            EventDSO event = iter.next();
+            final PreparedStatement statement = c.prepareStatement("INSERT INTO usersevents VALUES(?, ?, ?)");
+            statement.setString(1, uid);
+            statement.setInt(2, event.getID());
+            statement.setBoolean(3, favs.contains(event));
+            statement.executeUpdate();
+            statement.close();
         }
     }
 
     @Override
     public UserDSO deleteUser(UserDSO user) {
         try (final Connection c = connection()) {
+            removeLabelConnections(c, user.getID());
+            removeEventConnections(c, user.getID());
+            final PreparedStatement userDB = c.prepareStatement("DELETE FROM users WHERE uid = ?");
+            userDB.setString(1, user.getID());
+            userDB.executeUpdate();
             return user;
         } catch (final SQLException e) {
             throw new PersistenceException(e);
         }
     }
 
+    private void removeLabelConnections(Connection c, String uid) throws SQLException {
+        final PreparedStatement userLabels = c.prepareStatement("DELETE FROM userslabels WHERE uid = ?");
+        userLabels.setString(1, uid);
+        userLabels.executeUpdate();
+    }
+
+    private void removeEventConnections(Connection c, String uid) throws SQLException {
+        final PreparedStatement userEvents = c.prepareStatement("DELETE FROM usersevents WHERE uid = ?");
+        userEvents.setString(1, uid);
+        userEvents.executeUpdate();
+    }
+
     @Override
     public int numUsers() {
         return getUserList().size();
-
-//        int users = 0;
-//        try (final Connection c = connection()) {
-//            final Statement statement = c.createStatement();
-//            final ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM users");
-//            if (resultSet.next()) {
-//               resultSet.last();
-//               users = resultSet.getRow();
-//            }
-//            resultSet.close();
-//            statement.close();
-//            return users;
-//        } catch (final SQLException e) {
-//            throw new PersistenceException(e);
-//        }
     }
 
 }
