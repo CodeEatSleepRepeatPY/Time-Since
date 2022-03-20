@@ -31,8 +31,8 @@
         android:onClick="buttonEventDoneOnClick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/event_due_date"
-        android:layout_marginBottom="25dp"
+        android:layout_alignBottom="@id/event_tags_button"
+        android:layout_alignParentEnd="true"
         />
 
     <Button
@@ -41,7 +41,8 @@
         android:onClick="buttonEventTagsOnClick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/event_done_button"
+        android:layout_below="@id/event_due_date"
+        android:layout_marginBottom="25dp"
         android:layout_centerHorizontal="true"
         />
 
@@ -51,8 +52,7 @@
         android:onClick="buttonEventFavoriteOnClick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/event_done_button"
-        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@id/event_tags_button"
         />
     
     <EditText
