@@ -10,7 +10,11 @@
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/activity_user_login.xml" value="0.17447916666666666" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/layout/event_overview.xml" value="0.13333333333333333" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/menu_home.xml" value="0.18020833333333333" />
-        <entry key="app/src/main/res/layout/activity_home.xml" value="0.11197916666666667" />
+        <entry key="app/src/main/res/layout/activity_home.xml" value="0.1375" />
+        <entry key="app/src/main/res/layout/event_overview.xml" value="0.24427083333333333" />
+        <entry key="app/src/main/res/layout/single_event_buttons.xml" value="0.271286231884058" />
+        <entry key="app/src/main/res/layout/user_registration_view.xml" value="0.24427083333333333" />
+        <entry key="app/src/main/res/layout/view_single_event.xml" value="0.1" />
       </map>
     </option>
   </component>
