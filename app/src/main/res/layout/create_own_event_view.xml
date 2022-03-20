@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawablePadding="10dp"
-        android:hint="event description"
+        android:hint="Event description"
         android:inputType="textNoSuggestions"
         android:padding="15dp"
         android:selectAllOnFocus="true"
@@ -54,24 +54,55 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/event_name" />
 
+
+    <Button
+        android:id="@+id/favorite_btn"
+        android:layout_width="@dimen/icon_size_small"
+        android:layout_height="@dimen/icon_size_small"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
+        android:background="@drawable/heart_empty"
+        android:baselineAligned="false"
+        android:onClick="buttonSetEventOnClick"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_small"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/event_description" />
+
     <TextView
         android:id="@+id/favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawablePadding="10dp"
-        android:hint="favorite:"
+        android:hint="Favorite:"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
         android:importantForAutofill="no"
         android:padding="15dp"
         android:selectAllOnFocus="true"
         android:textSize="@dimen/text_size_small"
-        app:layout_constraintBottom_toTopOf="@+id/due_date"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/favorite_btn"
         app:layout_constraintTop_toBottomOf="@+id/event_description" />
+
+
+    <Button
+        android:id="@+id/select_date"
+        android:layout_width="@dimen/icon_size_small"
+        android:layout_height="@dimen/icon_size_small"
+        android:background="@drawable/ic_choose_date"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
+        android:baselineAligned="false"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_small"
+        android:textStyle="bold"
+        android:paddingBottom="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/favorite_btn" />
 
     <TextView
         android:id="@+id/due_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
         android:drawablePadding="10dp"
         android:hint="@string/due_date"
         android:importantForAutofill="no"
@@ -81,13 +112,28 @@
         android:textSize="@dimen/text_size_small"
         app:layout_constraintBottom_toTopOf="@+id/due_datetime"
         app:layout_constraintEnd_toEndOf="@+id/due_datetime"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/select_date"
         app:layout_constraintTop_toBottomOf="@+id/favorite" />
+
+    <Button
+        android:id="@+id/select_datetime"
+        android:layout_width="@dimen/icon_size_small"
+        android:layout_height="@dimen/icon_size_small"
+        android:background="@drawable/ic_choose_time"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
+        android:baselineAligned="false"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_small"
+        android:textStyle="bold"
+        android:paddingBottom="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/select_date" />
 
     <TextView
         android:id="@+id/due_datetime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
         android:drawablePadding="10dp"
         android:hint="@string/due_datetime"
         android:importantForAutofill="no"
@@ -95,13 +141,30 @@
         android:padding="15dp"
         android:selectAllOnFocus="true"
         android:textSize="@dimen/text_size_small"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/select_date"
         app:layout_constraintTop_toBottomOf="@+id/due_date" />
+
+
+    <Spinner
+        android:id="@+id/select_event_label"
+        style="?android:attr/spinnerItemStyle"
+        android:layout_width="@dimen/icon_size_small"
+        android:layout_height="@dimen/icon_size_small"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
+        android:baselineAligned="false"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_small"
+        android:background="@drawable/ic_event_tag"
+        android:textStyle="bold"
+        android:paddingBottom="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/due_datetime" />
 
     <TextView
         android:id="@+id/event_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
         android:drawablePadding="10dp"
         android:hint="@string/event_label_name"
         android:importantForAutofill="no"
@@ -109,77 +172,21 @@
         android:padding="15dp"
         android:selectAllOnFocus="true"
         android:textSize="@dimen/text_size_small"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/select_event_label"
         app:layout_constraintTop_toBottomOf="@+id/due_datetime" />
-
-
-    <Button
-        android:id="@+id/favorite_btn"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/heart_empty"
-        android:baselineAligned="false"
-        android:onClick="buttonSetEventOnClick"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_small"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/event_label" />
-
-    <Button
-        android:id="@+id/select_date"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="100dp"
-        android:background="@drawable/ic_choose_date"
-        android:baselineAligned="false"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_small"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@id/favorite_btn"
-        app:layout_constraintTop_toBottomOf="@+id/event_label" />
-
-    <Button
-        android:id="@+id/select_datetime"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="100dp"
-        android:background="@drawable/ic_choose_time"
-        android:baselineAligned="false"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_small"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@id/select_date"
-        app:layout_constraintTop_toBottomOf="@+id/event_label" />
-
-    <Spinner
-        android:id="@+id/select_event_label"
-        style="?android:attr/spinnerItemStyle"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="100dp"
-        android:baselineAligned="false"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_small"
-        android:background="@drawable/ic_event_tag"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@id/select_datetime"
-        app:layout_constraintTop_toBottomOf="@+id/event_label" />
 
     <Button
         android:id="@+id/save_event"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="100dp"
+        android:layout_width="@dimen/icon_size_small"
+        android:layout_height="@dimen/icon_size_small"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
         android:background="@drawable/green_with_black_border"
         android:baselineAligned="false"
         android:text="Save"
         android:textColor="@color/black"
         android:textSize="@dimen/text_size_small"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@id/select_event_label"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/event_label" />
 
 

@@ -49,7 +49,7 @@ public class SpinnerEventLabelList extends ArrayAdapter<EventLabelDSO> {
         TextView label = new TextView(mContext);
         label.setTextColor(Color.BLACK);
         label.setTextSize(TEXT_SIZE);
-        label.setText(""+eventTags.get(position).getName());
+        label.setText(eventTags.get(position).getName());
         label.setHeight(TEXT_HEIGHT);
         label.setGravity(Gravity.LEFT | Gravity.CENTER);
 

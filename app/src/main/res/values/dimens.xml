@@ -10,4 +10,8 @@
     <dimen name="text_size_small">20sp</dimen>
     <dimen name="text_size_big">50sp</dimen>
 
+    <dimen name="icon_bottom_margin">20sp</dimen>
+    <dimen name="icon_size_small">57dp</dimen>
+
+
 </resources>

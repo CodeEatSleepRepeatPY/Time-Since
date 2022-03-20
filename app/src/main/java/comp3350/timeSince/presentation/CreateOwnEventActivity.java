@@ -37,9 +37,9 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         TimePickerDialog.OnTimeSetListener,
         AdapterView.OnItemSelectedListener
 {
-    private boolean favourite = false;
+    private boolean favorite = false;
     private boolean update = false;
-    private EventLabelDSO  eventLabel;
+    private ArrayList<EventLabelDSO>  eventLabels;
     private Bundle extras;
     private TextView eventName;
     private TextView dueDate;
@@ -63,6 +63,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         selectEventLabel = findViewById(R.id.select_event_label);
         isFavorite = findViewById(R.id.favorite);
         eventLabelName = findViewById(R.id.event_label);
+        eventLabels = new ArrayList<EventLabelDSO>();
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,9 +107,11 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+        EventLabelDSO eventLabelDSO;
         if(adapterView == findViewById(R.id.select_event_label)){
-            eventLabel = (EventLabelDSO) adapterView.getItemAtPosition(position);
-            eventLabelName.setText( eventLabel.getName() );
+            eventLabelDSO = (EventLabelDSO) adapterView.getItemAtPosition(position);
+            eventLabels.add(eventLabelDSO );
+            eventLabelName.setText( eventLabelDSO.getName() );
         }
     }
 
@@ -117,7 +120,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelName.setText("");
     }
 
-    /*
+    /* menu on the top right, might be used later
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_event_labels, menu);
@@ -190,14 +193,14 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
     private void updateFavorite() {
         if(favoriteBtn != null) {
-            favourite = !favourite;
+            favorite = !favorite;
             update = true;
-            if (favourite) {
+            if (favorite) {
                 favoriteBtn.setBackgroundResource(R.drawable.heart_filled);
-                isFavorite.setText("favorite: yes");
+                isFavorite.setText("Favorite: yes");
             } else {
                 favoriteBtn.setBackgroundResource(R.drawable.heart_empty);
-                isFavorite.setText("favorite: no");
+                isFavorite.setText("Favorite: no");
             }
         }
     }
