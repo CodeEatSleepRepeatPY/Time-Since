@@ -22,10 +22,15 @@ public class Services {
 
     public static synchronized IUserPersistence getUserPersistence() {
         if(userPersistence == null) {
-            userPersistence = new UserPersistence();
-            //userPersistence = new UserPersistenceHSQLDB(Main.getDBPathName());
+            //userPersistence = new UserPersistence();
+            userPersistence = new UserPersistenceHSQLDB(Main.getDBPathName());
         }
         return userPersistence;
+    }
+
+    public static synchronized void clean() {
+        eventPersistence = null;
+        userPersistence = null;
     }
 
 }
