@@ -8,7 +8,7 @@ public interface IUserPersistence {
 
     List<UserDSO> getUserList();
 
-    UserDSO getUserByID(String uID);
+    UserDSO getUserByID(String userID);
 
     UserDSO insertUser(UserDSO newUser);
 

@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,12 +32,13 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     private UserDSO fromResultSet(final ResultSet rs) throws SQLException {
         final String uID = rs.getString("uid");
         final String userName = rs.getString("user_name");
+        final Date dateRegistered = DateUtils.timestampToDate(rs.getTimestamp("date_registered"));
         final String membershipType = rs.getString("membership_type");
         final String passwordHash = rs.getString("password_hash");
         UserDSO result = new UserDSO(uID, passwordHash);
         result.setName(userName);
         result.setMembershipType(UserDSO.MembershipType.valueOf(membershipType));
-        return result;
+        return new UserDSO(uID, userName, dateRegistered, membershipType, passwordHash);
     }
 
     @Override
@@ -58,10 +60,10 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     @Override
-    public UserDSO getUserByID(String uID) {
+    public UserDSO getUserByID(String userID) {
         try (final Connection c = connection()) {
             final PreparedStatement statement = c.prepareStatement("SELECT * FROM users WHERE uid = ?");
-            statement.setString(1, uID);
+            statement.setString(1, userID);
             ResultSet resultSet = statement.executeQuery();
             UserDSO user = fromResultSet(resultSet);
             resultSet.close();
@@ -82,6 +84,8 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             statement.setString(4, newUser.getMembershipType());
             statement.setString(5, newUser.getPasswordHash());
             statement.executeUpdate();
+            addLabelConnections(c, newUser.getUserLabels(), newUser.getID());
+            addEventConnections(c, newUser.getUserEvents(), newUser.getID());
             statement.close();
             c.close();
             return newUser;
@@ -100,7 +104,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             statement.executeUpdate();
             statement.close();
             addLabelConnections(c, user.getUserLabels(), user.getID());
-            addEventConnections(c, user.getUserEvents(), user.getFavoritesList(), user.getID());
+            addEventConnections(c, user.getUserEvents(), user.getID());
             c.close();
             return user;
         } catch (final SQLException e) {
@@ -112,7 +116,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         Iterator<EventLabelDSO> iter = labels.iterator();
         while (iter.hasNext()) {
             EventLabelDSO label = iter.next();
-            final PreparedStatement statement = c.prepareStatement("INSERT INTO userslabels VALUES(?, ?)");
+            final PreparedStatement statement = c.prepareStatement("INSERT IGNORE INTO userslabels VALUES(?, ?)");
             statement.setString(1, uid);
             statement.setInt(2, label.getID());
             statement.executeUpdate();
@@ -120,14 +124,13 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         }
     }
 
-    private void addEventConnections(Connection c, List<EventDSO> events, List<EventDSO> favs, String uid) throws SQLException {
+    private void addEventConnections(Connection c, List<EventDSO> events, String uid) throws SQLException {
         Iterator<EventDSO> iter = events.iterator();
         while (iter.hasNext()) {
             EventDSO event = iter.next();
-            final PreparedStatement statement = c.prepareStatement("INSERT INTO usersevents VALUES(?, ?, ?)");
+            final PreparedStatement statement = c.prepareStatement("INSERT IGNORE INTO usersevents VALUES(?, ?)");
             statement.setString(1, uid);
             statement.setInt(2, event.getID());
-            statement.setBoolean(3, favs.contains(event));
             statement.executeUpdate();
             statement.close();
         }

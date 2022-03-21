@@ -50,6 +50,14 @@ public class UserDSO {
         this.favoritesList = new ArrayList<>();
     }
 
+    public UserDSO(String id, String name, Date DATE_REGISTERED, String membershipType, String passwordHash) {
+        this.id = id;
+        this.name = name;
+        this.DATE_REGISTERED = DATE_REGISTERED;
+        this.membershipType = MembershipType.valueOf(membershipType);
+        this.passwordHash = passwordHash;
+    }
+
     //----------------------------------------
     // getters
     //----------------------------------------

@@ -13,6 +13,7 @@ public class EventDSO {
     private String description;
 
     private Date targetFinishTime;
+    private int frequency; //TODO: This should probably change to a different format?
     private boolean isFavorite;
     private List<EventLabelDSO> tags;
 
@@ -28,6 +29,16 @@ public class EventDSO {
         targetFinishTime = null;
         isFavorite = false;
         tags = new ArrayList<>();
+    }
+
+    public EventDSO(int id, String eventName, Date DATE_CREATED, String description, Date targetFinishTime, int frequency, boolean isFavorite) {
+        this.id = id;
+        this.eventName = eventName;
+        this.DATE_CREATED = DATE_CREATED;
+        this.description = description;
+        this.targetFinishTime = targetFinishTime;
+        this.frequency = frequency;
+        this.isFavorite = isFavorite;
     }
 
     //----------------------------------------
@@ -54,6 +65,10 @@ public class EventDSO {
         return targetFinishTime;
     }
 
+    public int getFrequency() {
+        return frequency;
+    }
+
     public boolean isFavorite() {
         return isFavorite;
     }
@@ -66,7 +81,7 @@ public class EventDSO {
     // setters
     //----------------------------------------
 
-    public void setID(int id) {
+    protected void setID(int id) {
         this.id = id;
     }
 
@@ -80,6 +95,10 @@ public class EventDSO {
 
     public void setTargetFinishTime(Date target) {
         targetFinishTime = target;
+    }
+
+    public void setFrequency(int frequency) {
+        this.frequency = frequency;
     }
 
     public void setFavorite() {
