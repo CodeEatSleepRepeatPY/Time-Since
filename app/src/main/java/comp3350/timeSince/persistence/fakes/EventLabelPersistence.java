@@ -21,7 +21,7 @@ public class EventLabelPersistence implements IEventLabelPersistence {
 
     @Override
     public List<EventLabelDSO> getEventLabelList() {
-        return Collections.unmodifiableList(eventLabels);
+        return eventLabels;
     }
 
     @Override

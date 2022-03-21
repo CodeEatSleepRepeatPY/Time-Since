@@ -13,7 +13,7 @@ import comp3350.timeSince.application.Main;
 public class DBHelper {
 
     public static void copyDatabaseToDevice(Context context) {
-        final String DB_PATH = "TS";
+        final String DB_PATH = "db";
 
         String[] assetNames;
         File dataDirectory = context.getDir(DB_PATH, Context.MODE_PRIVATE);

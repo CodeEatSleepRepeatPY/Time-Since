@@ -2,7 +2,7 @@ package comp3350.timeSince.application;
 
 public class Main {
 
-    private static String dbName = "app/src/main/assets/db/TS";
+    private static String dbName = "TS";
 
     public static void main(String[] args) {
         System.out.println("All done");
