@@ -13,6 +13,10 @@ public class EventLabelPersistence implements IEventLabelPersistence {
 
     public EventLabelPersistence() {
         this.eventLabels = new ArrayList<>();
+
+        insertEventLabel(new EventLabelDSO("Kitchen"));
+        insertEventLabel(new EventLabelDSO("Bathroom"));
+        insertEventLabel(new EventLabelDSO("Bedroom"));
     }
 
     @Override

@@ -11,6 +11,7 @@ import java.util.List;
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
+import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
 
 public class EventLabelPersistenceTest {
 
@@ -20,7 +21,7 @@ public class EventLabelPersistenceTest {
 
     @Before
     public void setUp() {
-        labelDatabase = Services.getEventLabelPersistence();
+        labelDatabase = new EventLabelPersistence();
         label1 = new EventLabelDSO("event1");
         label2 = new EventLabelDSO("event2");
         label3 = new EventLabelDSO("event3");

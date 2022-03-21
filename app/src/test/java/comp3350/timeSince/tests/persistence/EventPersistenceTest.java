@@ -11,6 +11,7 @@ import java.util.List;
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.persistence.IEventPersistence;
+import comp3350.timeSince.persistence.fakes.EventPersistence;
 
 public class EventPersistenceTest {
 
@@ -20,7 +21,7 @@ public class EventPersistenceTest {
 
     @Before
     public void setUp() {
-        eventDatabase = Services.getEventPersistence();
+        eventDatabase = new EventPersistence();
         event1 = new EventDSO("event1");
         event2 = new EventDSO("event2");
         event3 = new EventDSO("event3");

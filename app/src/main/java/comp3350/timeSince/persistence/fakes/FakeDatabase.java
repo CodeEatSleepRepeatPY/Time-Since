@@ -1,4 +1,4 @@
-package comp3350.timeSince.persistence;
+package comp3350.timeSince.persistence.fakes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.I_Database;
 
 public class FakeDatabase implements I_Database {
 

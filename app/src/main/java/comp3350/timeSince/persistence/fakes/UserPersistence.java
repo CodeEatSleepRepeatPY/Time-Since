@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
 
@@ -13,6 +14,8 @@ public class UserPersistence implements IUserPersistence {
 
     public UserPersistence() {
         this.userList = new ArrayList<>();
+        insertUser(new UserDSO("admin", "1234"));
+        insertUser(new UserDSO("kristjaf@myumanitoba.ca", "hash1"));
     }
 
     @Override
