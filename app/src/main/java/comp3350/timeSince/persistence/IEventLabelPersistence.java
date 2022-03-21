@@ -5,6 +5,7 @@ import java.util.List;
 import comp3350.timeSince.objects.EventLabelDSO;
 
 public interface IEventLabelPersistence {
+
     List<EventLabelDSO> getEventLabelList();
 
     EventLabelDSO insertEventLabel(EventLabelDSO newEventLabel);
@@ -13,5 +14,6 @@ public interface IEventLabelPersistence {
 
     EventLabelDSO deleteEventLabel(EventLabelDSO eventLabel);
 
+    int numLabels();
 
 }

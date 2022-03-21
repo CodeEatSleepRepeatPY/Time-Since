@@ -35,9 +35,10 @@ public class EventLabelDSO{
         this.color = Color.blue; // setting the default to be blue
     }
 
-    public EventLabelDSO(String name, Color color){
+    public EventLabelDSO(int id, String name, String color){
+        this.id = id;
         this.name = name;
-        this.color = color;
+        this.color = Color.valueOf(color);
     }
 
     //----------------------------------------
@@ -52,8 +53,8 @@ public class EventLabelDSO{
         return name;
     }
 
-    public Color getColor(){
-        return color;
+    public String getColor(){
+        return color.name();
     }
 
     //----------------------------------------

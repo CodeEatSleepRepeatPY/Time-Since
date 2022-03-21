@@ -102,6 +102,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             statement.setTimestamp(3, DateUtils.dateToTimestamp(event.getTargetFinishTime()));
             statement.setInt(4, event.getFrequency());
             statement.setBoolean(5, event.isFavorite());
+            statement.executeUpdate();
             addLabelsConnections(c, event.getEventTags(), event.getID());
             return event;
         } catch (final SQLException e) {
@@ -125,9 +126,9 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
     public EventDSO deleteEvent(EventDSO event) {
         try (final Connection c = connection()) {
             removeLabelsConnections(c, event.getID());
-            final PreparedStatement e_statement = c.prepareStatement("DELETE FROM events WHERE eid = ?");
-            e_statement.setInt(1, event.getID());
-            e_statement.executeUpdate();
+            final PreparedStatement statement = c.prepareStatement("DELETE FROM events WHERE eid = ?");
+            statement.setInt(1, event.getID());
+            statement.executeUpdate();
             return event;
         } catch (final SQLException e) {
             throw new PersistenceException(e);
