@@ -16,7 +16,8 @@ public class EventLabelDSOTest {
         this.name = "Super Secret Sauce";
         this.color = EventLabelDSO.Color.red;
 
-        this.eventLabelDSO = new EventLabelDSO(name, color);
+        this.eventLabelDSO = new EventLabelDSO(name);
+        eventLabelDSO.setColor(color);
     }
 
     @Test

@@ -76,29 +76,14 @@ public class EventDSOTest {
     }
 
     @Test
-    public void getFavorite() {
-        String message;
-        String newFavorite = "G";
-
-        event.setFavorite(newFavorite);
-        message = String.format("The event's favorite should be %s",
-                newFavorite );
-        assertEquals(message, event.getFavorite(), newFavorite);
-    }
-
-    @Test
     public void setFavorite() {
-        String message;
         String newFavorite = "";
 
-        event.setFavorite(newFavorite);
-        message = String.format("The event's favorite should be %s", newFavorite );
-        assertEquals(message, event.getFavorite(), newFavorite);
-        newFavorite = "G";
-        event.setFavorite(newFavorite);
-        message = String.format("The event's favorite should be %s",
-                newFavorite );
-        assertEquals(message, event.getFavorite(), newFavorite);
+        event.setFavorite();
+        assertTrue("The event should be a favorite", event.isFavorite());
+
+        event.unsetFavorite();
+        assertFalse("The event should not be a favorite", event.isFavorite());
     }
 
     @Test
@@ -106,7 +91,7 @@ public class EventDSOTest {
         String message;
 
         EventLabelDSO label1 = new EventLabelDSO("a");
-        EventLabelDSO label2 = new EventLabelDSO("b", null);
+        EventLabelDSO label2 = new EventLabelDSO(2, "b", null);
         event.addTag(label1);
         message = String.format("The event should contain %s",
                 label1.getName() );
@@ -125,7 +110,7 @@ public class EventDSOTest {
         String message;
 
         EventLabelDSO label1 = new EventLabelDSO("a");
-        EventLabelDSO label2 = new EventLabelDSO("b", null);
+        EventLabelDSO label2 = new EventLabelDSO(2, "b", null);
         event.addTag(label1);
         event.addTag(label2);
         event.removeTag(label1);
