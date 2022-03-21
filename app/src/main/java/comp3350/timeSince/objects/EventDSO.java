@@ -3,7 +3,6 @@ package comp3350.timeSince.objects;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 public class EventDSO {
 
@@ -49,7 +48,7 @@ public class EventDSO {
         return this.id;
     }
 
-    public String getName(){
+    public String getName() {
         return eventName;
     }
 
@@ -73,7 +72,7 @@ public class EventDSO {
         return isFavorite;
     }
 
-    public List<EventLabelDSO> getEventTags(){
+    public List<EventLabelDSO> getEventTags() {
         return tags;
     }
 
@@ -117,9 +116,9 @@ public class EventDSO {
         description += newDescription;
     }
 
-    public boolean addTag(EventLabelDSO eventLabelDSO){
+    public boolean addTag(EventLabelDSO eventLabelDSO) {
         boolean result = false;
-        if( eventLabelDSO != null ){
+        if (eventLabelDSO != null) {
             tags.add(eventLabelDSO);
             result = true;
         }

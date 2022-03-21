@@ -22,21 +22,21 @@ public class UserPersistenceTest {
     @Before
     public void setUp() {
         userDatabase = Services.getUserPersistence();
-//        user1 = new UserDSO("uid1", "hash1");
-//        user2 = new UserDSO("uid2", "hash2");
-//        user3 = new UserDSO("uid3", "hash3");
-//        userList = new ArrayList<>();
-//        userList.add(user2);
-//        userList.add(user3);
-//        userList.add(user1);
+        user1 = new UserDSO("uid1", "hash1");
+        user2 = new UserDSO("uid2", "hash2");
+        user3 = new UserDSO("uid3", "hash3");
+        userList = new ArrayList<>();
+        userList.add(user2);
+        userList.add(user3);
+        userList.add(user1);
     }
 
     @After
     public void tearDown() {
-        //userDatabase.deleteUser(user1);
-        //userDatabase.deleteUser(user2);
-        //userDatabase.deleteUser(user3);
-        //userDatabase = null;
+        userDatabase.deleteUser(user1);
+        userDatabase.deleteUser(user2);
+        userDatabase.deleteUser(user3);
+        userDatabase = null;
     }
 
     @Test
@@ -78,23 +78,23 @@ public class UserPersistenceTest {
 
     @Test
     public void testInsertUser() {
-//        assertEquals("Size of database should be 0",
-//                userDatabase.numUsers(), 0);
+        assertEquals("Size of database should be 0",
+                userDatabase.numUsers(), 0);
         assertNotNull(userDatabase.insertUser(user1));
-//        assertEquals("Size of database should be 1",
-//                1, userDatabase.numUsers());
-//
-//        userDatabase.insertUser(user2);
-//        assertEquals("Size of database should be 2",
-//                2, userDatabase.numUsers());
-//
-//        userDatabase.insertUser(user3);
-//        assertEquals("Size of database should be 3",
-//                3, userDatabase.numUsers());
-//
-//        userDatabase.insertUser(user1);
-//        assertEquals("Size of database should be 3",
-//                3, userDatabase.numUsers());
+        assertEquals("Size of database should be 1",
+                1, userDatabase.numUsers());
+
+        userDatabase.insertUser(user2);
+        assertEquals("Size of database should be 2",
+                2, userDatabase.numUsers());
+
+        userDatabase.insertUser(user3);
+        assertEquals("Size of database should be 3",
+                3, userDatabase.numUsers());
+
+        userDatabase.insertUser(user1);
+        assertEquals("Size of database should be 3",
+                3, userDatabase.numUsers());
     }
 
     @Test

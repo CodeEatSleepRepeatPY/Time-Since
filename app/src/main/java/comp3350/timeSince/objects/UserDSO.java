@@ -74,8 +74,8 @@ public class UserDSO {
         return DATE_REGISTERED;
     }
 
-    public String getMembershipType() {
-        return membershipType.name();
+    public MembershipType getMembershipType() {
+        return membershipType;
     }
 
     public String getPasswordHash() {
@@ -101,8 +101,8 @@ public class UserDSO {
     /**
      * @param id
      * @deprecated We can have this functionality, but then we have to change
-     *     // how the database is stored.
-     *
+     * // how the database is stored.
+     * <p>
      * TODO: Remove this method?
      */
     public void setID(String id) {
@@ -122,7 +122,7 @@ public class UserDSO {
     }
 
     public void addFavorite(EventDSO newFav) {
-        if(newFav != null) {
+        if (newFav != null) {
             favoritesList.add(newFav);
         }
     }

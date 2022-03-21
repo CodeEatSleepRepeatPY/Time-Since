@@ -53,9 +53,9 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
     public EventLabelDSO insertEventLabel(EventLabelDSO newEventLabel) {
         try (Connection c = connection()) {
             final PreparedStatement statement = c.prepareStatement("INSERT INTO labels VALUES(?, ?, ?)");
-            statement.setInt(1,newEventLabel.getID());
+            statement.setInt(1, newEventLabel.getID());
             statement.setString(2, newEventLabel.getName());
-            statement.setString(3, newEventLabel.getColor());
+            statement.setString(3, newEventLabel.getColor().name());
             statement.executeUpdate();
             statement.close();
             c.close();
@@ -70,7 +70,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
         try (final Connection c = connection()) {
             final PreparedStatement statement = c.prepareStatement("UPDATE labels SET label_name = ?, color = ?, WHERE lid = ?");
             statement.setString(1, eventLabel.getName());
-            statement.setString(2, eventLabel.getColor());
+            statement.setString(2, eventLabel.getColor().name());
             statement.executeUpdate();
             statement.close();
             c.close();

@@ -9,7 +9,7 @@ import comp3350.timeSince.persistence.IEventPersistence;
 
 public class EventPersistence implements IEventPersistence {
 
-    private List<EventDSO> eventList;
+    private final List<EventDSO> eventList;
 
     public EventPersistence() {
         this.eventList = new ArrayList<>();
@@ -23,8 +23,8 @@ public class EventPersistence implements IEventPersistence {
     @Override
     public EventDSO getEventByID(String eventID) {
         EventDSO toReturn = null;
-        for(int i = 0; i < eventList.size() && toReturn == null; i ++) {
-            if(eventList.get(i).getName().equals(eventID)) {
+        for (int i = 0; i < eventList.size() && toReturn == null; i++) {
+            if (eventList.get(i).getName().equals(eventID)) {
                 toReturn = eventList.get(i);
             }
         }
@@ -35,7 +35,7 @@ public class EventPersistence implements IEventPersistence {
     public EventDSO insertEvent(EventDSO newEvent) {
         EventDSO toReturn = null;
         int index = eventList.indexOf(newEvent);
-        if(index < 0) {
+        if (index < 0) {
             eventList.add(newEvent);
             toReturn = newEvent;
         } // else: duplicate

@@ -81,7 +81,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             statement.setString(1, newUser.getID());
             statement.setString(2, newUser.getName());
             statement.setTimestamp(3, DateUtils.dateToTimestamp(newUser.getDateRegistered()));
-            statement.setString(4, newUser.getMembershipType());
+            statement.setString(4, newUser.getMembershipType().name());
             statement.setString(5, newUser.getPasswordHash());
             statement.executeUpdate();
             addLabelConnections(c, newUser.getUserLabels(), newUser.getID());
@@ -99,7 +99,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         try (final Connection c = connection()) {
             final PreparedStatement statement = c.prepareStatement("UPDATE users SET user_name = ?, membership_type = ?, password_hash = ? WHERE uid = ?");
             statement.setString(1, user.getName());
-            statement.setString(2, user.getMembershipType());
+            statement.setString(2, user.getMembershipType().name());
             statement.setString(3, user.getPasswordHash());
             statement.executeUpdate();
             statement.close();

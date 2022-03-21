@@ -9,7 +9,7 @@ import comp3350.timeSince.persistence.IEventLabelPersistence;
 
 public class EventLabelPersistence implements IEventLabelPersistence {
 
-    private List<EventLabelDSO> eventLabels;
+    private final List<EventLabelDSO> eventLabels;
 
     public EventLabelPersistence() {
         this.eventLabels = new ArrayList<>();
@@ -24,7 +24,7 @@ public class EventLabelPersistence implements IEventLabelPersistence {
     public EventLabelDSO insertEventLabel(EventLabelDSO newEventLabel) {
         EventLabelDSO toReturn = null;
         int index = eventLabels.indexOf(newEventLabel);
-        if(index < 0) {
+        if (index < 0) {
             eventLabels.add(newEventLabel);
             toReturn = newEventLabel;
         } // else: duplicate

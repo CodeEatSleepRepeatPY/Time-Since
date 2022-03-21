@@ -6,12 +6,12 @@
 
 package comp3350.timeSince.objects;
 
-public class EventLabelDSO{
+public class EventLabelDSO {
     //----------------------------------------
     // enums
     //----------------------------------------
 
-    public enum Color{
+    public enum Color {
         red,
         blue,
         green,
@@ -30,15 +30,19 @@ public class EventLabelDSO{
     // constructors
     //----------------------------------------
 
-    public EventLabelDSO(String name){
+    public EventLabelDSO(String name) {
         this.name = name;
         this.color = Color.blue; // setting the default to be blue
     }
 
-    public EventLabelDSO(int id, String name, String color){
+    public EventLabelDSO(int id, String name, String color) {
         this.id = id;
         this.name = name;
-        this.color = Color.valueOf(color);
+        if (color != null) {
+            this.color = Color.valueOf(color);
+        } else {
+            this.color = Color.blue;
+        }
     }
 
     //----------------------------------------
@@ -53,8 +57,8 @@ public class EventLabelDSO{
         return name;
     }
 
-    public String getColor(){
-        return color.name();
+    public Color getColor() {
+        return color;
     }
 
     //----------------------------------------
@@ -65,11 +69,11 @@ public class EventLabelDSO{
         this.id = id;
     }
 
-    public void setName(String newName){
+    public void setName(String newName) {
         this.name = newName;
     }
 
-    public void setColor(Color newColor){
+    public void setColor(Color newColor) {
         this.color = newColor;
     }
 

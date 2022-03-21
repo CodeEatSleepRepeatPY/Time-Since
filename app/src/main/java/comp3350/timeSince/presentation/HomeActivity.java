@@ -1,13 +1,13 @@
 package comp3350.timeSince.presentation;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import comp3350.timeSince.R;
 import comp3350.timeSince.persistence.utils.DBHelper;
-import comp3350.timeSince.presentation.RegisterActivity;
-import comp3350.timeSince.presentation.LoginActivity;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -33,5 +33,5 @@ public class HomeActivity extends AppCompatActivity {
         Intent userIntent = new Intent(HomeActivity.this, LoginActivity.class);
         HomeActivity.this.startActivity(userIntent);
     }
-    
+
 }

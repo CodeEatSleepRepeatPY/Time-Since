@@ -91,7 +91,7 @@ public class EventDSOTest {
         String message;
 
         EventLabelDSO label1 = new EventLabelDSO("a");
-        EventLabelDSO label2 = new EventLabelDSO("b", null);
+        EventLabelDSO label2 = new EventLabelDSO(2, "b", null);
         event.addTag(label1);
         message = String.format("The event should contain %s",
                 label1.getName() );
@@ -110,7 +110,7 @@ public class EventDSOTest {
         String message;
 
         EventLabelDSO label1 = new EventLabelDSO("a");
-        EventLabelDSO label2 = new EventLabelDSO("b", null);
+        EventLabelDSO label2 = new EventLabelDSO(2, "b", null);
         event.addTag(label1);
         event.addTag(label2);
         event.removeTag(label1);

@@ -1,7 +1,5 @@
 package comp3350.timeSince.application;
 
-import comp3350.timeSince.persistence.utils.DBHelper;
-
 public class Main {
 
     private static String dbName = "app/src/main/assets/db/TS";
