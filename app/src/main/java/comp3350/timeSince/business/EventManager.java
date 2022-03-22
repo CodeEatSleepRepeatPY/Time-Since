@@ -11,9 +11,9 @@ import java.util.*;
 
 public class EventManager {
 
-    private final IEventLabelPersistence eventLabelPersistence;
-    private final IEventPersistence eventPersistence;
-    private final IUserPersistence userPersistence;
+    private IEventLabelPersistence eventLabelPersistence;
+    private IEventPersistence eventPersistence;
+    private IUserPersistence userPersistence;
     private static int id = 0;
 
     public EventManager(){
@@ -67,7 +67,10 @@ public class EventManager {
             event.setID(id++);
             event.setTargetFinishTime(dueDate); // set the due date
             event.addTag(eventTag); // add tag
+
             eventPersistence.insertEvent(event); // add to user's events
+            eventLabelPersistence.insertEventLabel(eventTag); // insert the newly created event tag
+
             if (favorite) {
                 event.setFavorite();
                 userPersistence.getUserByID(user.getID()).addFavorite(event); // add to favourite's list
