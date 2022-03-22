@@ -80,7 +80,7 @@ public class EventDSO {
     // setters
     //----------------------------------------
 
-    protected void setID(int id) {
+    public void setID(int id) {
         this.id = id;
     }
 

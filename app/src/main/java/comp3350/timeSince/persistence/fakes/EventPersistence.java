@@ -21,10 +21,10 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO getEventByID(String eventID) {
+    public EventDSO getEventByID(int eventID) {
         EventDSO toReturn = null;
         for (int i = 0; i < eventList.size() && toReturn == null; i++) {
-            if (eventList.get(i).getName().equals(eventID)) {
+            if (eventList.get(i).getID() == eventID) {
                 toReturn = eventList.get(i);
             }
         }
@@ -43,7 +43,7 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO updateEvent(EventDSO event) {
+    public EventDSO updateEvent(EventDSO event) { //what is this method doing?
         EventDSO toReturn = null;
         int index = eventList.indexOf(event);
         if (index >= 0) {
