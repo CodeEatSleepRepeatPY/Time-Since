@@ -58,10 +58,10 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
     }
 
     @Override
-    public EventDSO getEventByID(String eventID) {
+    public EventDSO getEventByID(int eventID) {
         try (final Connection c = connection()) {
             final PreparedStatement statement = c.prepareStatement("SELECT * FROM events WHERE eid = ?");
-            statement.setString(1, eventID);
+            statement.setInt(1, eventID);
             ResultSet resultSet = statement.executeQuery();
             EventDSO event = fromResultSet(resultSet);
             resultSet.close();
@@ -74,18 +74,30 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public EventDSO insertEvent(EventDSO newEvent) {
+        System.out.println("[LOG] Inserting Event " + newEvent.getName());
+
         try (final Connection c = connection()) {
-            final PreparedStatement statement = c.prepareStatement("INSERT INTO events VALUES(?, ?, ?, ?, ?)");
-            statement.setInt(1, newEvent.getID());
-            statement.setString(2, newEvent.getName());
-            statement.setTimestamp(3, DateUtils.dateToTimestamp(newEvent.getDateCreated()));
-            statement.setString(4, newEvent.getDescription());
-            statement.setTimestamp(5, DateUtils.dateToTimestamp(newEvent.getTargetFinishTime()));
-            statement.setInt(6, newEvent.getFrequency());
-            statement.setBoolean(7, newEvent.isFavorite());
+            final PreparedStatement statement = c.prepareStatement("INSERT INTO events VALUES(DEFAULT, ?, ?, ?, ?, ?, ?)");
+            statement.setString(1, newEvent.getName());
+            statement.setTimestamp(2, DateUtils.dateToTimestamp(newEvent.getDateCreated()));
+            statement.setString(3, newEvent.getDescription());
+            statement.setTimestamp(4, DateUtils.dateToTimestamp(newEvent.getTargetFinishTime()));
+            statement.setInt(5, newEvent.getFrequency());
+            statement.setBoolean(6, newEvent.isFavorite());
             statement.executeUpdate();
-            addLabelsConnections(c, newEvent.getEventTags(), newEvent.getID());
             statement.close();
+
+            // Since the event was automatically assigned an ID by the database
+            // we need to retrieve the event using name + creation date to get its ID
+            final PreparedStatement newStatement = c.prepareStatement("SELECT * FROM events WHERE event_name = ? AND date_created = ?");
+            newStatement.setString(1, newEvent.getName());
+            newStatement.setTimestamp(2, DateUtils.dateToTimestamp(newEvent.getDateCreated()));
+            final ResultSet resultSet = newStatement.executeQuery();
+            if (resultSet.next()) {
+                final EventDSO event = fromResultSet(resultSet);
+                addLabelsConnections(c, newEvent.getEventTags(), event.getID());
+            }
+            newStatement.close();
             c.close();
             return newEvent;
         } catch (final SQLException e) {
@@ -95,6 +107,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public EventDSO updateEvent(EventDSO event) {
+        System.out.println("[LOG] Updating Event");
         try (final Connection c = connection()) {
             final PreparedStatement statement = c.prepareStatement("UPDATE events SET event_name = ?, description = ?, target_finish_time = ?, time_interval = ?, is_favorite = ?, WHERE eid = ?");
             statement.setString(1, event.getName());
@@ -124,6 +137,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public EventDSO deleteEvent(EventDSO event) {
+        System.out.println("[LOG] Deleting Event " + event.getName());
         try (final Connection c = connection()) {
             removeLabelsConnections(c, event.getID());
             final PreparedStatement statement = c.prepareStatement("DELETE FROM events WHERE eid = ?");
@@ -146,5 +160,3 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
         return getEventList().size();
     }
 }
-
-

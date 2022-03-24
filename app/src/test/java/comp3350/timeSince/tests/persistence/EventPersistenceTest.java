@@ -59,8 +59,8 @@ public class EventPersistenceTest {
     public void testGetEventByID() {
         eventDatabase.insertEvent(event1);
         eventDatabase.insertEvent(event2);
-        assertEquals("The correct event should be returned if present", event1, eventDatabase.getEventByID("event1"));
-        assertNull("Null should be returned if event is not present", eventDatabase.getEventByID("event4"));
+        assertEquals("The correct event should be returned if present", event1, eventDatabase.getEventByID(event1.getID()));
+        assertNull("Null should be returned if event is not present", eventDatabase.getEventByID(event3.getID()));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class EventPersistenceTest {
         assertEquals("Size of database should be 3", 3, eventDatabase.numEvents());
         eventDatabase.insertEvent(event1);
         assertEquals("Size of database should be 3", 3, eventDatabase.numEvents());
-        assertEquals("Database should contain event2", event2, eventDatabase.getEventByID("event2"));
+        assertEquals("Database should contain event2", event2, eventDatabase.getEventByID(event2.getID()));
         assertNull("Should not be able to insert a duplicate", eventDatabase.insertEvent(event1));
     }
 
@@ -84,7 +84,7 @@ public class EventPersistenceTest {
         assertEquals("Size of database should be 1", 1, eventDatabase.numEvents());
         event1.setDescription("hello");
         eventDatabase.updateEvent(event1);
-        assertEquals("New attributes should match", "hello", eventDatabase.getEventByID("event1").getDescription());
+        assertEquals("New attributes should match", "hello", eventDatabase.getEventByID(event1.getID()).getDescription());
         eventDatabase.insertEvent(event3);
     }
 
@@ -96,7 +96,7 @@ public class EventPersistenceTest {
         assertEquals("Size of database should be 3", 3, eventDatabase.numEvents());
         eventDatabase.deleteEvent(event2);
         assertEquals("Size of database should be 2", 2, eventDatabase.numEvents());
-        assertNull("Deleted event should no longer be in database", eventDatabase.getEventByID(event2.getName()));
+        assertNull("Deleted event should no longer be in database", eventDatabase.getEventByID(event2.getID()));
         assertEquals("If event exists, return the event that was deleted", event1, eventDatabase.deleteEvent(event1));
         assertNull("Shouldn't be able to delete an event that doesn't exist", eventDatabase.deleteEvent(new EventDSO("event4")));
         assertEquals("Size of database should be 1", 1, eventDatabase.numEvents());

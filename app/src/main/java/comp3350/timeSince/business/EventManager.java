@@ -31,25 +31,20 @@ public class EventManager {
     }
 
     public EventDSO insertEvent(EventDSO newEvent) {
+        EventDSO toReturn = null;
         if(newEvent != null) {
             newEvent.setID(id++);
-            eventPersistence.insertEvent(newEvent);
+            toReturn = eventPersistence.insertEvent(newEvent);
         }
-        return newEvent;
+        return toReturn;
     }
 
     public EventDSO updateEvent(EventDSO event) { // this method might be wrong
-        if(event != null){
-            eventPersistence.updateEvent(event);
-        }
-        return event;
+        return event == null ? null : eventPersistence.updateEvent(event);
     }
 
     public EventDSO deleteEvent(EventDSO event) {
-        if(event != null){
-            eventPersistence.deleteEvent(event);
-        }
-        return event;
+        return event == null ? null : eventPersistence.deleteEvent(event);
     }
 
     public boolean isDone(EventDSO event){
