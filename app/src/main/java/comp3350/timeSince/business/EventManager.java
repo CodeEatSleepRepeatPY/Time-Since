@@ -65,19 +65,21 @@ public class EventManager {
             EventDSO event = new EventDSO(eventName); // create event object with specified name
             EventLabelDSO eventTag = new EventLabelDSO(tagName); // create tag object with specified name
 
-            event.setID(id++); // set the ID of the event
-            event.setTargetFinishTime(dueDate); // set event's due date
-            event.addTag(eventTag); // add tag
-            //user.getUserEvents().add(event); // add event to user's events list
-            databaseUser.getUserEvents().add(event); // add event to user's events list
+            if(!databaseUser.getUserEvents().contains(event)) {
+                event.setID(id++); // set the ID of the event
+                event.setTargetFinishTime(dueDate); // set event's due date
+                event.addTag(eventTag); // add tag
+                //user.getUserEvents().add(event); // add event to user's events list
+                databaseUser.getUserEvents().add(event); // add event to user's events list
 
-            eventPersistence.insertEvent(event); // insert event into the database
-            eventLabelPersistence.insertEventLabel(eventTag); // insert the newly created event tag into the database
+                eventPersistence.insertEvent(event); // insert event into the database
+                eventLabelPersistence.insertEventLabel(eventTag); // insert the newly created event tag into the database
 
-            if (favorite) {
-                event.setFavorite();
-                //user.getFavoritesList().add(event); // add to favourite's list
-                databaseUser.addFavorite(event); // add to favourite's list
+                if (favorite) {
+                    event.setFavorite();
+                    //user.getFavoritesList().add(event); // add to favourite's list
+                    databaseUser.addFavorite(event); // add to favourite's list
+                }
             }
         }
     }
