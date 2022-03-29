@@ -8,7 +8,7 @@ public interface IEventPersistence {
 
     List<EventDSO> getEventList();
 
-    EventDSO getEventByID(String eventID);
+    EventDSO getEventByID(int eventID);
 
     EventDSO insertEvent(EventDSO newEvent);
 

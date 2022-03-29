@@ -8,13 +8,15 @@ public interface IUserPersistence {
 
     List<UserDSO> getUserList();
 
-    UserDSO getUserByID(String uID);
+    UserDSO getUserByID(String userID);
 
     UserDSO insertUser(UserDSO newUser);
 
     UserDSO updateUser(UserDSO user);
 
     UserDSO deleteUser(UserDSO user);
+
+    boolean isUnique(String user);
 
     int numUsers();
 

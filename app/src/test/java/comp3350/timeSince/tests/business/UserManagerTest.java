@@ -6,25 +6,33 @@ import org.junit.Test;
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.IUserPersistence;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
+
 public class UserManagerTest {
     private UserManager userManger;
+    private IUserPersistence userDatabase;
+    private Date defaultDate;
+
 
     @Before
     public void setUp(){
         userManger = new UserManager();
+        userDatabase = Services.getUserPersistence();
+        defaultDate = new Date(System.currentTimeMillis());
 
-        Services.getUserPersistence().insertUser(new UserDSO("kevin@qq.com",
-                "Kevin12345"));
-        Services.getUserPersistence().insertUser(new UserDSO("bob23@qq.com",
-                "Bob1234"));
-        Services.getUserPersistence().insertUser(new UserDSO("James98@qq.com",
-                "James1234"));
-        Services.getUserPersistence().insertUser(new UserDSO("Jack233@qq.com",
-                "JACK1234"));
+        userDatabase.insertUser(new UserDSO("kevin@qq.com",
+                defaultDate, "Kevin12345"));
+        userDatabase.insertUser(new UserDSO("bob23@qq.com",
+                defaultDate, "Bob1234"));
+        userDatabase.insertUser(new UserDSO("James98@qq.com",
+                defaultDate, "James1234"));
+        userDatabase.insertUser(new UserDSO("Jack233@qq.com",
+                defaultDate, "JACK1234"));
     }
 
     @Test
