@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 import comp3350.timeSince.R;
 import comp3350.timeSince.objects.EventDSO;
@@ -26,6 +27,7 @@ public class SingleEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_single_event);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         done_button = (Button) findViewById(R.id.event_done_button);
         tags_button = (Button) findViewById(R.id.event_tags_button);
@@ -109,4 +111,20 @@ public class SingleEventActivity extends AppCompatActivity {
     // take you back to the list of all events, and it'll set the text in the
     // eventDSO to whatever the text was changed to in the layout
     // (when a user changes the description, you want to keep it...)
+    @Override
+    public boolean onSupportNavigateUp(){
+        // save the changed name
+        eventDSO.setName(name.getText().toString());
+        // save the changed description
+        eventDSO.setDescription(description.getText().toString());
+        // save the changed due date
+        // get time returns long time
+
+
+        // we're going to convert Date into Calendar...  That'll make this easier to set.  Just wait for it a bit...
+        eventDSO.setTargetFinishTime(dueDate.getText().toString());
+
+        finish();
+        return true;
+    }
 }
