@@ -124,12 +124,6 @@ public class UserPersistenceTest {
         userDatabase.updateUser(user1);
         assertEquals("New attributes should match", "hello",
                 userDatabase.getUserByID("uid1").getName());
-
-        userDatabase.insertUser(user3);
-        user3.setMembershipType(UserDSO.MembershipType.paid);
-        assertNotEquals("Old attributes should be changed",
-                UserDSO.MembershipType.free,
-                userDatabase.getUserByID("uid3").getMembershipType());
     }
 
     @Test

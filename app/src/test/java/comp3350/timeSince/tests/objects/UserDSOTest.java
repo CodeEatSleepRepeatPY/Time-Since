@@ -43,13 +43,16 @@ public class UserDSOTest {
         Assert.assertEquals(message, this.id, this.userDSO.getID());
     }
 
-    /*
+
     @Test
     public void testGetDateRegistered() {
         int wiggleRoom = 10;
-        Date slightPast = new Date(System.currentTimeMillis() - wiggleRoom);
-        Date slightFuture = new Date(System.currentTimeMillis() + wiggleRoom);
-        Date dateRegistered = this.userDSO.getDateRegistered();
+        Calendar slightPast = Calendar.getInstance();
+        slightPast.setTimeInMillis(System.currentTimeMillis() - wiggleRoom);
+        Calendar slightFuture = Calendar.getInstance();
+        slightFuture.setTimeInMillis(System.currentTimeMillis() + wiggleRoom);
+
+        Calendar dateRegistered = this.userDSO.getDateRegistered();
         String message = String.format("Expected the date registered to be " +
                         "in the range %s < date registered < %s ", slightPast,
                 slightFuture);
@@ -57,7 +60,7 @@ public class UserDSOTest {
         Assert.assertTrue(message, dateRegistered.after(slightPast) &&
                 dateRegistered.before(slightFuture));
     }
-     */
+
 
     @Test
     public void testGetPasswordHash() {
