@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
         final String uID = rs.getString("uid");
         final String userName = rs.getString("user_name");
-        final Date dateRegistered = DateUtils.timestampToDate(rs.getTimestamp("date_registered"));
+        final Calendar dateRegistered = DateUtils.timestampToCal(rs.getTimestamp("date_registered"));
         final String membershipType = rs.getString("membership_type");
         final String passwordHash = rs.getString("password_hash");
 
@@ -107,7 +108,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
             statement.setString(1, newUser.getID());
             statement.setString(2, newUser.getName());
-            statement.setTimestamp(3, DateUtils.dateToTimestamp(newUser.getDateRegistered()));
+            statement.setTimestamp(3, DateUtils.calToTimestamp(newUser.getDateRegistered()));
             statement.setString(4, newUser.getMembershipType().name());
             statement.setString(5, newUser.getPasswordHash());
             statement.executeUpdate();

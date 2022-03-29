@@ -40,7 +40,9 @@ public class SpinnerEventLabelList extends ArrayAdapter<EventLabelDSO> {
     @Override
     public View getView(int position, View newView, ViewGroup parent){
         //default state
-        return new TextView(mContext);
+        TextView label = new TextView(mContext);
+        label.setText("");
+        return label;
     }
 
     @Override

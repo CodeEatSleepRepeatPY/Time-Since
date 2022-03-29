@@ -6,8 +6,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.Date;
 
+import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 
@@ -18,7 +20,7 @@ public class EventsWithLabelsTest {
 
     @Before
     public void setUp() {
-        Date date = new Date(System.currentTimeMillis());
+        Calendar date = Calendar.getInstance();
         event = new EventDSO(1, date, "Water Plants");
         label1 = new EventLabelDSO(1, "a");
         label2 = new EventLabelDSO(2, "b");

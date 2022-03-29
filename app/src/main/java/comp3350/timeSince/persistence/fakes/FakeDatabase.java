@@ -1,9 +1,11 @@
 package comp3350.timeSince.persistence.fakes;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
@@ -20,7 +22,7 @@ public class FakeDatabase implements I_Database {
 
     private final ArrayList<UserDSO> usersDatabase;
     private final ArrayList<EventLabelDSO> evenLabelDatabase;
-    private final Date defaultDate = new Date(System.currentTimeMillis());
+    private final Calendar defaultDate = DateUtils.timestampToCal(null);// new Date(System.currentTimeMillis());
     UserDSO user1, user2, user3;
     EventLabelDSO label1, label2, label3;
 

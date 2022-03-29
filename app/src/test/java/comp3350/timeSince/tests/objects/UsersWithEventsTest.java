@@ -5,8 +5,10 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.Date;
 
+import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
@@ -19,7 +21,7 @@ public class UsersWithEventsTest {
 
     @Before
     public void setUp() {
-        Date date = new Date(System.currentTimeMillis());
+        Calendar date = Calendar.getInstance();// new Date(System.currentTimeMillis());
         user = new UserDSO("admin", date, "12345");
         event1 = new EventDSO(1, date, "Water Plants");
         event2 = new EventDSO(2,date,"New Toothbrush");

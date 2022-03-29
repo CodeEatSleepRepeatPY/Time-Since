@@ -176,6 +176,21 @@
         app:layout_constraintTop_toBottomOf="@+id/due_datetime" />
 
     <Button
+        android:id="@+id/clear_event_labels"
+        android:layout_width="@dimen/icon_size_small"
+        android:layout_height="@dimen/icon_size_small"
+        android:background="@drawable/ic_refresh"
+        android:layout_marginBottom="@dimen/icon_bottom_margin"
+        android:baselineAligned="false"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_small"
+        android:textStyle="bold"
+        android:paddingBottom="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/due_datetime" />
+
+
+    <Button
         android:id="@+id/save_event"
         android:layout_width="@dimen/icon_size_small"
         android:layout_height="@dimen/icon_size_small"
@@ -188,6 +203,8 @@
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/event_label" />
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

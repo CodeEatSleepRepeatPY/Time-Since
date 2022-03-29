@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -37,9 +38,9 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
         final int id = rs.getInt("eid");
         final String eventName = rs.getString("event_name");
-        final Date dateCreated = DateUtils.timestampToDate(rs.getTimestamp("date_created"));
+        final Calendar dateCreated = DateUtils.timestampToCal(rs.getTimestamp("date_created"));
         final String description = rs.getString("description");
-        final Date targetFinish = DateUtils.timestampToDate(rs.getTimestamp("target_finish_time"));
+        final Calendar targetFinish = DateUtils.timestampToCal(rs.getTimestamp("target_finish_time"));
         final int timeInterval = rs.getInt("time_interval");
         final int isFavorite = rs.getInt("is_favorite");
 
@@ -103,9 +104,9 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
              final PreparedStatement newStatement = c.prepareStatement(queryID)) {
 
             statement.setString(1, newEvent.getName());
-            statement.setTimestamp(2, DateUtils.dateToTimestamp(newEvent.getDateCreated()));
+            statement.setTimestamp(2, DateUtils.calToTimestamp(newEvent.getDateCreated()));
             statement.setString(3, newEvent.getDescription());
-            statement.setTimestamp(4, DateUtils.dateToTimestamp(newEvent.getTargetFinishTime()));
+            statement.setTimestamp(4, DateUtils.calToTimestamp(newEvent.getTargetFinishTime()));
             statement.setInt(5, newEvent.getFrequency());
             statement.setBoolean(6, newEvent.isFavorite());
             statement.executeUpdate();
@@ -113,7 +114,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             // Since the event was automatically assigned an ID by the database
             // we need to retrieve the event using name + creation date to get its ID
             newStatement.setString(1, newEvent.getName());
-            newStatement.setTimestamp(2, DateUtils.dateToTimestamp(newEvent.getDateCreated()));
+            newStatement.setTimestamp(2, DateUtils.calToTimestamp(newEvent.getDateCreated()));
 
             final ResultSet resultSet = newStatement.executeQuery();
             if (resultSet.next()) {
@@ -139,7 +140,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
             statement.setString(1, event.getName());
             statement.setString(2, event.getDescription());
-            statement.setTimestamp(3, DateUtils.dateToTimestamp(event.getTargetFinishTime()));
+            statement.setTimestamp(3, DateUtils.calToTimestamp(event.getTargetFinishTime()));
             statement.setInt(4, event.getFrequency());
             statement.setBoolean(5, event.isFavorite());
             statement.executeUpdate();
