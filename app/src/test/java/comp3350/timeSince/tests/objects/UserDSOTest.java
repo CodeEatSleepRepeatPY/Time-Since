@@ -1,8 +1,10 @@
 package comp3350.timeSince.tests.objects;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.hsqldb.rights.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +15,6 @@ import comp3350.timeSince.objects.UserDSO;
 
 public class UserDSOTest {
     private UserDSO userDSO;
-    private UserDSO.MembershipType membershipType;
     private String id;
     private String passwordHash;
     Date defaultDate;
@@ -21,12 +22,10 @@ public class UserDSOTest {
     @Before
     public void setUp() {
         this.id = "bobby_g@gmail.com";
-        this.membershipType = UserDSO.MembershipType.free;
         this.passwordHash = "p4ssw0rd";
         defaultDate = new Date(System.currentTimeMillis());
 
         this.userDSO = new UserDSO(id, defaultDate, passwordHash);
-        this.userDSO.setMembershipType(membershipType);
     }
 
     @Test
@@ -35,15 +34,6 @@ public class UserDSOTest {
                 this.id);
 
         Assert.assertEquals(message, this.id, this.userDSO.getName());
-    }
-
-    @Test
-    public void testGetMembershipType() {
-        String message = String.format("Initial membership type should be set" +
-                "to %s", this.membershipType.name());
-
-        Assert.assertEquals(message, this.membershipType,
-                this.userDSO.getMembershipType());
     }
 
     @Test
@@ -115,38 +105,6 @@ public class UserDSOTest {
     }
 
     @Test
-    public void testSetMembershipType() {
-        UserDSO.MembershipType newMembership = UserDSO.MembershipType.paid;
-        String message = String.format("The membership status should now be" +
-                "set to %s", newMembership.name());
-        this.userDSO.setMembershipType(newMembership);
-
-        Assert.assertEquals(message, newMembership,
-                this.userDSO.getMembershipType());
-    }
-
-/*    @Test
-    public void testSetUuid() {
-        String newUuid = "cheese@gmail.com";
-        String message = String.format("The user's uuid should now be" +
-                "set to %s", newUuid);
-        this.userDSO.setID(newUuid);
-
-        Assert.assertEquals(message, newUuid, this.userDSO.getID());
-    }*/
-
-    @Test
-    public void testSetPasswordHash() {
-        String newPasswordHash = "11111";
-        String message = String.format("The user's password hash should now " +
-                "be set to %s", newPasswordHash);
-        this.userDSO.setPasswordHash(newPasswordHash);
-
-        Assert.assertEquals(message, newPasswordHash,
-                this.userDSO.getPasswordHash());
-    }
-
-    @Test
     public void testEquals() {
         UserDSO other = new UserDSO("bobby_g@gmail.com", defaultDate, "12345");
         assertTrue("Users with the same ID should be equal",
@@ -154,5 +112,53 @@ public class UserDSOTest {
         other = new UserDSO("bobby2_g@gmail.com", defaultDate, "12345");
         assertFalse("Users with different ID's should not be equal",
                 userDSO.equals(other));
+    }
+
+    @Test
+    public void testMeetsNewPasswordReq(){
+        final int MIN_LENGTH = 8;
+        String newPassword = "Hunter1";
+        String message = String.format("Passwords should require a minimum " +
+                        "length of at least %d", MIN_LENGTH);
+
+        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
+
+        newPassword = "hunter12";
+        message = "Passwords should require a capital.";
+        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
+
+        newPassword = "Hunter12";
+        message = String.format("%s should pass the minimum requirements of " +
+                "having a capital letter, and being at least %d in length.",
+                newPassword, MIN_LENGTH);
+        assertTrue(message, UserDSO.meetsNewPasswordReq(newPassword));
+    }
+
+    @Test
+    public void testSetNewPassword(){
+        String newPasswordHash = "11111";
+        String message = "setNewPassword should return true when passing in" +
+                "the correct old password hash";
+
+        assertTrue(message, this.userDSO.setNewPassword(this.passwordHash, newPasswordHash));
+
+        message = String.format("The user's password hash should now " +
+                "be set to %s", newPasswordHash);
+
+        assertEquals(message, this.userDSO.getPasswordHash(), newPasswordHash);
+    }
+
+    @Test
+    public void testMatchesExistingPassword(){
+        String otherPasswordHash = "Hunter12";
+        String message = "matchesExistingPassword should return false when " +
+                "given a different password hash.";
+
+        assertFalse(message, this.userDSO.matchesExistingPassword(otherPasswordHash));
+
+        message = "matchesExistingPassword should return true when given " +
+                "the same password hash";
+
+        assertTrue(message, this.userDSO.matchesExistingPassword(this.passwordHash));
     }
 }

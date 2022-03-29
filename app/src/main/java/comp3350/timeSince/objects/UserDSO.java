@@ -14,22 +14,12 @@ import java.util.List;
 public class UserDSO {
 
     //----------------------------------------
-    // enums
-    //----------------------------------------
-
-    public enum MembershipType {
-        free,
-        paid
-    }
-
-    //----------------------------------------
     // instance variables
     //----------------------------------------
 
     private String id; // could be email, or randomly generated
     private String name;
     private final Date DATE_REGISTERED; // generated when creating new object
-    private MembershipType membershipType; //TODO: remove this?
     private String passwordHash;
     private final List<EventDSO> userEvents;
     private final List<EventDSO> favoritesList; // favorite Events
@@ -43,7 +33,6 @@ public class UserDSO {
         this.id = id;
         this.name = id; // defaults to the id
         this.DATE_REGISTERED = date;
-        this.membershipType = MembershipType.free; // defaults to free
         this.passwordHash = passwordHash;
 
         // initialize ArrayLists
@@ -66,10 +55,6 @@ public class UserDSO {
 
     public Date getDateRegistered() {
         return DATE_REGISTERED;
-    }
-
-    public MembershipType getMembershipType() {
-        return membershipType;
     }
 
     public String getPasswordHash() {
@@ -95,15 +80,6 @@ public class UserDSO {
     public void setName(String name) {
         this.name = name;
     }
-
-    public void setMembershipType(MembershipType membershipType) {
-        this.membershipType = membershipType;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
 
     //----------------------------------------
     // general
@@ -145,5 +121,52 @@ public class UserDSO {
 
     public boolean equals(UserDSO other) {
         return this.id.equals(other.getID());
+    }
+
+    // does the passed password meet the new password requirements?
+    // When register the password, at least one of the character should be capital letter
+    // Ensure the password isn't too short(less than 8)
+    public static boolean meetsNewPasswordReq(String password)  {
+        return hasMinLength(password) && hasCapital(password);
+    }
+
+    // helper for meetsNewPasswordReq
+    private static boolean hasMinLength(String password){
+        final int MIN_LENGTH = 8;
+
+        return password.length() >= MIN_LENGTH;
+    }
+
+    // helper for meetsNewPasswordReq
+    private static boolean hasCapital(String password){
+        boolean hasCapital = false;
+        char letter;
+
+        // checking that the password has a capital letter
+        for(int i = 0; i < password.length() && !hasCapital;i++){
+            letter = password.charAt(i);
+            if (Character.isUpperCase(letter)){
+                hasCapital = true;
+            }
+        }
+
+        return hasCapital;
+    }
+
+    // confirm the old password before changing to the new password
+    public boolean setNewPassword(String oldPasswordHash, String newPasswordHash){
+        boolean success = false;
+
+        if (oldPasswordHash.equals(this.passwordHash)){
+            this.passwordHash = newPasswordHash;
+            success = true;
+        }
+
+        return success;
+    }
+
+    // when logging in, have entered the right password?
+    public boolean matchesExistingPassword(String passwordHash){
+        return passwordHash.equals(this.passwordHash);
     }
 }
