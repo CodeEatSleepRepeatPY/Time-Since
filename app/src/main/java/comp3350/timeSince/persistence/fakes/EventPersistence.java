@@ -43,7 +43,7 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO updateEvent(EventDSO event) { //what is this method doing?
+    public EventDSO updateEvent(EventDSO event) {
         EventDSO toReturn = null;
         int index = eventList.indexOf(event);
         if (index >= 0) {

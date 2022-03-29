@@ -30,16 +30,19 @@ public class EventManager {
         return toReturn;
     }
 
-    public EventDSO insertEvent(EventDSO newEvent) {
-        EventDSO toReturn = null;
-        if(newEvent != null) {
-            newEvent.setID(id++);
-            toReturn = eventPersistence.insertEvent(newEvent);
-        }
-        return toReturn;
+    public EventDSO insertEvent(String name) {
+        EventDSO newEvent = new EventDSO(name);
+        newEvent.setID(id++);
+        return eventPersistence.insertEvent(newEvent);
     }
 
-    public EventDSO updateEvent(EventDSO event) { // this method might be wrong
+    public EventDSO insertEvent(int idParam, String eventName, Date DATE_CREATED, String description, Date targetFinishTime, int frequency, boolean isFavorite) {
+        EventDSO newEvent = new EventDSO(idParam, eventName, DATE_CREATED, description, targetFinishTime, frequency, isFavorite);
+        newEvent.setID(id++);
+        return eventPersistence.insertEvent(newEvent);
+    }
+
+    public EventDSO updateEvent(EventDSO event) {
         return event == null ? null : eventPersistence.updateEvent(event);
     }
 
