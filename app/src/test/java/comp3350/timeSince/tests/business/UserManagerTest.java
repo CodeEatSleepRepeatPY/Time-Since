@@ -23,7 +23,6 @@ public class UserManagerTest {
     public void setUp(){
         userManger = new UserManager();
         userDatabase = Services.getUserPersistence();
-        //defaultDate = new Date(System.currentTimeMillis());
         defaultDate = Calendar.getInstance();
 
         userDatabase.insertUser(new UserDSO("kevin@qq.com",

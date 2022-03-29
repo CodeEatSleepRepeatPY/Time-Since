@@ -21,7 +21,7 @@ public class FakeDatabase implements I_Database {
 
     private final ArrayList<UserDSO> usersDatabase;
     private final ArrayList<EventLabelDSO> evenLabelDatabase;
-    private final Calendar defaultDate = DateUtils.timestampToCal(null);// new Date(System.currentTimeMillis());
+    private final Calendar defaultDate = Calendar.getInstance();
     UserDSO user1, user2, user3;
     EventLabelDSO label1, label2, label3;
 

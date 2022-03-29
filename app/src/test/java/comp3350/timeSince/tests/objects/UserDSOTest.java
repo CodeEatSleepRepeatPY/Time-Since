@@ -22,7 +22,7 @@ public class UserDSOTest {
         this.id = "bobby_g@gmail.com";
         this.membershipType = UserDSO.MembershipType.free;
         this.passwordHash = "p4ssw0rd";
-        defaultDate = Calendar.getInstance(); // new Date(System.currentTimeMillis());
+        defaultDate = Calendar.getInstance();
 
         this.userDSO = new UserDSO(id, defaultDate, passwordHash);
         this.userDSO.setMembershipType(membershipType);
