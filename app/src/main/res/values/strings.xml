@@ -19,6 +19,15 @@
     <string name="add_your_event">Create your Event</string>
     <string name="prompt_select_event_label">Select an Event Tag</string>
     <string name="event_label_name">Event Label:</string>
+    <string name="title_activity_view_own_event">viewOwnEventActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
 
 

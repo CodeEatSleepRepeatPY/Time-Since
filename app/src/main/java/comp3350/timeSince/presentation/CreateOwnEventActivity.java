@@ -39,10 +39,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener
 {
     private boolean favorite = false;
-    private boolean update = false;
     private ArrayList<EventLabelDSO> eventLabels;
     private Bundle extras;
     private TextView eventName;
+    private boolean labelNotClicked = true;
     private TextView dueDate;
     private TextView dueTime;
     private TextView isFavorite;
@@ -89,6 +89,14 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
         selectEventLabel.setOnItemSelectedListener(this);
 
+        findViewById(R.id.clear_event_labels).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                eventLabels.clear();
+                eventLabelName.setText(concatenateLabels());
+            }
+        });
+
         findViewById(R.id.save_event).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,9 +119,23 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         EventLabelDSO eventLabelDSO;
         if(adapterView == findViewById(R.id.select_event_label)){
             eventLabelDSO = (EventLabelDSO) adapterView.getItemAtPosition(position);
-            eventLabels.add(eventLabelDSO );
-            eventLabelName.setText( eventLabelDSO.getName() );
+            if( labelNotClicked ){
+                eventLabels.clear();
+                labelNotClicked = false;
+            }else{
+                eventLabels.add(eventLabelDSO );
+                eventLabelName.setText(concatenateLabels());
+            }
         }
+    }
+
+    private String concatenateLabels(){
+        StringBuilder sb = new StringBuilder();
+
+        for(EventLabelDSO eventLabel : eventLabels){
+            sb.append(" "+eventLabel.getName() );
+        }
+        return(sb.toString());
     }
 
     @Override
@@ -121,13 +143,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelName.setText("");
     }
 
-    /* menu on the top right, might be used later
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.menu_event_labels, menu);
-        return true;
-    }
-    */
 
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
@@ -150,6 +165,17 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private void saveContents(){
         //TODO save the user input, let the logic handles the data and update the DB
         extras = getIntent().getExtras();
+        //save information to the database
+        Intent nextIntent = new Intent(this, ViewEventActivity.class);
+
+        //if the event is successfully created
+        String message = "Creation successful! ";
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+
+        CreateOwnEventActivity.this.startActivity(nextIntent);
+        //else throw createEvent exception: invalid event name and/or description /data time over pass
+
+
 
     }
 
@@ -195,7 +221,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private void updateFavorite() {
         if(favoriteBtn != null) {
             favorite = !favorite;
-            update = true;
             if (favorite) {
                 favoriteBtn.setBackgroundResource(R.drawable.heart_filled);
                 isFavorite.setText("Favorite: yes");

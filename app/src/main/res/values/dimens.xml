@@ -12,6 +12,7 @@
 
     <dimen name="icon_bottom_margin">20sp</dimen>
     <dimen name="icon_size_small">57dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 
 
 </resources>

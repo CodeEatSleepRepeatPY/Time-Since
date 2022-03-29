@@ -2,17 +2,17 @@ package comp3350.timeSince.objects;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.util.Calendar;
 
 public class EventDSO {
 
     private final int id;
     private String eventName;
-    private final Date DATE_CREATED;
+    private final Calendar DATE_CREATED;
     private String description;
 
-    private Date targetFinishTime;
+    private Calendar targetFinishTime;
     private int frequency; //TODO: This should probably change to a different format?
     private boolean isFavorite;
     private final List<EventLabelDSO> labels;
@@ -21,7 +21,7 @@ public class EventDSO {
     // constructor
     //----------------------------------------
 
-    public EventDSO(int id, Date creationTime, String name) {
+    public EventDSO(int id, Calendar creationTime, String name) {
         this.id = id;
         eventName = name;
         DATE_CREATED = creationTime;
@@ -43,7 +43,7 @@ public class EventDSO {
         return eventName;
     }
 
-    public Date getDateCreated() {
+    public Calendar getDateCreated() {
         return DATE_CREATED;
     }
 
@@ -51,7 +51,7 @@ public class EventDSO {
         return description;
     }
 
-    public Date getTargetFinishTime() {
+    public Calendar getTargetFinishTime() {
         return targetFinishTime;
     }
 
@@ -79,7 +79,7 @@ public class EventDSO {
         this.description = description;
     }
 
-    public void setTargetFinishTime(Date target) {
+    public void setTargetFinishTime(Calendar target) {
         targetFinishTime = target;
     }
 
@@ -122,4 +122,7 @@ public class EventDSO {
         return this.id == other.getID();
     }
 
+    public boolean validName(){
+        return (eventName != null);
+    }
 }
