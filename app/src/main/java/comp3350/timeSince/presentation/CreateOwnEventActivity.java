@@ -30,6 +30,7 @@ import comp3350.timeSince.application.Services;
 
 import comp3350.timeSince.R;
 import comp3350.timeSince.objects.EventLabelDSO;
+import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
 
 public class CreateOwnEventActivity extends AppCompatActivity implements
@@ -39,7 +40,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 {
     private boolean favorite = false;
     private boolean update = false;
-    private ArrayList<EventLabelDSO>  eventLabels;
+    private ArrayList<EventLabelDSO> eventLabels;
     private Bundle extras;
     private TextView eventName;
     private TextView dueDate;
@@ -48,7 +49,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private TextView eventLabelName;
     private Button favoriteBtn;
     private Spinner selectEventLabel;
-    private EventLabelPersistence evenLabelPersistence;
+    private IEventLabelPersistence eventLabelPersistence;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,15 +131,15 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
-
+        //TODO: should just be the user's labels, not the whole database
         //TODO this will be replaced by Logic layer function; now it is only for test
-        evenLabelPersistence = (EventLabelPersistence) Services.getEventLabelPersistence();
+        eventLabelPersistence = Services.getEventLabelPersistence();
         //dummy data for test
-        evenLabelPersistence.insertEventLabel(new EventLabelDSO("label1"));
-        evenLabelPersistence.insertEventLabel(new EventLabelDSO("label2"));
-        evenLabelPersistence.insertEventLabel(new EventLabelDSO("label3"));
+        //eventLabelPersistence.insertEventLabel(new EventLabelDSO(1, "label1"));
+        //eventLabelPersistence.insertEventLabel(new EventLabelDSO(2, "label2"));
+        //eventLabelPersistence.insertEventLabel(new EventLabelDSO(3, "label3"));
 
-        List<EventLabelDSO> eventLabels = evenLabelPersistence.getEventLabelList();
+        List<EventLabelDSO> eventLabels = eventLabelPersistence.getEventLabelList();
         eventLabelsAdapter = new SpinnerEventLabelList(this,
                 R.layout.simple_spinner_dropdown_items, (ArrayList<EventLabelDSO>) eventLabels);
 
@@ -167,7 +168,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         int mMinute = mCalendar.get(Calendar.MINUTE);
 
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
-                 this, mHour, mMinute, false);
+                this, mHour, mMinute, false);
         timePickerDialog.show();
     }
 
@@ -183,7 +184,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
                 Calendar.getInstance().get(Calendar.YEAR),
                 Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-                );
+        );
         datePickerDialog.show();
     }
 

@@ -10,11 +10,11 @@ import comp3350.timeSince.tests.business.*;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         EventPersistenceTest.class,
+        EventLabelPersistenceTest.class,
         UserPersistenceTest.class,
         EventDSOTest.class,
         EventLabelDSOTest.class,
-        UserDSOTest.class,
-        UserManagerTest.class
+        UserDSOTest.class
 })
 
 public class AllTests {

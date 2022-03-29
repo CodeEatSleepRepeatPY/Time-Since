@@ -1,10 +1,17 @@
 package comp3350.timeSince.tests.objects;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 import org.junit.Test;
-import comp3350.timeSince.objects.EventDSO;
-import comp3350.timeSince.objects.EventLabelDSO;
-import static org.junit.Assert.*;
+
 import java.util.Date;
+
+import comp3350.timeSince.objects.EventDSO;
 
 public class EventDSOTest {
 
@@ -14,11 +21,11 @@ public class EventDSOTest {
     public static Date targetDate;
 
     @Before
-    public void instantiateObject(){
+    public void instantiateObject() {
         String message = "The event should not be null";
         name = "event0";
-        date = new Date( System.currentTimeMillis() );
-        event = new EventDSO(name);
+        date = new Date(System.currentTimeMillis());
+        event = new EventDSO(1, date, name);
         assertNotNull(message, event);
         targetDate = new Date(System.currentTimeMillis());
     }
@@ -39,7 +46,7 @@ public class EventDSOTest {
     @Test
     public void getDescription() {
         String message = String.format("The event's description should be %s",
-                "" );
+                "");
         assertEquals(message, event.getDescription(), "");
     }
 
@@ -51,7 +58,7 @@ public class EventDSOTest {
 
         event.setDescription(description1);
         message = String.format("The event's description should not be %s",
-                description1 );
+                description1);
         assertEquals(message, event.getDescription(), description1);
         event.setDescription(description2);
         message = String.format("The event's description should not be %s",
@@ -66,59 +73,64 @@ public class EventDSOTest {
         String currentDescription = event.getDescription();
         event.appendDescription("");
         message = String.format("The event's description should be %s",
-                currentDescription );
+                currentDescription);
         assertEquals(message, event.getDescription(), currentDescription);
         newDescription = "! ";
         event.appendDescription(newDescription);
         message = String.format("The event's description should not be %s",
-                currentDescription+newDescription);
-        assertEquals(message, event.getDescription(), currentDescription+newDescription);
+                currentDescription + newDescription);
+        assertEquals(message, event.getDescription(), currentDescription + newDescription);
     }
 
     @Test
     public void setFavorite() {
-        String newFavorite = "";
-
-        event.setFavorite();
+        event.setFavorite(true);
         assertTrue("The event should be a favorite", event.isFavorite());
 
-        event.unsetFavorite();
+        event.setFavorite(false);
         assertFalse("The event should not be a favorite", event.isFavorite());
     }
 
     @Test
-    public void addTag() {
-        String message;
-
-        EventLabelDSO label1 = new EventLabelDSO("a");
-        EventLabelDSO label2 = new EventLabelDSO("b", null);
-        event.addTag(label1);
-        message = String.format("The event should contain %s",
-                label1.getName() );
-        assertTrue(message, event.getEventTags().contains(label1));
-        message = String.format("The event should not contain %s",
-                label2.getName() );
-        assertFalse(message, event.getEventTags().contains(label2));
-        event.addTag(label2);
-        message = String.format("The event should contain %s",
-                label2.getName() );
-        assertTrue(message, event.getEventTags().contains(label2));
+    public void testSetName() {
+        String newName = "Water Plants";
+        event.setName(newName);
+        String message = String.format("The event name should be %s",
+                newName);
+        assertEquals(message, newName, event.getName());
     }
 
     @Test
-    public void removeTag() {
-        String message;
+    public void testSetTargetFinishTime() {
+        Date newDate = new Date(System.currentTimeMillis());
+        event.setTargetFinishTime(newDate);
+        String message = String.format("The event target finish time should be %s",
+                newDate);
+        assertEquals(message, newDate, event.getTargetFinishTime());
+    }
 
-        EventLabelDSO label1 = new EventLabelDSO("a");
-        EventLabelDSO label2 = new EventLabelDSO("b", null);
-        event.addTag(label1);
-        event.addTag(label2);
-        event.removeTag(label1);
-        message = String.format("The event should not contain %s",
-                label1.getName() );
-        assertFalse(message, event.getEventTags().contains(label1));
-        message = String.format("The event should contain %s",
-                label2.getName() );
-        assertTrue(message, event.getEventTags().contains(label2));
+    @Test
+    public void testSetFrequency() {
+        int twoWeeks = 20160; // two weeks in minutes
+        String message = String.format("The event frequency should be %d", twoWeeks);
+        event.setFrequency(twoWeeks);
+        assertEquals(message, twoWeeks, event.getFrequency());
+
+        int negNum = -10;
+        event.setFrequency(negNum);
+        assertNotEquals("The event frequency should not be a negative number",
+                negNum, event.getFrequency());
+        assertEquals("The event frequency should not have changed",
+                twoWeeks, event.getFrequency());
+    }
+
+    @Test
+    public void testEquals() {
+        EventDSO other = new EventDSO(1, date, "Water Plants");
+        assertTrue("Events with the same ID should be equal",
+                event.equals(other));
+        other = new EventDSO(2, date, "Water Plants");
+        assertFalse("Events with different ID's should not be equal",
+                event.equals(other));
     }
 }

@@ -1,25 +1,31 @@
 package comp3350.timeSince.tests.objects;
 
-import comp3350.timeSince.objects.UserDSO;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.Date;
+
+import comp3350.timeSince.objects.UserDSO;
 
 public class UserDSOTest {
     private UserDSO userDSO;
     private UserDSO.MembershipType membershipType;
     private String id;
     private String passwordHash;
+    Date defaultDate;
 
     @Before
     public void setUp() {
         this.id = "bobby_g@gmail.com";
         this.membershipType = UserDSO.MembershipType.free;
         this.passwordHash = "p4ssw0rd";
+        defaultDate = new Date(System.currentTimeMillis());
 
-        this.userDSO = new UserDSO(id, passwordHash);
+        this.userDSO = new UserDSO(id, defaultDate, passwordHash);
         this.userDSO.setMembershipType(membershipType);
     }
 
@@ -55,7 +61,7 @@ public class UserDSOTest {
         Date slightFuture = new Date(System.currentTimeMillis() + wiggleRoom);
         Date dateRegistered = this.userDSO.getDateRegistered();
         String message = String.format("Expected the date registered to be " +
-                "in the range %s < date registered < %s ", slightPast,
+                        "in the range %s < date registered < %s ", slightPast,
                 slightFuture);
 
         Assert.assertTrue(message, dateRegistered.after(slightPast) &&
@@ -65,7 +71,7 @@ public class UserDSOTest {
     @Test
     public void testGetPasswordHash() {
         String message = String.format("Initial password hash should be set" +
-                        "to %s", this.passwordHash);
+                "to %s", this.passwordHash);
 
         Assert.assertEquals(message, this.passwordHash,
                 this.userDSO.getPasswordHash());
@@ -112,14 +118,14 @@ public class UserDSOTest {
     public void testSetMembershipType() {
         UserDSO.MembershipType newMembership = UserDSO.MembershipType.paid;
         String message = String.format("The membership status should now be" +
-                        "set to %s", newMembership.name());
+                "set to %s", newMembership.name());
         this.userDSO.setMembershipType(newMembership);
 
         Assert.assertEquals(message, newMembership,
                 this.userDSO.getMembershipType());
     }
 
-    @Test
+/*    @Test
     public void testSetUuid() {
         String newUuid = "cheese@gmail.com";
         String message = String.format("The user's uuid should now be" +
@@ -127,7 +133,7 @@ public class UserDSOTest {
         this.userDSO.setID(newUuid);
 
         Assert.assertEquals(message, newUuid, this.userDSO.getID());
-    }
+    }*/
 
     @Test
     public void testSetPasswordHash() {
@@ -138,5 +144,15 @@ public class UserDSOTest {
 
         Assert.assertEquals(message, newPasswordHash,
                 this.userDSO.getPasswordHash());
+    }
+
+    @Test
+    public void testEquals() {
+        UserDSO other = new UserDSO("bobby_g@gmail.com", defaultDate, "12345");
+        assertTrue("Users with the same ID should be equal",
+                userDSO.equals(other));
+        other = new UserDSO("bobby2_g@gmail.com", defaultDate, "12345");
+        assertFalse("Users with different ID's should not be equal",
+                userDSO.equals(other));
     }
 }

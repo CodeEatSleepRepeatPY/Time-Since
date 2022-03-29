@@ -7,7 +7,9 @@
 package comp3350.timeSince.objects;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class UserDSO {
 
@@ -27,21 +29,21 @@ public class UserDSO {
     private String id; // could be email, or randomly generated
     private String name;
     private final Date DATE_REGISTERED; // generated when creating new object
-    private MembershipType membershipType;
+    private MembershipType membershipType; //TODO: remove this?
     private String passwordHash;
-    private ArrayList<EventDSO> userEvents;
-    private ArrayList<EventDSO> favoritesList; // favorite Events
-    private ArrayList<EventLabelDSO> userLabels;
+    private final List<EventDSO> userEvents;
+    private final List<EventDSO> favoritesList; // favorite Events
+    private final List<EventLabelDSO> userLabels;
 
     //----------------------------------------
     // constructor
     //----------------------------------------
 
-    public UserDSO(String id, String passwordHash) {
+    public UserDSO(String id, Date date, String passwordHash) {
         this.id = id;
         this.name = id; // defaults to the id
-        this.DATE_REGISTERED = new Date(System.currentTimeMillis());
-        this.membershipType = MembershipType.free;
+        this.DATE_REGISTERED = date;
+        this.membershipType = MembershipType.free; // defaults to free
         this.passwordHash = passwordHash;
 
         // initialize ArrayLists
@@ -74,25 +76,21 @@ public class UserDSO {
         return passwordHash;
     }
 
-    public ArrayList<EventDSO> getUserEvents() {
-        return userEvents;
+    public List<EventDSO> getUserEvents() {
+        return Collections.unmodifiableList(userEvents);
     }
 
-    public ArrayList<EventDSO> getFavoritesList() {
-        return favoritesList;
+    public List<EventDSO> getFavoritesList() {
+        return Collections.unmodifiableList(favoritesList);
     }
 
-    public ArrayList<EventLabelDSO> getUserLabels() {
-        return userLabels;
+    public List<EventLabelDSO> getUserLabels() {
+        return Collections.unmodifiableList(userLabels);
     }
 
     //----------------------------------------
     // setters
     //----------------------------------------
-
-    public void setID(String id) {
-        this.id = id;
-    }
 
     public void setName(String name) {
         this.name = name;
@@ -106,15 +104,40 @@ public class UserDSO {
         this.passwordHash = passwordHash;
     }
 
-    public void addFavorite(EventDSO newFav) {
-        if(newFav != null) {
-            favoritesList.add(newFav);
-        }
-    }
 
     //----------------------------------------
     // general
     //----------------------------------------
+
+    public void addLabel(EventLabelDSO newLabel) {
+        if (newLabel != null && !userLabels.contains(newLabel)) {
+            userLabels.add(newLabel);
+        }
+    }
+
+    public void removeLabel(EventLabelDSO label) {
+        userLabels.remove(label);
+    }
+
+    public void addEvent(EventDSO newEvent) {
+        if (newEvent != null && !userEvents.contains(newEvent)) {
+            userEvents.add(newEvent);
+        }
+    }
+
+    public void removeEvent(EventDSO event) {
+        userEvents.remove(event);
+    }
+
+    public void addFavorite(EventDSO newFav) {
+        if (newFav != null && !favoritesList.contains(newFav)) {
+            favoritesList.add(newFav);
+        }
+    }
+
+    public void removeFavorite(EventDSO event) {
+        favoritesList.remove(event);
+    }
 
     public String toString() {
         return String.format("Name: %s, UserID: %s", name, id);
