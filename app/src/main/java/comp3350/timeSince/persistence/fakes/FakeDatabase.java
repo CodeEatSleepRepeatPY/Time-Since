@@ -2,7 +2,6 @@ package comp3350.timeSince.persistence.fakes;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import comp3350.timeSince.business.DateUtils;

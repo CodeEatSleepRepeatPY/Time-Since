@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import comp3350.timeSince.application.Services;
-import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
@@ -13,7 +12,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
-import java.util.Date;
 
 public class UserManagerTest {
     private UserManager userManger;

@@ -130,12 +130,12 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     }
 
     private String concatenateLabels(){
-        String toReturn = "";
+        StringBuilder sb = new StringBuilder();
 
         for(EventLabelDSO eventLabel : eventLabels){
-            toReturn += " "+eventLabel.getName();
+            sb.append(" "+eventLabel.getName() );
         }
-        return(toReturn);
+        return(sb.toString());
     }
 
     @Override

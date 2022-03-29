@@ -8,9 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
-import java.util.Date;
-
-import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.objects.UserDSO;
 
 public class UserDSOTest {
