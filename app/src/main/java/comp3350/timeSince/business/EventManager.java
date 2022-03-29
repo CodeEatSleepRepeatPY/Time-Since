@@ -67,16 +67,14 @@ public class EventManager {
                 event.setID(id++); // set the ID of the event
                 event.setTargetFinishTime(dueDate); // set event's due date
                 event.addTag(eventTag); // add tag
-                //user.getUserEvents().add(event); // add event to user's events list
-                databaseUser.getUserEvents().add(event); // add event to user's events list
-                databaseUser.getUserLabels().add(eventTag);
+                databaseUser.addEvent(event); // add event to user's events list
+                databaseUser.addEventLabel(eventTag); // add event label to user's event labels list
 
                 eventPersistence.insertEvent(event); // insert event into the database
                 eventLabelPersistence.insertEventLabel(eventTag); // insert the newly created event tag into the database
 
                 if (favorite) {
                     event.setFavorite();
-                    //user.getFavoritesList().add(event); // add to favourite's list
                     databaseUser.addFavorite(event); // add to favourite's list
                 }
             }

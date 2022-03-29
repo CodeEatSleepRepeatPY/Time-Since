@@ -1,5 +1,7 @@
 package comp3350.timeSince.tests.objects;
 
+import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 
 import org.junit.Assert;
@@ -138,5 +140,49 @@ public class UserDSOTest {
 
         Assert.assertEquals(message, newPasswordHash,
                 this.userDSO.getPasswordHash());
+    }
+
+    @Test
+    public void testAddEvent(){
+        EventDSO event1 = new EventDSO("event1");
+        EventDSO event2 = new EventDSO("event2");
+        EventDSO event3 = new EventDSO("event3");
+
+        Assert.assertEquals("size of userEvents list should be 0", 0, userDSO.getUserEvents().size());
+        userDSO.addEvent(event1);
+        Assert.assertEquals("size of userEvents list should be 1", 1, userDSO.getUserEvents().size());
+        Assert.assertEquals("name of first event in the list should be event1", "event1", userDSO.getUserEvents().get(0).getName());
+        userDSO.addEvent(event2);
+        Assert.assertEquals("size of userEvents list should be 2", 2, userDSO.getUserEvents().size());
+        Assert.assertEquals("name of second event in the list should be event2", "event2", userDSO.getUserEvents().get(1).getName());
+        userDSO.addEvent(event3);
+        Assert.assertEquals("size of userEvents list should be 3", 3, userDSO.getUserEvents().size());
+        Assert.assertEquals("name of third event in the list should be event3", "event3", userDSO.getUserEvents().get(2).getName());
+        userDSO.addEvent(event1);
+        userDSO.addEvent(event2);
+        userDSO.addEvent(event3);
+        Assert.assertEquals("size of userEvents list should still be 3 (shouldn't add duplicates)", 3, userDSO.getUserEvents().size());
+    }
+
+    @Test
+    public void testAddEventLabel(){
+        EventLabelDSO eventLabel1 = new EventLabelDSO("eventLabel1");
+        EventLabelDSO eventLabel2 = new EventLabelDSO("eventLabel2");
+        EventLabelDSO eventLabel3 = new EventLabelDSO("eventLabel3");
+
+        Assert.assertEquals("size of userLabels list should be 0", 0, userDSO.getUserLabels().size());
+        userDSO.addEventLabel(eventLabel1);
+        Assert.assertEquals("size of userLabels list should be 1", 1, userDSO.getUserLabels().size());
+        Assert.assertEquals("name of first event label in the list should be eventLabel1", "eventLabel1", userDSO.getUserLabels().get(0).getName());
+        userDSO.addEventLabel(eventLabel2);
+        Assert.assertEquals("size of userLabels list should be 2", 2, userDSO.getUserLabels().size());
+        Assert.assertEquals("name of second event label in the list should be eventLabel2", "eventLabel2", userDSO.getUserLabels().get(1).getName());
+        userDSO.addEventLabel(eventLabel3);
+        Assert.assertEquals("size of userLabels list should be 3", 3, userDSO.getUserLabels().size());
+        Assert.assertEquals("name of third event label in the list should be eventLabel3", "eventLabel3", userDSO.getUserLabels().get(2).getName());
+        userDSO.addEventLabel(eventLabel1);
+        userDSO.addEventLabel(eventLabel2);
+        userDSO.addEventLabel(eventLabel3);
+        Assert.assertEquals("size of userLabels list should still be 3 (shouldn't add duplicates)", 3, userDSO.getUserLabels().size());
     }
 }

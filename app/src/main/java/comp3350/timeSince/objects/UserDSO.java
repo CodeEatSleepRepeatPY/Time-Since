@@ -131,6 +131,24 @@ public class UserDSO {
     // general
     //----------------------------------------
 
+    public boolean addEvent(EventDSO event){
+        boolean toReturn = false;
+        if(!userEvents.contains(event)){
+            userEvents.add(event);
+            toReturn = true;
+        }
+        return toReturn;
+    }
+
+    public boolean addEventLabel(EventLabelDSO eventLabel){
+        boolean toReturn = false;
+        if(!userLabels.contains(eventLabel)){
+            userLabels.add(eventLabel);
+            toReturn = true;
+        }
+        return toReturn;
+    }
+
     public String toString() {
         return String.format("Name: %s, UserID: %s", name, id);
     }
