@@ -31,26 +31,97 @@ public class EventManager {
     }
 
     public EventDSO insertEvent(String name) {
-        EventDSO newEvent = new EventDSO(name);
-        newEvent.setID(id++);
-        return eventPersistence.insertEvent(newEvent);
+        Date creationTime = new Date(System.currentTimeMillis());
+        EventDSO newEvent = new EventDSO(id, creationTime, name);
+        EventDSO insertedEvent = eventPersistence.insertEvent(newEvent);
+
+        if(insertedEvent != null){
+            id++;
+        }
+
+        return insertedEvent;
     }
 
-    public EventDSO insertEvent(int idParam, String eventName, Date DATE_CREATED, String description, Date targetFinishTime, int frequency, boolean isFavorite) {
-        EventDSO newEvent = new EventDSO(idParam, eventName, DATE_CREATED, description, targetFinishTime, frequency, isFavorite);
-        newEvent.setID(id++);
-        return eventPersistence.insertEvent(newEvent);
+    public EventDSO updateEventName(String newName, int eventID) {
+        EventDSO updatedEvent = null;
+        EventDSO oldEvent = eventPersistence.getEventByID(eventID);
+
+        if(oldEvent != null) {
+            updatedEvent = new EventDSO(eventID, oldEvent.getDateCreated(), newName);
+        }
+
+        return oldEvent == null ? null : eventPersistence.updateEvent(updatedEvent);
     }
 
-    public EventDSO updateEvent(EventDSO event) {
-        return event == null ? null : eventPersistence.updateEvent(event);
+    public EventDSO updateEventDescription(String desc, int eventID) {
+        EventDSO updatedEvent = null;
+        EventDSO oldEvent = eventPersistence.getEventByID(eventID);
+        String name;
+
+        if(oldEvent != null) {
+            name = oldEvent.getName();
+            updatedEvent = new EventDSO(eventID, oldEvent.getDateCreated(), name);
+            updatedEvent.setDescription(desc);
+        }
+
+        return oldEvent == null ? null : eventPersistence.updateEvent(updatedEvent);
     }
 
-    public EventDSO deleteEvent(EventDSO event) {
-        return event == null ? null : eventPersistence.deleteEvent(event);
+    public EventDSO updateEventFinishTime(Date finishTime, int eventID) {
+        EventDSO updatedEvent = null;
+        EventDSO oldEvent = eventPersistence.getEventByID(eventID);
+        String name;
+
+        if(oldEvent != null) {
+            name = oldEvent.getName();
+            updatedEvent = new EventDSO(eventID, oldEvent.getDateCreated(), name);
+            updatedEvent.setTargetFinishTime(finishTime);
+        }
+
+        return oldEvent == null ? null : eventPersistence.updateEvent(updatedEvent);
     }
 
-    public boolean isDone(EventDSO event){
+    public EventDSO updateEventFrequency(int freq, int eventID) {
+        EventDSO updatedEvent = null;
+        EventDSO oldEvent = eventPersistence.getEventByID(eventID);
+        String name;
+
+        if(oldEvent != null) {
+            name = oldEvent.getName();
+            updatedEvent = new EventDSO(eventID, oldEvent.getDateCreated(), name);
+            updatedEvent.setFrequency(freq);
+        }
+
+        return oldEvent == null ? null : eventPersistence.updateEvent(updatedEvent);
+    }
+
+    public EventDSO updateEventFavorite(boolean fav, int eventID) {
+        EventDSO updatedEvent = null;
+        EventDSO oldEvent = eventPersistence.getEventByID(eventID);
+        String name;
+
+        if(oldEvent != null) {
+            name = oldEvent.getName();
+            updatedEvent = new EventDSO(eventID, oldEvent.getDateCreated(), name);
+            updatedEvent.setFavorite(fav);
+        }
+
+        return oldEvent == null ? null : eventPersistence.updateEvent(updatedEvent);
+    }
+
+    public EventDSO deleteEvent(int eventID) {
+        EventDSO eventToDelete = eventPersistence.getEventByID(eventID);
+        EventDSO toReturn = null;
+
+        if(eventToDelete != null){
+            toReturn = eventPersistence.deleteEvent(eventToDelete);
+        }
+
+        return toReturn;
+    }
+
+    public boolean isDone(int eventID){
+        EventDSO event = eventPersistence.getEventByID(eventID);
         boolean toReturn = false;
         if(event != null) {
             Date currentDate = new Date(System.currentTimeMillis());
@@ -60,26 +131,29 @@ public class EventManager {
         return toReturn;
     }
 
-    public void createOwnEvent(UserDSO user, Date dueDate, String eventName, String tagName, boolean favorite){
-        if(user != null) {
-            UserDSO databaseUser = userPersistence.getUserByID(user.getID());
-            EventDSO event = new EventDSO(eventName); // create event object with specified name
-            EventLabelDSO eventTag = new EventLabelDSO(tagName); // create tag object with specified name
+    public void createOwnEvent(String userID, Date dueDate, String eventName, String eventLabelName, boolean favorite){
+        UserDSO databaseUser = userPersistence.getUserByID(userID);
+        if(databaseUser != null) {
+            Date date = new Date(System.currentTimeMillis());
+            EventDSO event = new EventDSO(id, date, eventName); // create event object with specified name
+            EventLabelDSO eventLabel = new EventLabelDSO(id, eventLabelName); // create tag object with specified name
 
-            if(databaseUser != null && !databaseUser.getUserEvents().contains(event)) {
-                event.setID(id++); // set the ID of the event
+            if(!databaseUser.getUserEvents().contains(event)) {
                 event.setTargetFinishTime(dueDate); // set event's due date
-                event.addTag(eventTag); // add tag
+                event.addLabel(eventLabel); // add tag
+
                 databaseUser.addEvent(event); // add event to user's events list
-                databaseUser.addEventLabel(eventTag); // add event label to user's event labels list
+                databaseUser.addLabel(eventLabel); // add event label to user's event labels list
 
                 eventPersistence.insertEvent(event); // insert event into the database
-                eventLabelPersistence.insertEventLabel(eventTag); // insert the newly created event tag into the database
+                eventLabelPersistence.insertEventLabel(eventLabel); // insert the newly created event tag into the database
 
                 if (favorite) {
-                    event.setFavorite();
+                    event.setFavorite(true);
                     databaseUser.addFavorite(event); // add to favourite's list
                 }
+
+                id++;
             }
         }
     }

@@ -1,6 +1,7 @@
 package comp3350.timeSince.persistence.fakes;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import comp3350.timeSince.objects.EventDSO;
@@ -8,6 +9,9 @@ import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.I_Database;
 
+/**
+ * @deprecated
+ */
 public class FakeDatabase implements I_Database {
 
     //----------------------------------------
@@ -16,6 +20,7 @@ public class FakeDatabase implements I_Database {
 
     private final ArrayList<UserDSO> usersDatabase;
     private final ArrayList<EventLabelDSO> evenLabelDatabase;
+    private final Date defaultDate = new Date(System.currentTimeMillis());
     UserDSO user1, user2, user3;
     EventLabelDSO label1, label2, label3;
 
@@ -27,17 +32,17 @@ public class FakeDatabase implements I_Database {
         usersDatabase = new ArrayList<UserDSO>();
         evenLabelDatabase = new ArrayList<EventLabelDSO>();
 
-        user1 = new UserDSO("uid1", "hash1");
-        user2 = new UserDSO("uid2", "hash2");
-        user3 = new UserDSO("uid3", "hash3");
+        user1 = new UserDSO("uid1", defaultDate, "hash1");
+        user2 = new UserDSO("uid2", defaultDate, "hash2");
+        user3 = new UserDSO("uid3", defaultDate, "hash3");
 
         addUser(user1);
         addUser(user2);
         addUser(user3);
 
-        label1 = new EventLabelDSO("label1");
-        label2 = new EventLabelDSO("label2");
-        label3 = new EventLabelDSO("label3");
+        label1 = new EventLabelDSO(1, "label1");
+        label2 = new EventLabelDSO(2, "label2");
+        label3 = new EventLabelDSO(3, "label3");
 
         addEventLabel(label1);
         addEventLabel(label2);

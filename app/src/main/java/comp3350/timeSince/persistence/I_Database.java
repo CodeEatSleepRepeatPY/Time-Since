@@ -7,6 +7,9 @@ import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 
+/**
+ * @deprecated
+ */
 public interface I_Database {
     void addUser(UserDSO user);
 

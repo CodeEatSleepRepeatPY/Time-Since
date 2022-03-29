@@ -8,6 +8,8 @@ public interface IEventLabelPersistence {
 
     List<EventLabelDSO> getEventLabelList();
 
+    EventLabelDSO getEventLabelByID(int labelID);
+
     EventLabelDSO insertEventLabel(EventLabelDSO newEventLabel);
 
     EventLabelDSO updateEventLabel(EventLabelDSO eventLabel);

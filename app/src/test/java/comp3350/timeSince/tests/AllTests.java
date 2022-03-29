@@ -14,8 +14,7 @@ import comp3350.timeSince.tests.business.*;
         UserPersistenceTest.class,
         EventDSOTest.class,
         EventLabelDSOTest.class,
-        UserDSOTest.class,
-        UserManagerTest.class
+        UserDSOTest.class
 })
 
 public class AllTests {

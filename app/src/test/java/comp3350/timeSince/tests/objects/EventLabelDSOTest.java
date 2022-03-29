@@ -1,10 +1,13 @@
 package comp3350.timeSince.tests.objects;
 
-import comp3350.timeSince.objects.EventLabelDSO;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import comp3350.timeSince.objects.EventLabelDSO;
 
 public class EventLabelDSOTest {
     private EventLabelDSO eventLabelDSO;
@@ -16,7 +19,7 @@ public class EventLabelDSOTest {
         this.name = "Super Secret Sauce";
         this.color = EventLabelDSO.Color.red;
 
-        this.eventLabelDSO = new EventLabelDSO(name);
+        this.eventLabelDSO = new EventLabelDSO(1, name);
         eventLabelDSO.setColor(color);
     }
 
@@ -54,5 +57,15 @@ public class EventLabelDSOTest {
         this.eventLabelDSO.setColor(newColor);
 
         Assert.assertEquals(message, newColor, this.eventLabelDSO.getColor());
+    }
+
+    @Test
+    public void testEquals() {
+        EventLabelDSO other = new EventLabelDSO(1, "Garage");
+        assertTrue("Event labels with the same ID should be equal",
+                eventLabelDSO.equals(other));
+        other = new EventLabelDSO(2, "Kitchen");
+        assertFalse("Event labels with different ID's should not be equal",
+                eventLabelDSO.equals(other));
     }
 }

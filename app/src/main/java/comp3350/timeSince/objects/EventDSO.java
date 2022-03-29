@@ -1,12 +1,13 @@
 package comp3350.timeSince.objects;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 public class EventDSO {
 
-    private int id;
+    private final int id;
     private String eventName;
     private final Date DATE_CREATED;
     private String description;
@@ -14,30 +15,20 @@ public class EventDSO {
     private Date targetFinishTime;
     private int frequency; //TODO: This should probably change to a different format?
     private boolean isFavorite;
-    private List<EventLabelDSO> tags;
+    private final List<EventLabelDSO> labels;
 
     //----------------------------------------
     // constructor
     //----------------------------------------
 
-    public EventDSO(final String name) {
-        id = -1;
+    public EventDSO(int id, Date creationTime, String name) {
+        this.id = id;
         eventName = name;
-        DATE_CREATED = new Date(System.currentTimeMillis());
+        DATE_CREATED = creationTime;
         description = "";
         targetFinishTime = null;
         isFavorite = false;
-        tags = new ArrayList<>();
-    }
-
-    public EventDSO(int id, String eventName, Date DATE_CREATED, String description, Date targetFinishTime, int frequency, boolean isFavorite) {
-        this.id = id;
-        this.eventName = eventName;
-        this.DATE_CREATED = DATE_CREATED;
-        this.description = description;
-        this.targetFinishTime = targetFinishTime;
-        this.frequency = frequency;
-        this.isFavorite = isFavorite;
+        labels = new ArrayList<>();
     }
 
     //----------------------------------------
@@ -72,17 +63,13 @@ public class EventDSO {
         return isFavorite;
     }
 
-    public List<EventLabelDSO> getEventTags() {
-        return tags;
+    public List<EventLabelDSO> getEventLabels() {
+        return Collections.unmodifiableList(labels);
     }
 
     //----------------------------------------
     // setters
     //----------------------------------------
-
-    public void setID(int id) {
-        this.id = id;
-    }
 
     public void setName(String newName) {
         this.eventName = newName;
@@ -97,15 +84,14 @@ public class EventDSO {
     }
 
     public void setFrequency(int frequency) {
-        this.frequency = frequency;
+        if (frequency > 0) {
+            this.frequency = frequency;
+        }
+        // TODO: throw an exception?
     }
 
-    public void setFavorite() {
-        isFavorite = true;
-    }
-
-    public void unsetFavorite() {
-        isFavorite = false;
+    public void setFavorite(boolean isFavorite) {
+        this.isFavorite = isFavorite;
     }
 
     //----------------------------------------
@@ -116,22 +102,16 @@ public class EventDSO {
         description += newDescription;
     }
 
-    public boolean addTag(EventLabelDSO eventLabelDSO) {
-        boolean result = false;
+    public void addLabel(EventLabelDSO eventLabelDSO) {
         if (eventLabelDSO != null) {
-            tags.add(eventLabelDSO);
-            result = true;
+            labels.add(eventLabelDSO);
         }
-        return result;
     }
 
-    public boolean removeTag(EventLabelDSO eventLabelDSO) {
-        boolean result = false;
-        if (eventLabelDSO != null && tags.contains(eventLabelDSO)) {
-            tags.remove(eventLabelDSO);
-            result = true;
+    public void removeLabel(EventLabelDSO eventLabelDSO) {
+        if (eventLabelDSO != null) {
+            labels.remove(eventLabelDSO);
         }
-        return result;
     }
 
     public String toString() {
@@ -139,7 +119,7 @@ public class EventDSO {
     }
 
     public boolean equals(EventDSO other) {
-        return this.id == other.getID() && this.eventName.equals(other.getName());
+        return this.id == other.getID();
     }
 
 }

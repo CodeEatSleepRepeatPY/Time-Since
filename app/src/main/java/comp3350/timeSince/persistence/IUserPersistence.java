@@ -16,6 +16,8 @@ public interface IUserPersistence {
 
     UserDSO deleteUser(UserDSO user);
 
+    boolean isUnique(String user);
+
     int numUsers();
 
 }

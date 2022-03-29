@@ -11,6 +11,7 @@ public class EventLabelDSO {
     // enums
     //----------------------------------------
 
+    //TODO: Possibly change this?
     public enum Color {
         red,
         blue,
@@ -22,7 +23,7 @@ public class EventLabelDSO {
     // instance variables
     //----------------------------------------
 
-    private int id;
+    private final int id;
     private String name;    // name of the Event Label
     private Color color;  // color of the Event Label
 
@@ -30,19 +31,10 @@ public class EventLabelDSO {
     // constructors
     //----------------------------------------
 
-    public EventLabelDSO(String name) {
-        this.name = name;
-        this.color = Color.blue; // setting the default to be blue
-    }
-
-    public EventLabelDSO(int id, String name, String color) {
+    public EventLabelDSO(int id, String name) {
         this.id = id;
         this.name = name;
-        if (color != null) {
-            this.color = Color.valueOf(color);
-        } else {
-            this.color = Color.blue;
-        }
+        this.color = Color.blue; // setting the default to be blue
     }
 
     //----------------------------------------
@@ -65,10 +57,6 @@ public class EventLabelDSO {
     // setters
     //----------------------------------------
 
-    protected void setID(int id) {
-        this.id = id;
-    }
-
     public void setName(String newName) {
         this.name = newName;
     }
@@ -86,6 +74,6 @@ public class EventLabelDSO {
     }
 
     public boolean equals(EventLabelDSO other) {
-        return this.name.equals(other.getName());
+        return this.id == other.getID();
     }
 }

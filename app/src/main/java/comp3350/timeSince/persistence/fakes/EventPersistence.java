@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import comp3350.timeSince.business.exceptions.EventNotFoundException;
+import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.persistence.IEventPersistence;
 
@@ -22,50 +24,47 @@ public class EventPersistence implements IEventPersistence {
 
     @Override
     public EventDSO getEventByID(int eventID) {
-        EventDSO toReturn = null;
-        for (int i = 0; i < eventList.size() && toReturn == null; i++) {
+        for (int i = 0; i < eventList.size(); i++) {
             if (eventList.get(i).getID() == eventID) {
-                toReturn = eventList.get(i);
+                return eventList.get(i);
             }
         }
-        return toReturn;
+        throw new EventNotFoundException("The event: " + eventID + " could not be found.");
     }
 
     @Override
     public EventDSO insertEvent(EventDSO newEvent) {
-        EventDSO toReturn = null;
         int index = eventList.indexOf(newEvent);
         if (index < 0) {
             eventList.add(newEvent);
-            toReturn = newEvent;
-        } // else: duplicate
-        return toReturn;
+            return newEvent;
+        } //else: already exists in database
+        throw new PersistenceException("The event: " + newEvent.getName() + " already exists.");
     }
 
     @Override
     public EventDSO updateEvent(EventDSO event) {
-        EventDSO toReturn = null;
         int index = eventList.indexOf(event);
         if (index >= 0) {
             eventList.set(index, event);
-            toReturn = event;
+            return event;
         }
-        return toReturn;
+        throw new EventNotFoundException("The event: " + event.getName() + " could not be updated.");
     }
 
     @Override
     public EventDSO deleteEvent(EventDSO event) {
-        EventDSO toReturn = null;
         int index = eventList.indexOf(event);
         if (index >= 0) {
             eventList.remove(index);
-            toReturn = event;
+            return event;
         } // else: event is not in list
-        return toReturn;
+        throw new EventNotFoundException("The event: " + event.getName() + " could not be deleted.");
     }
 
     @Override
     public int numEvents() {
         return eventList.size();
     }
+
 }

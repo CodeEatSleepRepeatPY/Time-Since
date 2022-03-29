@@ -1,14 +1,21 @@
 package comp3350.timeSince.tests.persistence;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import comp3350.timeSince.application.Services;
+import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
+import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
@@ -16,52 +23,146 @@ import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
 public class EventLabelPersistenceTest {
 
     private IEventLabelPersistence labelDatabase;
-    private EventLabelDSO label1, label2, label3;
+    private EventLabelDSO label1, label2, label3, label4;
     private List<EventLabelDSO> labelList;
 
     @Before
     public void setUp() {
         labelDatabase = new EventLabelPersistence();
-        label1 = new EventLabelDSO("event1");
-        label2 = new EventLabelDSO("event2");
-        label3 = new EventLabelDSO("event3");
-        labelList = new ArrayList<>();
-        labelList.add(label2);
-        labelList.add(label3);
-        labelList.add(label1);
+        label1 = new EventLabelDSO(1, "Kitchen");
+        label2 = new EventLabelDSO(2, "Bathroom");
+        label3 = new EventLabelDSO(3, "Bedroom");
+        label4 = new EventLabelDSO(2, "Garage"); // for duplicate checks
+        labelList = new ArrayList<>(Arrays.asList(label1, label2, label3));
     }
 
     @After
     public void tearDown() {
-        labelDatabase.deleteEventLabel(label1);
-        labelDatabase.deleteEventLabel(label2);
-        labelDatabase.deleteEventLabel(label3);
-        labelDatabase = null;
+        List<EventLabelDSO> tempList = labelDatabase.getEventLabelList();
+
+        if (tempList.contains(label1)) {
+            labelDatabase.deleteEventLabel(label1);
+        }
+        if (tempList.contains(label2)) {
+            labelDatabase.deleteEventLabel(label2);
+        }
+        if (tempList.contains(label3)) {
+            labelDatabase.deleteEventLabel(label3);
+        }
     }
 
     @Test
     public void testGetEventLabelList() {
+        assertNotNull("Newly created database object should not be null",
+                labelDatabase);
+        assertEquals("Newly created database should have no users",
+                0, labelDatabase.numLabels());
 
+        labelDatabase.insertEventLabel(label1);
+        labelDatabase.insertEventLabel(label2);
+        labelDatabase.insertEventLabel(label3);
+        List<EventLabelDSO> actual = labelDatabase.getEventLabelList();
+
+        assertTrue("Database should contain label1", actual.contains(label1));
+        assertTrue("Database should contain label2", actual.contains(label2));
+        assertTrue("Database should contain label3", actual.contains(label3));
+        assertTrue("Database should have all existing event labels",
+                actual.containsAll(labelList));
+        assertTrue("Database should have all existing event labels",
+                labelList.containsAll(actual));
+        assertFalse("Database should not contain an event label that does not exist",
+                actual.contains(new EventLabelDSO(5, "Laundry")));
+    }
+
+    @Test
+    public void testGetEventLabelByID() {
+        labelDatabase.insertEventLabel(label1);
+        labelDatabase.insertEventLabel(label2);
+        assertEquals("The correct event label should be returned if present",
+                label1, labelDatabase.getEventLabelByID(label1.getID()));
+    }
+
+    @Test(expected = EventLabelNotFoundException.class)
+    public void testGetEventLabelByIDException() {
+        labelDatabase.insertEventLabel(label1);
+        labelDatabase.getEventLabelByID(label3.getID());
     }
 
     @Test
     public void testInsertEventLabel() {
+        assertEquals("Size of database should be 0", 0,
+                labelDatabase.numLabels());
 
+        labelDatabase.insertEventLabel(label1);
+        assertEquals("Size of database should be 1", 1,
+                labelDatabase.numLabels());
+
+        assertEquals("Inserted event label should return", label2,
+                labelDatabase.insertEventLabel(label2));
+        assertEquals("Size of database should be 2", 2,
+                labelDatabase.numLabels());
+
+        labelDatabase.insertEventLabel(label3);
+        assertEquals("Size of database should be 3", 3,
+                labelDatabase.numLabels());
+
+        assertEquals("Database should contain label2", label2,
+                labelDatabase.getEventLabelByID(label2.getID()));
+    }
+
+    @Test(expected = PersistenceException.class)
+    public void testInsertEventException() {
+        labelDatabase.insertEventLabel(label1);
+        labelDatabase.insertEventLabel(label2);
+        labelDatabase.insertEventLabel(label1);
+        labelDatabase.insertEventLabel(label4);
     }
 
     @Test
     public void testUpdateEventLabel() {
+        labelDatabase.insertEventLabel(label1);
+        assertEquals("Size of database should be 1", 1,
+                labelDatabase.numLabels());
+        label1.setName("hello");
+        labelDatabase.updateEventLabel(label1);
+        assertEquals("New attributes should match", "hello",
+                labelDatabase.getEventLabelByID(label1.getID()).getName());
+    }
 
+    @Test(expected = EventLabelNotFoundException.class)
+    public void testUpdateEventLabelException() {
+        // should not be able to update an event label not in db
+        labelDatabase.updateEventLabel(label1);
     }
 
     @Test
     public void testDeleteEventLabel() {
+        labelDatabase.insertEventLabel(label1);
+        labelDatabase.insertEventLabel(label2);
+        labelDatabase.insertEventLabel(label3);
 
+        assertEquals("Size of database should be 3", 3,
+                labelDatabase.numLabels());
+        labelDatabase.deleteEventLabel(label2);
+        assertEquals("Size of database should be 2", 2,
+                labelDatabase.numLabels());
+        assertEquals("If event label exists, return the label that was deleted", label1,
+                labelDatabase.deleteEventLabel(label1));
+        assertEquals("Size of database should be 1", 1,
+                labelDatabase.numLabels());
+        labelDatabase.deleteEventLabel(label3);
+        assertEquals("Size of database should be 0", 0,
+                labelDatabase.numLabels());
     }
 
-    @Test
-    public void testNumLabels() {
-
+    @Test(expected = EventLabelNotFoundException.class)
+    public void testDeleteEventLabelException() {
+        labelDatabase.insertEventLabel(label2);
+        labelDatabase.deleteEventLabel(label2);
+        assertNull("Deleted event label should no longer be in database",
+                labelDatabase.getEventLabelByID(label2.getID()));
+        assertNull("Shouldn't be able to delete an event label that doesn't exist",
+                labelDatabase.deleteEventLabel(label3));
     }
-    
+
 }

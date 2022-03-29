@@ -1,4 +1,4 @@
-package comp3350.timeSince.persistence.hsqldb;
+package comp3350.timeSince.business.exceptions;
 
 
 /**
@@ -7,8 +7,9 @@ package comp3350.timeSince.persistence.hsqldb;
  * so we can throw them around, but not *have* to catch them if we don't want to.
  */
 public class PersistenceException extends RuntimeException {
-    public PersistenceException(final Exception cause) {
-        super(cause);
-    }
-}
 
+    public PersistenceException(String error) {
+        super("Database error:\n" + error);
+    }
+
+}
