@@ -12,16 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class UserDSO {
-
-    //----------------------------------------
-    // enums
-    //----------------------------------------
-
-    public enum MembershipType {
-        free,
-        paid
-    }
-
     //----------------------------------------
     // instance variables
     //----------------------------------------
@@ -29,7 +19,6 @@ public class UserDSO {
     private String id; // could be email, or randomly generated
     private String name;
     private final Calendar DATE_REGISTERED; // generated when creating new object
-    private MembershipType membershipType; //TODO: remove this?
     private String passwordHash;
     private final List<EventDSO> userEvents;
     private final List<EventDSO> favoritesList; // favorite Events
@@ -43,7 +32,6 @@ public class UserDSO {
         this.id = id;
         this.name = id; // defaults to the id
         this.DATE_REGISTERED = date;
-        this.membershipType = MembershipType.free; // defaults to free
         this.passwordHash = passwordHash;
 
         // initialize ArrayLists
@@ -68,9 +56,6 @@ public class UserDSO {
         return DATE_REGISTERED;
     }
 
-    public MembershipType getMembershipType() {
-        return membershipType;
-    }
 
     public String getPasswordHash() {
         return passwordHash;
@@ -94,10 +79,6 @@ public class UserDSO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setMembershipType(MembershipType membershipType) {
-        this.membershipType = membershipType;
     }
 
     public void setPasswordHash(String passwordHash) {
