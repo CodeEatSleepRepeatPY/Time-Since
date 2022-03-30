@@ -18,4 +18,6 @@ public interface IEventPersistence {
 
     int numEvents();
 
+    int getNextID();
+
 }

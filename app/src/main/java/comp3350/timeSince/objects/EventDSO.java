@@ -1,9 +1,9 @@
 package comp3350.timeSince.objects;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Calendar;
 
 public class EventDSO {
 
@@ -13,7 +13,6 @@ public class EventDSO {
     private String description;
 
     private Calendar targetFinishTime;
-    private int frequency; //TODO: This should probably change to a different format?
     private boolean isFavorite;
     private final List<EventLabelDSO> labels;
 
@@ -55,10 +54,6 @@ public class EventDSO {
         return targetFinishTime;
     }
 
-    public int getFrequency() {
-        return frequency;
-    }
-
     public boolean isFavorite() {
         return isFavorite;
     }
@@ -81,13 +76,6 @@ public class EventDSO {
 
     public void setTargetFinishTime(Calendar target) {
         targetFinishTime = target;
-    }
-
-    public void setFrequency(int frequency) {
-        if (frequency > 0) {
-            this.frequency = frequency;
-        }
-        // TODO: throw an exception?
     }
 
     public void setFavorite(boolean isFavorite) {
@@ -115,14 +103,15 @@ public class EventDSO {
     }
 
     public String toString() {
-        return String.format("EventID: %d, Name: %s", id, eventName);
+        String toReturn = "No Named Event";
+        if (eventName != null) {
+            toReturn = String.format("Event Name: %s", eventName);
+        }
+        return toReturn;
     }
 
     public boolean equals(EventDSO other) {
         return this.id == other.getID();
     }
 
-    public boolean validName(){
-        return (eventName != null);
-    }
 }

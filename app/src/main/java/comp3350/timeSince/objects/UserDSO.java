@@ -12,13 +12,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class UserDSO {
+
     //----------------------------------------
     // instance variables
     //----------------------------------------
 
-    private String id; // could be email, or randomly generated
+    private final String id; // could be email, or unique name
     private String name;
-
     private final Calendar DATE_REGISTERED; // generated when creating new object
     private String passwordHash;
     private final List<EventDSO> userEvents;
@@ -85,6 +85,7 @@ public class UserDSO {
         this.passwordHash = passwordHash;
     }
 
+
     //----------------------------------------
     // general
     //----------------------------------------
@@ -120,57 +121,17 @@ public class UserDSO {
     }
 
     public String toString() {
-        return String.format("Name: %s, UserID: %s", name, id);
+        String toReturn = "";
+        if (name != null && id != null) {
+            toReturn = String.format("Name: %s, UserID: %s", name, id);
+        }
+        if (name == null && id != null) {
+            toReturn = String.format("UserID: %s", id);
+        }
+        return toReturn;
     }
 
     public boolean equals(UserDSO other) {
         return this.id.equals(other.getID());
-    }
-
-    // does the passed password meet the new password requirements?
-    // When register the password, at least one of the character should be capital letter
-    // Ensure the password isn't too short(less than 8)
-    public static boolean meetsNewPasswordReq(String password)  {
-        return hasMinLength(password) && hasCapital(password);
-    }
-
-    // helper for meetsNewPasswordReq
-    private static boolean hasMinLength(String password){
-        final int MIN_LENGTH = 8;
-
-        return password.length() >= MIN_LENGTH;
-    }
-
-    // helper for meetsNewPasswordReq
-    private static boolean hasCapital(String password){
-        boolean hasCapital = false;
-        char letter;
-
-        // checking that the password has a capital letter
-        for(int i = 0; i < password.length() && !hasCapital;i++){
-            letter = password.charAt(i);
-            if (Character.isUpperCase(letter)){
-                hasCapital = true;
-            }
-        }
-
-        return hasCapital;
-    }
-
-    // confirm the old password before changing to the new password
-    public boolean setNewPassword(String oldPasswordHash, String newPasswordHash){
-        boolean success = false;
-
-        if (oldPasswordHash.equals(this.passwordHash)){
-            this.passwordHash = newPasswordHash;
-            success = true;
-        }
-
-        return success;
-    }
-
-    // when logging in, have entered the right password?
-    public boolean matchesExistingPassword(String passwordHash){
-        return passwordHash.equals(this.passwordHash);
     }
 }
