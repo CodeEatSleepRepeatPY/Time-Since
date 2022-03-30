@@ -17,6 +17,8 @@ public class EventDSO {
     private boolean isFavorite;
     private final List<EventLabelDSO> labels;
 
+    private boolean eventIsDone;
+
     //----------------------------------------
     // constructor
     //----------------------------------------
@@ -29,6 +31,7 @@ public class EventDSO {
         targetFinishTime = null;
         isFavorite = false;
         labels = new ArrayList<>();
+        eventIsDone = false;
     }
 
     //----------------------------------------
@@ -67,6 +70,8 @@ public class EventDSO {
         return Collections.unmodifiableList(labels);
     }
 
+    public boolean getEventIsDone(){ return eventIsDone; }
+
     //----------------------------------------
     // setters
     //----------------------------------------
@@ -93,6 +98,8 @@ public class EventDSO {
     public void setFavorite(boolean isFavorite) {
         this.isFavorite = isFavorite;
     }
+
+    public void setEventIsDone(boolean isDone){ eventIsDone = isDone; }
 
     //----------------------------------------
     // general

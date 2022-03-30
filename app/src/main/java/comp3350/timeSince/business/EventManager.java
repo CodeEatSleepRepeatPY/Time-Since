@@ -125,6 +125,12 @@ public class EventManager {
         return toReturn;
     }
 
+    public void markEventAsDone(int eventID, boolean done){
+        EventDSO event = eventPersistence.getEventByID(eventID);
+        if(event != null)
+            event.setEventIsDone(done);
+    }
+
     public boolean isDone(int eventID){
         EventDSO event = eventPersistence.getEventByID(eventID);
         boolean toReturn = false;
