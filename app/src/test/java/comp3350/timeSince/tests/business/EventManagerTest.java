@@ -4,28 +4,48 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import net.bytebuddy.asm.Advice;
+
+import org.mockito.ArgumentMatchers;
 
 
 import java.util.*;
 
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.IEventLabelPersistence;
+import comp3350.timeSince.persistence.IEventPersistence;
+import comp3350.timeSince.persistence.IUserPersistence;
+import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
+import comp3350.timeSince.persistence.fakes.EventPersistence;
+import comp3350.timeSince.persistence.fakes.UserPersistence;
 
 public class EventManagerTest {
 
     private EventManager eventManager;
+    private IUserPersistence userPersistence;
+    private IEventPersistence eventPersistence;
+    private IEventLabelPersistence eventLabelPersistence;
     private EventDSO event1, event2, event3;
-    Date currDate;
+    Calendar currDate;
 
     @Before
     public void setUp() {
-        eventManager = mock(EventManager.class);
+        userPersistence = mock(UserPersistence.class);
+        eventPersistence = mock(EventPersistence.class);
+        eventLabelPersistence = mock(EventLabelPersistence.class);
+        eventManager = new EventManager(userPersistence, eventPersistence, eventLabelPersistence);
 
-        currDate = new Date(System.currentTimeMillis());
+        currDate = Calendar.getInstance();
         event1 = new EventDSO(0, currDate,"event1");
         event2 = new EventDSO(1, currDate,"event2");
         event3 = new EventDSO(2, currDate,"event3");
@@ -33,97 +53,95 @@ public class EventManagerTest {
 
     @Test
     public void testGetEventByID() {
-        when(eventManager.getEventByID(0)).thenReturn(event1);
-        when(eventManager.getEventByID(1)).thenReturn(event2);
-        when(eventManager.getEventByID(2)).thenReturn(event3);
+        when(eventPersistence.getEventByID(0)).thenReturn(event1);
+        when(eventPersistence.getEventByID(1)).thenReturn(event2);
+        when(eventPersistence.getEventByID(2)).thenReturn(event3);
 
         assertEquals("eventManager.getEventByID(0) should return event1", event1, eventManager.getEventByID(0));
         assertEquals("eventManager.getEventByID(1) should return event2", event2, eventManager.getEventByID(1));
         assertEquals("eventManager.getEventByID(2) should return event3", event3, eventManager.getEventByID(2));
         assertNull("eventManager.getEventByID(-1) should return null", eventManager.getEventByID(-1));
 
-        verify(eventManager).getEventByID(0);
-        verify(eventManager).getEventByID(1);
-        verify(eventManager).getEventByID(2);
+        verify(eventPersistence).getEventByID(0);
+        verify(eventPersistence).getEventByID(1);
+        verify(eventPersistence).getEventByID(2);
     }
 
     @Test
     public void testInsertEvent() {
-        when(eventManager.insertEvent("event1")).thenReturn(event1);
-        when(eventManager.insertEvent("event2")).thenReturn(event2);
-        when(eventManager.insertEvent("event3")).thenReturn(event3);
+        when(eventPersistence.insertEvent(any(EventDSO.class))).thenReturn(event1).thenReturn(event2).thenReturn(event3);
 
-        assertEquals("eventManager.insertEvent(event1) should return event1", event1, eventManager.insertEvent("event1"));
-        assertEquals("eventManager.insertEvent(event2) should return event2", event2, eventManager.insertEvent("event2"));
-        assertEquals("eventManager.insertEvent(event3) should return event3", event3, eventManager.insertEvent("event3"));
-        assertNull("eventManager.insertEvent(null) should return null", eventManager.insertEvent(null));
+        assertEquals("eventManager.insertEvent(event1) should return event1", event1, eventManager.insertEvent("event1", currDate));
+        assertEquals("eventManager.insertEvent(event2) should return event2", event2, eventManager.insertEvent("event2", currDate));
+        assertEquals("eventManager.insertEvent(event3) should return event3", event3, eventManager.insertEvent("event3", currDate));
 
-        verify(eventManager).insertEvent("event1");
-        verify(eventManager).insertEvent("event2");
-        verify(eventManager).insertEvent("event3");
+        verify(eventPersistence, times(3)).insertEvent(any(EventDSO.class));
     }
 
 
     @Test
     public void testUpdateEvent() {
-        when(eventManager.updateEventName("updatedEventName", 0)).thenReturn(event1);
-        when(eventManager.updateEventDescription("updatedEventDesc", 0)).thenReturn(event1);
-        when(eventManager.updateEventFinishTime(currDate, 0)).thenReturn(event1);
-        when(eventManager.updateEventFrequency(5, 0)).thenReturn(event1);
-        when(eventManager.updateEventFavorite(true, 0)).thenReturn(event1);
+        when(eventPersistence.getEventByID(0)).thenReturn(event1);
+        when(eventPersistence.updateEvent(any(EventDSO.class))).thenReturn(event1);
 
         assertEquals("eventManager.updateEventName() should return event1", event1, eventManager.updateEventName("updatedEventName", 0));
         assertEquals("eventManager.updateEventDescription() should return event1", event1, eventManager.updateEventDescription("updatedEventDesc", 0));
         assertEquals("eventManager.updateEventFinishTime() should return event1", event1, eventManager.updateEventFinishTime(currDate, 0));
         assertEquals("eventManager.updateEventFrequency() should return event1", event1, eventManager.updateEventFrequency(5, 0));
         assertEquals("eventManager.updateEventFavorite() should return event1", event1, eventManager.updateEventFavorite(true, 0));
-        assertNull("eventManager.updateEventName() should return null", eventManager.updateEventName("wow", -1));
 
-        verify(eventManager).updateEventName("updatedEventName", 0);
-        verify(eventManager).updateEventDescription("updatedEventDesc", 0);
-        verify(eventManager).updateEventFinishTime(currDate, 0);
-        verify(eventManager).updateEventFrequency(5, 0);
-        verify(eventManager).updateEventFavorite(true, 0);
-
+        verify(eventPersistence, times(5)).updateEvent(any(EventDSO.class));
     }
 
 
     @Test
     public void testDeleteEvent() {
-        when(eventManager.deleteEvent(0)).thenReturn(event1);
-        when(eventManager.deleteEvent(1)).thenReturn(event2);
-        when(eventManager.deleteEvent(2)).thenReturn(event3);
+        when(eventPersistence.getEventByID(0)).thenReturn(event1);
+        when(eventPersistence.getEventByID(1)).thenReturn(event2);
+        when(eventPersistence.getEventByID(2)).thenReturn(event3);
+
+        when(eventPersistence.deleteEvent(any(EventDSO.class))).thenReturn(event1).thenReturn(event2).thenReturn(event3);
 
         assertEquals("eventManager.deleteEvent(event1) should return event1", event1, eventManager.deleteEvent(0));
         assertEquals("eventManager.deleteEvent(event2) should return event2", event2, eventManager.deleteEvent(1));
         assertEquals("eventManager.deleteEvent(event3) should return event3", event3, eventManager.deleteEvent(2));
-        assertNull("eventManager.deleteEvent(null) should return null", eventManager.deleteEvent(-1));
 
-        verify(eventManager).deleteEvent(0);
-        verify(eventManager).deleteEvent(1);
-        verify(eventManager).deleteEvent(2);
+        verify(eventPersistence, times(3)).deleteEvent(any(EventDSO.class));
     }
 
     @Test
     public void testIsDone(){
-        when(eventManager.isDone(0)).thenReturn(true);
-        when(eventManager.isDone(1)).thenReturn(false);
+        Calendar futureDate = Calendar.getInstance();
+        futureDate.set(9999,10,10);
+
+        when(eventPersistence.getEventByID(0)).thenReturn(event1);
+        when(eventPersistence.getEventByID(1)).thenReturn(event2);
+
+        event1.setTargetFinishTime(Calendar.getInstance());
+        event2.setTargetFinishTime(futureDate);
 
         assertTrue("event with id 0 should be done", eventManager.isDone(0));
         assertFalse("event with id 1 should not be done", eventManager.isDone(1));
 
-        verify(eventManager).isDone(0);
-        verify(eventManager).isDone(1);
+        verify(eventPersistence).getEventByID(0);
+        verify(eventPersistence).getEventByID(1);
     }
 
     @Test
     public void testCreateOwnEvent(){
         UserDSO user = new UserDSO("user1", currDate, "hash1");
-        Date dueDate = new Date(System.currentTimeMillis());
+        EventLabelDSO eventLabel = new EventLabelDSO(0, "eventLabel1");
         String eventName = "event1", tagName = "Sports";
 
-        eventManager.createOwnEvent("user1", dueDate, eventName, tagName, true);
-        verify(eventManager).createOwnEvent("user1", dueDate, eventName, tagName, true);
+        when(userPersistence.getUserByID("user1")).thenReturn(user);
+        when(eventPersistence.insertEvent(any(EventDSO.class))).thenReturn(event1);
+        when(eventLabelPersistence.insertEventLabel(any(EventLabelDSO.class))).thenReturn(eventLabel);
+
+        assertTrue("eventManager.deleteEvent(event1) should return event1", eventManager.createOwnEvent("user1", Calendar.getInstance(), eventName, tagName, true));
+
+        verify(userPersistence).getUserByID("user1");
+        verify(eventPersistence).insertEvent(any(EventDSO.class));
+        verify(eventLabelPersistence).insertEventLabel(any(EventLabelDSO.class));
 
         /*
         The code below was used to test that createOwnEvent() actually worked, but it cannot be used
@@ -140,8 +158,8 @@ public class EventManagerTest {
 
     @Test
     public void testNumEvents(){
-        when(eventManager.numEvents()).thenReturn(5);
+        when(eventPersistence.numEvents()).thenReturn(5);
         assertEquals("eventManager.numEvents() should return 5", 5, eventManager.numEvents());
-        verify(eventManager).numEvents();
+        verify(eventPersistence).numEvents();
     }
 }

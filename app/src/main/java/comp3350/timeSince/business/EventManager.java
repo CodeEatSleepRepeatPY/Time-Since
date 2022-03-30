@@ -22,17 +22,22 @@ public class EventManager {
         eventLabelPersistence = Services.getEventLabelPersistence();
     }
 
-    public EventDSO getEventByID(int eventID) {
-        EventDSO toReturn = null;
-        if(eventID >= 0 && eventID < id){
-            toReturn = eventPersistence.getEventByID(eventID);
-        }
-        return toReturn;
+    public EventManager(IUserPersistence usersDB, IEventPersistence eventDB, IEventLabelPersistence eventLabelsDB){
+        userPersistence = usersDB;
+        eventPersistence = eventDB;
+        eventLabelPersistence = eventLabelsDB;
     }
 
-    public EventDSO insertEvent(String name) {
-        Date creationTime = new Date(System.currentTimeMillis());
-        EventDSO newEvent = new EventDSO(id, creationTime, name);
+    public EventDSO getEventByID(int eventID) {
+        //EventDSO toReturn = null;
+        //if(eventID >= 0 && eventID < id){
+        //    toReturn = eventPersistence.getEventByID(eventID);
+        //}
+        return eventPersistence.getEventByID(eventID);
+    }
+
+    public EventDSO insertEvent(String name, Calendar calendar) {
+        EventDSO newEvent = new EventDSO(id, calendar, name);
         EventDSO insertedEvent = eventPersistence.insertEvent(newEvent);
 
         if(insertedEvent != null){
@@ -67,7 +72,7 @@ public class EventManager {
         return oldEvent == null ? null : eventPersistence.updateEvent(updatedEvent);
     }
 
-    public EventDSO updateEventFinishTime(Date finishTime, int eventID) {
+    public EventDSO updateEventFinishTime(Calendar finishTime, int eventID) {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID);
         String name;
@@ -125,17 +130,19 @@ public class EventManager {
         boolean toReturn = false;
         if(event != null) {
             Date currentDate = new Date(System.currentTimeMillis());
-            Date eventDueDate = event.getTargetFinishTime();
+            Date eventDueDate = event.getTargetFinishTime().getTime();
             toReturn = currentDate.equals(eventDueDate) || currentDate.after(eventDueDate);
         }
         return toReturn;
     }
 
-    public void createOwnEvent(String userID, Date dueDate, String eventName, String eventLabelName, boolean favorite){
+    public boolean createOwnEvent(String userID, Calendar dueDate, String eventName, String eventLabelName, boolean favorite){
         UserDSO databaseUser = userPersistence.getUserByID(userID);
+        boolean toReturn = false;
+
         if(databaseUser != null) {
-            Date date = new Date(System.currentTimeMillis());
-            EventDSO event = new EventDSO(id, date, eventName); // create event object with specified name
+            Calendar calendar = Calendar.getInstance();
+            EventDSO event = new EventDSO(id, calendar, eventName); // create event object with specified name
             EventLabelDSO eventLabel = new EventLabelDSO(id, eventLabelName); // create tag object with specified name
 
             if(!databaseUser.getUserEvents().contains(event)) {
@@ -154,8 +161,10 @@ public class EventManager {
                 }
 
                 id++;
+                toReturn = true;
             }
         }
+        return toReturn;
     }
 
     public int numEvents() {

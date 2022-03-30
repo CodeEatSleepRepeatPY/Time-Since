@@ -15,9 +15,10 @@ import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
+import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.UserDSO;
@@ -29,7 +30,7 @@ public class UserPersistenceTest {
     private IUserPersistence userDatabase;
     private UserDSO user1, user2, user3;
     private List<UserDSO> userList;
-    private Date defaultDate;
+    private Calendar defaultDate;
 
     @Rule
     public ExpectedException exceptionRule;
@@ -37,7 +38,8 @@ public class UserPersistenceTest {
     @Before
     public void setUp() {
         userDatabase = new UserPersistence();
-        defaultDate = new Date(System.currentTimeMillis());
+        defaultDate = Calendar.getInstance();
+
         user1 = new UserDSO("uid1", defaultDate, "hash1");
         user2 = new UserDSO("uid2", defaultDate, "hash2");
         user3 = new UserDSO("uid3", defaultDate, "hash3");

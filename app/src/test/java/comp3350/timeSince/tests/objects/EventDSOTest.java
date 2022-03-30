@@ -9,25 +9,26 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
+import java.util.Calendar;
 
+import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.objects.EventDSO;
 
 public class EventDSOTest {
 
     public static EventDSO event;
     public static String name;
-    public static Date date;
-    public static Date targetDate;
+    public static Calendar date;
+    public static Calendar targetDate;
 
     @Before
     public void instantiateObject() {
         String message = "The event should not be null";
         name = "event0";
-        date = new Date(System.currentTimeMillis());
+        date = Calendar.getInstance();
         event = new EventDSO(1, date, name);
         assertNotNull(message, event);
-        targetDate = new Date(System.currentTimeMillis());
+        targetDate = DateUtils.timestampToCal(null);
     }
 
     @Test
@@ -102,7 +103,7 @@ public class EventDSOTest {
 
     @Test
     public void testSetTargetFinishTime() {
-        Date newDate = new Date(System.currentTimeMillis());
+        Calendar newDate = DateUtils.timestampToCal(null);
         event.setTargetFinishTime(newDate);
         String message = String.format("The event target finish time should be %s",
                 newDate);
