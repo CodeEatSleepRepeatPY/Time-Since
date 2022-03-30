@@ -132,7 +132,6 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     public void dueDateOnClick(View v) {
-        DatePickerDialog picker;
         DatePickerDialog.OnDateSetListener listener;
 
         try{
