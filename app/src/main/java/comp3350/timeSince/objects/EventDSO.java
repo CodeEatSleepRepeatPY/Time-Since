@@ -7,13 +7,14 @@ import java.util.List;
 
 public class EventDSO {
 
-    private final int id;
-    private String eventName;
-    private final Calendar DATE_CREATED;
+    private final int id; // not null, positive integer
+    private String eventName; // not null
+    private final Calendar DATE_CREATED; // not null
     private String description;
 
     private Calendar targetFinishTime;
-    private boolean isFavorite;
+    private boolean isFavorite; // not null
+    private boolean isDone;
     private final List<EventLabelDSO> labels;
 
     //----------------------------------------
@@ -27,6 +28,7 @@ public class EventDSO {
         description = "";
         targetFinishTime = null;
         isFavorite = false;
+        isDone = false;
         labels = new ArrayList<>();
     }
 
@@ -58,6 +60,10 @@ public class EventDSO {
         return isFavorite;
     }
 
+    public boolean isDone() {
+        return isDone;
+    }
+
     public List<EventLabelDSO> getEventLabels() {
         return Collections.unmodifiableList(labels);
     }
@@ -82,9 +88,17 @@ public class EventDSO {
         this.isFavorite = isFavorite;
     }
 
+    public void setIsDone(boolean isDone) {
+        this.isDone = isDone;
+    }
+
     //----------------------------------------
     // general
     //----------------------------------------
+
+    public boolean validate() {
+        return (id >= 0 && eventName != null);
+    }
 
     public void appendDescription(String newDescription) {
         description += newDescription;

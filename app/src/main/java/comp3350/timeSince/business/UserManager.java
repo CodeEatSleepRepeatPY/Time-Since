@@ -19,6 +19,10 @@ public class UserManager {
         databasePersistence = Services.getUserPersistence();
     }
 
+    public UserManager(IUserPersistence databasePersistence) {
+        this.databasePersistence = databasePersistence;
+    }
+
     //-----------------------------------------
     // User account Manager Registration
     //-----------------------------------------

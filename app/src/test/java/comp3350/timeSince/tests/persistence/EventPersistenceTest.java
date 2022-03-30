@@ -11,9 +11,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import comp3350.timeSince.business.DateUtils;
+import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
-import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.fakes.EventPersistence;
@@ -110,7 +109,7 @@ public class EventPersistenceTest {
                 eventDatabase.getEventByID(event2.getID()));
     }
 
-    @Test(expected = PersistenceException.class)
+    @Test(expected = DuplicateEventException.class)
     public void testInsertEventException() {
         eventDatabase.insertEvent(event1);
         eventDatabase.insertEvent(event2);
@@ -180,7 +179,7 @@ public class EventPersistenceTest {
         eventDatabase.insertEvent(event3);
         try {
             eventDatabase.insertEvent(event3);
-        } catch (PersistenceException e) {
+        } catch (DuplicateEventException e) {
             System.out.println(e.getMessage());
         }
         assertEquals("The next ID after three events, with one duplicate attempt should be 4.",

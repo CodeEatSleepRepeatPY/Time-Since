@@ -109,6 +109,35 @@ public class EventDSOTest {
     }
 
     @Test
+    public void testIsDone() {
+        assertFalse("Default should be not done.", event.isDone());
+        event.setIsDone(true);
+        assertTrue("After setting as done, Event should be done.",
+                event.isDone());
+        event.setIsDone(false);
+        assertFalse("After setting the Event as not done, it should be not done.",
+                event.isDone());
+    }
+
+    @Test
+    public void testValidate() {
+        assertTrue("An Event with valid ID and name should be valid.",
+                event.validate());
+
+        EventDSO badEvent = new EventDSO(-1,date,null);
+        assertFalse("An Event with both invalid parameters should not be valid.",
+                badEvent.validate());
+
+        badEvent = new EventDSO(-1, date, "hello");
+        assertFalse("An Event with an invalid ID should not be valid.",
+                badEvent.validate());
+
+        badEvent = new EventDSO(3, date, null);
+        assertFalse("An Event with an invalid name should not be valid.",
+                badEvent.validate());
+    }
+
+    @Test
     public void testToString() {
         String expected = String.format("Event Name: %s", event.getName());
         String message = "The Event should display as: 'EventID: %d, Name: ?id?, ?eventName?'";

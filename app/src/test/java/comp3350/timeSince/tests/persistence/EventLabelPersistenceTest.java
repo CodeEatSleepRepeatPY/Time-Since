@@ -1,11 +1,6 @@
 package comp3350.timeSince.tests.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -15,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
-import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
@@ -111,7 +106,7 @@ public class EventLabelPersistenceTest {
                 labelDatabase.getEventLabelByID(label2.getID()));
     }
 
-    @Test(expected = PersistenceException.class)
+    @Test(expected = DuplicateEventLabelException.class)
     public void testInsertEventException() {
         labelDatabase.insertEventLabel(label1);
         labelDatabase.insertEventLabel(label2);
@@ -183,7 +178,7 @@ public class EventLabelPersistenceTest {
         labelDatabase.insertEventLabel(label3);
         try {
             labelDatabase.insertEventLabel(label3);
-        } catch (PersistenceException e) {
+        } catch (DuplicateEventLabelException e) {
             System.out.println(e.getMessage());
         }
         assertEquals("The next ID after three labels, with one duplicate attempt should be 4.",

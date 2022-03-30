@@ -1,10 +1,6 @@
 package comp3350.timeSince.tests.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -82,8 +78,11 @@ public class UserPersistenceTest {
         UserDSO actual = userDatabase.getUserByID("uid1");
         assertEquals("The correct user should be returned if present",
                 user1, actual);
-        assertNull("Null should be returned if user is not present",
-                userDatabase.getUserByID("uid4"));
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testGetUserByIDException() {
+        userDatabase.getUserByID("uid4"); // should not be able to get user not in db
     }
 
     @Test
@@ -142,9 +141,6 @@ public class UserPersistenceTest {
 
         assertEquals("Size of database should be 2", 2,
                 userDatabase.numUsers());
-
-        assertNull("Deleted user should no longer be in database",
-                userDatabase.getUserByID(user1.getID()));
     }
 
     @Test(expected = UserNotFoundException.class)
