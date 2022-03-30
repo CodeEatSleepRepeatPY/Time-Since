@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
@@ -43,13 +43,12 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
         final String uID = rs.getString("uid");
         final String userName = rs.getString("user_name");
-        final Date dateRegistered = DateUtils.timestampToDate(rs.getTimestamp("date_registered"));
+        final Calendar dateRegistered = DateUtils.timestampToCal(rs.getTimestamp("date_registered"));
         final String membershipType = rs.getString("membership_type");
         final String passwordHash = rs.getString("password_hash");
 
         UserDSO newUser = new UserDSO(uID, dateRegistered, passwordHash);
         newUser.setName(userName);
-        newUser.setMembershipType(UserDSO.MembershipType.valueOf(membershipType));
 
         connectUsersAndEvents(newUser);
         connectUsersAndFavorites(newUser);
@@ -107,8 +106,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
             statement.setString(1, newUser.getID());
             statement.setString(2, newUser.getName());
-            statement.setTimestamp(3, DateUtils.dateToTimestamp(newUser.getDateRegistered()));
-            statement.setString(4, newUser.getMembershipType().name());
+            statement.setTimestamp(3, DateUtils.calToTimestamp(newUser.getDateRegistered()));
             statement.setString(5, newUser.getPasswordHash());
             statement.executeUpdate();
 
@@ -131,7 +129,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
              final PreparedStatement statement = c.prepareStatement(query)) {
 
             statement.setString(1, user.getName());
-            statement.setString(2, user.getMembershipType().name());
             statement.setString(3, user.getPasswordHash());
             statement.executeUpdate();
 

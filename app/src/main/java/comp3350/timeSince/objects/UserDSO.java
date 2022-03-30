@@ -7,19 +7,19 @@
 package comp3350.timeSince.objects;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class UserDSO {
-
     //----------------------------------------
     // instance variables
     //----------------------------------------
 
     private String id; // could be email, or randomly generated
     private String name;
-    private final Date DATE_REGISTERED; // generated when creating new object
+
+    private final Calendar DATE_REGISTERED; // generated when creating new object
     private String passwordHash;
     private final List<EventDSO> userEvents;
     private final List<EventDSO> favoritesList; // favorite Events
@@ -29,7 +29,7 @@ public class UserDSO {
     // constructor
     //----------------------------------------
 
-    public UserDSO(String id, Date date, String passwordHash) {
+    public UserDSO(String id, Calendar date, String passwordHash) {
         this.id = id;
         this.name = id; // defaults to the id
         this.DATE_REGISTERED = date;
@@ -53,7 +53,7 @@ public class UserDSO {
         return name;
     }
 
-    public Date getDateRegistered() {
+    public Calendar getDateRegistered() {
         return DATE_REGISTERED;
     }
 
@@ -79,6 +79,10 @@ public class UserDSO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     //----------------------------------------
