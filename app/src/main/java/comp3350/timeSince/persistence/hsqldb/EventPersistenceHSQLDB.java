@@ -113,7 +113,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
                 statement.setTimestamp(3, DateUtils.calToTimestamp(newEvent.getDateCreated()));
                 statement.setString(4, newEvent.getDescription());
                 statement.setTimestamp(5, DateUtils.calToTimestamp(newEvent.getTargetFinishTime()));
-                statement.setBoolean(6, newEvent.isFavorite());
+                statement.setInt(6, newEvent.isFavorite() ? 1 : 0);
                 statement.executeUpdate();
 
                 addLabelsConnections(c, newEvent.getEventLabels(), id);
