@@ -49,7 +49,11 @@ public class EventLabelDSO {
     //----------------------------------------
 
     public String toString() {
-        return String.format("#%s", name);
+        String toReturn = "#";
+        if (name != null) {
+            toReturn = String.format("#%s", name);
+        }
+        return toReturn;
     }
 
     public boolean equals(EventLabelDSO other) {

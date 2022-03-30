@@ -123,6 +123,11 @@ public class UserPersistenceTest {
                 userDatabase.getUserByID("uid1").getName());
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testUpdateUserException() {
+        userDatabase.updateUser(user1); // should not be able to update user not in db
+    }
+
     @Test
     public void testDeleteUser() {
         userDatabase.insertUser(user1);

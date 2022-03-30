@@ -109,6 +109,17 @@ public class EventDSOTest {
     }
 
     @Test
+    public void testToString() {
+        String expected = String.format("Event Name: %s", event.getName());
+        String message = "The Event should display as: 'EventID: %d, Name: ?id?, ?eventName?'";
+        assertEquals(message, expected, event.toString());
+
+        event.setName(null);
+        assertEquals("The Event should display as: 'No Named Event' when no name is given.",
+                "No Named Event", event.toString());
+    }
+
+    @Test
     public void testEquals() {
         EventDSO other = new EventDSO(1, date, "Water Plants");
         assertTrue("Events with the same ID should be equal",
@@ -117,4 +128,5 @@ public class EventDSOTest {
         assertFalse("Events with different ID's should not be equal",
                 event.equals(other));
     }
+
 }

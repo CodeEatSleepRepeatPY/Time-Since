@@ -103,7 +103,11 @@ public class EventDSO {
     }
 
     public String toString() {
-        return String.format("EventID: %d, Name: %s", id, eventName);
+        String toReturn = "No Named Event";
+        if (eventName != null) {
+            toReturn = String.format("Event Name: %s", eventName);
+        }
+        return toReturn;
     }
 
     public boolean equals(EventDSO other) {

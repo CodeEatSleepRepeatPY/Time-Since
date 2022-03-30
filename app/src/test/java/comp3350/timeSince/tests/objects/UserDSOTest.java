@@ -1,7 +1,6 @@
 package comp3350.timeSince.tests.objects;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -115,6 +114,23 @@ public class UserDSOTest {
 
         Assert.assertEquals(message, newPasswordHash,
                 this.userDSO.getPasswordHash());
+    }
+
+    @Test
+    public void testToString() {
+        String expected = String.format("Name: %s, UserID: %s",
+                userDSO.getName(), userDSO.getID());
+        String message = "The User should display as: 'Name: ?name?, UserID: ?id?'";
+        assertEquals(message, expected, userDSO.toString());
+
+        userDSO.setName(null);
+        expected = String.format("UserID: %s", userDSO.getID());
+        message = "The User should display as: 'UserID: ?id?' when no name is given.";
+        assertEquals(message, expected, userDSO.toString());
+
+        UserDSO testUser = new UserDSO(null, defaultDate, passwordHash);
+        assertEquals("Nothing should be displayed if no name or id.",
+                "", testUser.toString());
     }
 
     @Test

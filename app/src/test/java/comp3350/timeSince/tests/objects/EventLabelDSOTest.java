@@ -35,6 +35,17 @@ public class EventLabelDSOTest {
     }
 
     @Test
+    public void testToString() {
+        String expected = String.format("#%s", eventLabelDSO.getName());
+        String message = "The Event Label should display as: '# ?labelName?'";
+        assertEquals(message, expected, eventLabelDSO.toString());
+
+        eventLabelDSO.setName(null);
+        assertEquals("If label name does not exist, should display as: '#'",
+                "#", eventLabelDSO.toString());
+    }
+
+    @Test
     public void testEquals() {
         EventLabelDSO other = new EventLabelDSO(1, "Garage");
         assertTrue("Event labels with the same ID should be equal",

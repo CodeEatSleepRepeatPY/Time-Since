@@ -51,14 +51,14 @@ public class UserManagerTest {
                 userManger.accountCheck(testUserName2,testUserPassword2));
     }
 
-    @Test
-    public void lengthCheckTest(){
-        String invalidPassword = "bob12";
-        String validPassword = "Bob12345";
-
-        assertFalse("Since the length of the bob12 is 5 should return false", userManger.lengthCheck(invalidPassword));
-        assertTrue("The length of Bob12345 is 8 should return true",userManger.lengthCheck(validPassword));
-    }
+//    @Test
+//    public void lengthCheckTest(){
+//        String invalidPassword = "bob12";
+//        String validPassword = "Bob12345";
+//
+//        assertFalse("Since the length of the bob12 is 5 should return false", userManger.lengthCheck(invalidPassword));
+//        assertTrue("The length of Bob12345 is 8 should return true",userManger.lengthCheck(validPassword));
+//    }
 
     @Test
     public void uniqueNameTest(){
