@@ -1,19 +1,18 @@
 package comp3350.timeSince.objects;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class EventDSO {
 
     private final int id;
     private String eventName;
-    private final Date DATE_CREATED;
+    private final Calendar DATE_CREATED;
     private String description;
 
-    private Date targetFinishTime;
-    private int frequency; //TODO: This should probably change to a different format?
+    private Calendar targetFinishTime;
     private boolean isFavorite;
     private final List<EventLabelDSO> labels;
 
@@ -21,7 +20,7 @@ public class EventDSO {
     // constructor
     //----------------------------------------
 
-    public EventDSO(int id, Date creationTime, String name) {
+    public EventDSO(int id, Calendar creationTime, String name) {
         this.id = id;
         eventName = name;
         DATE_CREATED = creationTime;
@@ -43,7 +42,7 @@ public class EventDSO {
         return eventName;
     }
 
-    public Date getDateCreated() {
+    public Calendar getDateCreated() {
         return DATE_CREATED;
     }
 
@@ -51,12 +50,8 @@ public class EventDSO {
         return description;
     }
 
-    public Date getTargetFinishTime() {
+    public Calendar getTargetFinishTime() {
         return targetFinishTime;
-    }
-
-    public int getFrequency() {
-        return frequency;
     }
 
     public boolean isFavorite() {
@@ -79,15 +74,8 @@ public class EventDSO {
         this.description = description;
     }
 
-    public void setTargetFinishTime(Date target) {
+    public void setTargetFinishTime(Calendar target) {
         targetFinishTime = target;
-    }
-
-    public void setFrequency(int frequency) {
-        if (frequency > 0) {
-            this.frequency = frequency;
-        }
-        // TODO: throw an exception?
     }
 
     public void setFavorite(boolean isFavorite) {

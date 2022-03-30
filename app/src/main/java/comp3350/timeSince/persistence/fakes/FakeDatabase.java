@@ -1,7 +1,7 @@
 package comp3350.timeSince.persistence.fakes;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import comp3350.timeSince.objects.EventDSO;
@@ -18,9 +18,8 @@ public class FakeDatabase implements I_Database {
     // instance variables
     //----------------------------------------
 
-    private final ArrayList<UserDSO> usersDatabase;
-    private final ArrayList<EventLabelDSO> evenLabelDatabase;
-    private final Date defaultDate = new Date(System.currentTimeMillis());
+    private final List<UserDSO> usersDatabase;
+    private final List<EventLabelDSO> eventLabelDatabase;
     UserDSO user1, user2, user3;
     EventLabelDSO label1, label2, label3;
 
@@ -29,8 +28,9 @@ public class FakeDatabase implements I_Database {
     //----------------------------------------
 
     public FakeDatabase() {
-        usersDatabase = new ArrayList<UserDSO>();
-        evenLabelDatabase = new ArrayList<EventLabelDSO>();
+        usersDatabase = new ArrayList<>();
+        eventLabelDatabase = new ArrayList<>();
+        Calendar defaultDate = Calendar.getInstance();
 
         user1 = new UserDSO("uid1", defaultDate, "hash1");
         user2 = new UserDSO("uid2", defaultDate, "hash2");
@@ -56,12 +56,12 @@ public class FakeDatabase implements I_Database {
 
     public void addEventLabel(EventLabelDSO label) {
         if (label != null) {
-            evenLabelDatabase.add(label);
+            eventLabelDatabase.add(label);
         }
     }
 
     public List<EventLabelDSO> getAllEventLabels() {
-        return evenLabelDatabase;
+        return eventLabelDatabase;
     }
 
     public void addUser(UserDSO user) {
@@ -113,7 +113,7 @@ public class FakeDatabase implements I_Database {
     // getters
     //----------------------------------------
 
-    public ArrayList<UserDSO> getUsers() {
+    public List<UserDSO> getUsers() {
         return usersDatabase;
     }
 

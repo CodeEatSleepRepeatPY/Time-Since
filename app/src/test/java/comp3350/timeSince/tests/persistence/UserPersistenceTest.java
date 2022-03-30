@@ -2,7 +2,6 @@ package comp3350.timeSince.tests.persistence;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +14,7 @@ import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
@@ -29,7 +28,7 @@ public class UserPersistenceTest {
     private IUserPersistence userDatabase;
     private UserDSO user1, user2, user3;
     private List<UserDSO> userList;
-    private Date defaultDate;
+    private Calendar defaultDate;
 
     @Rule
     public ExpectedException exceptionRule;
@@ -37,7 +36,7 @@ public class UserPersistenceTest {
     @Before
     public void setUp() {
         userDatabase = new UserPersistence();
-        defaultDate = new Date(System.currentTimeMillis());
+        defaultDate = Calendar.getInstance();
         user1 = new UserDSO("uid1", defaultDate, "hash1");
         user2 = new UserDSO("uid2", defaultDate, "hash2");
         user3 = new UserDSO("uid3", defaultDate, "hash3");
@@ -122,12 +121,6 @@ public class UserPersistenceTest {
         userDatabase.updateUser(user1);
         assertEquals("New attributes should match", "hello",
                 userDatabase.getUserByID("uid1").getName());
-
-        userDatabase.insertUser(user3);
-        user3.setMembershipType(UserDSO.MembershipType.paid);
-        assertNotEquals("Old attributes should be changed",
-                UserDSO.MembershipType.free,
-                userDatabase.getUserByID("uid3").getMembershipType());
     }
 
     @Test

@@ -2,14 +2,13 @@ package comp3350.timeSince.tests.objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
+import java.util.Calendar;
 
 import comp3350.timeSince.objects.EventDSO;
 
@@ -17,17 +16,17 @@ public class EventDSOTest {
 
     public static EventDSO event;
     public static String name;
-    public static Date date;
-    public static Date targetDate;
+    public static Calendar date;
+    public static Calendar targetDate;
 
     @Before
     public void instantiateObject() {
         String message = "The event should not be null";
         name = "event0";
-        date = new Date(System.currentTimeMillis());
+        date = Calendar.getInstance();
         event = new EventDSO(1, date, name);
         assertNotNull(message, event);
-        targetDate = new Date(System.currentTimeMillis());
+        targetDate = Calendar.getInstance();
     }
 
     @Test
@@ -102,26 +101,11 @@ public class EventDSOTest {
 
     @Test
     public void testSetTargetFinishTime() {
-        Date newDate = new Date(System.currentTimeMillis());
+        Calendar newDate = Calendar.getInstance();
         event.setTargetFinishTime(newDate);
         String message = String.format("The event target finish time should be %s",
                 newDate);
         assertEquals(message, newDate, event.getTargetFinishTime());
-    }
-
-    @Test
-    public void testSetFrequency() {
-        int twoWeeks = 20160; // two weeks in minutes
-        String message = String.format("The event frequency should be %d", twoWeeks);
-        event.setFrequency(twoWeeks);
-        assertEquals(message, twoWeeks, event.getFrequency());
-
-        int negNum = -10;
-        event.setFrequency(negNum);
-        assertNotEquals("The event frequency should not be a negative number",
-                negNum, event.getFrequency());
-        assertEquals("The event frequency should not have changed",
-                twoWeeks, event.getFrequency());
     }
 
     @Test

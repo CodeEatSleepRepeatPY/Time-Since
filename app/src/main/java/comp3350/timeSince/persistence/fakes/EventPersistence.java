@@ -67,4 +67,9 @@ public class EventPersistence implements IEventPersistence {
         return eventList.size();
     }
 
+    @Override
+    public int getNextID() {
+        return eventList.size() + 1;
+    }
+
 }

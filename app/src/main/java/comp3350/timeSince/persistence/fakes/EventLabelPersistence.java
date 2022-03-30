@@ -69,4 +69,9 @@ public class EventLabelPersistence implements IEventLabelPersistence {
         return eventLabels.size();
     }
 
+    @Override
+    public int getNextID() {
+        return eventLabels.size() + 1;
+    }
+
 }

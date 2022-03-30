@@ -24,6 +24,8 @@
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/menu_event_labels.xml" value="0.175" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/menu_home.xml" value="0.18020833333333333" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.24010416666666667" />
+        <entry key="app/src/main/res/layout/create_own_event_view.xml" value="0.2828125" />
+        <entry key="app/src/main/res/layout/user_login_view.xml" value="0.2828125" />
       </map>
     </option>
   </component>

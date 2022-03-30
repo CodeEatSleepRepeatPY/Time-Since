@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
@@ -25,7 +25,7 @@ public class EventPersistenceTest {
 
     private IEventPersistence eventDatabase;
     private EventDSO event1, event2, event3, event4;
-    private final Date date = new Date(System.currentTimeMillis());
+    private final Calendar date = Calendar.getInstance();
     private List<EventDSO> eventList;
 
     @Before

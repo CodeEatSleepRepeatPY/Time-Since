@@ -11,19 +11,20 @@ import comp3350.timeSince.persistence.IUserPersistence;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class UserManagerTest {
     private UserManager userManger;
     private IUserPersistence userDatabase;
-    private Date defaultDate;
+    private Calendar defaultDate;
 
 
     @Before
     public void setUp(){
         userManger = new UserManager();
         userDatabase = Services.getUserPersistence();
-        defaultDate = new Date(System.currentTimeMillis());
+        defaultDate = Calendar.getInstance();
 
         userDatabase.insertUser(new UserDSO("kevin@qq.com",
                 defaultDate, "Kevin12345"));
