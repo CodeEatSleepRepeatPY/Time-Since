@@ -23,8 +23,8 @@ public class EventMangerIntegrationTest {
 
     @Before
     public void setUp() throws IOException {
-        tempDB = TestUtils.copyDB();
-        eventManager = new EventManager();
+        File tempDB = TestUtils.copyDB();
+        eventManager = new EventManager(true);
         currDate = Calendar.getInstance();
         event1 = new EventDSO(0, currDate, "event1");
         event2 = new EventDSO(1, currDate, "event2");

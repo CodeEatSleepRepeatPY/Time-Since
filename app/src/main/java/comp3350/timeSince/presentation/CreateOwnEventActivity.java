@@ -148,7 +148,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         SpinnerEventLabelList eventLabelsAdapter;
         //TODO: should just be the user's labels, not the whole database
         //TODO this will be replaced by Logic layer function; now it is only for test
-        eventLabelPersistence = Services.getEventLabelPersistence();
+        eventLabelPersistence = Services.getEventLabelPersistence(true);
         //dummy data for test
         //eventLabelPersistence.insertEventLabel(new EventLabelDSO(1, "label1"));
         //eventLabelPersistence.insertEventLabel(new EventLabelDSO(2, "label2"));

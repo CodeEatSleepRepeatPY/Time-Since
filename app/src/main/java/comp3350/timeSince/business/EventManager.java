@@ -24,15 +24,14 @@ public class EventManager {
     /**
      * Used in production.
      */
-    public EventManager() {
-        userPersistence = Services.getUserPersistence();
-        eventPersistence = Services.getEventPersistence();
-        eventLabelPersistence = Services.getEventLabelPersistence();
+    public EventManager(boolean forProduction) {
+        userPersistence = Services.getUserPersistence(forProduction);
+        eventPersistence = Services.getEventPersistence(forProduction);
+        eventLabelPersistence = Services.getEventLabelPersistence(forProduction);
     }
 
     /**
-     * TODO: From the rubric, I think this is actually how we are supposed to do it for production as well
-     * Used for testing purposes.
+     * Used for (mock) testing purposes.
      *
      * @param usersDB User database.
      * @param eventDB Event database.
