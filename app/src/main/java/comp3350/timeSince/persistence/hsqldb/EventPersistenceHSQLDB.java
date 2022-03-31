@@ -13,7 +13,6 @@ import java.util.List;
 import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
-import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
@@ -100,7 +99,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
         } catch (final SQLException e) {
             e.printStackTrace();
             throw new EventNotFoundException("The event: " + eventID
-                    + " could not be found.", e.getMessage());
+                    + " could not be found.\n" + e.getMessage());
         }
         return toReturn;
     }
@@ -128,10 +127,14 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
                 toReturn = newEvent;
             }
 
-        } catch (PersistenceException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            throw new DuplicateEventException("The event: " + newEvent.getName()
-                    + " could not be added.", e.getMessage());
+            String eventName = "";
+            if (newEvent != null) {
+                eventName = newEvent.getName();
+            }
+            throw new DuplicateEventException("The event: " + eventName
+                    + " could not be added.\n" + e.getMessage());
         }
 
         return toReturn;
@@ -161,7 +164,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new EventNotFoundException("The event: " + event.getName()
-                        + " could not be updated.", e.getMessage());
+                        + " could not be updated.\n" + e.getMessage());
             }
         }
         return toReturn;
@@ -186,7 +189,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new EventNotFoundException("The event: " + event.getName()
-                        + " could not be deleted.", e.getMessage());
+                        + " could not be deleted.\n" + e.getMessage());
             }
         }
         return toReturn;
@@ -237,9 +240,9 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
     }
 
     /**
-     * @param c Connection to the database.
+     * @param c      Connection to the database.
      * @param labels List of Event Label objects to add to the database.
-     * @param eid The unique (positive integer) ID of the Event associated with the labels.
+     * @param eid    The unique (positive integer) ID of the Event associated with the labels.
      * @throws SQLException Any database / SQL issue.
      */
     private void addLabelsConnections(Connection c, List<EventLabelDSO> labels, int eid) throws SQLException {
@@ -259,7 +262,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
     }
 
     /**
-     * @param c Connection to the database.
+     * @param c   Connection to the database.
      * @param eid The unique (positive integer) ID of the Event.
      * @throws SQLException Any database / SQL issue.
      */
@@ -282,7 +285,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
      *
      * @param event The Event object to add event label's too.
      */
-    private void connectEventsAndLabels(EventDSO event) {
+    private void connectEventsAndLabels(EventDSO event) throws SQLException {
         final String query = "SELECT lid FROM eventslabels WHERE eventslabels.eid = ?";
 
         try (Connection c = connection();
@@ -303,7 +306,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
         } catch (final SQLException e) {
             e.printStackTrace();
-            throw new PersistenceException("Labels could not be added to the event "
+            throw new SQLException("Labels could not be added to the event "
                     + event.getName() + ".", e.getMessage());
         }
     }

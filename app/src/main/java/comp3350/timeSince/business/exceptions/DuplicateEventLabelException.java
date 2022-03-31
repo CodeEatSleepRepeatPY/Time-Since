@@ -6,8 +6,4 @@ public class DuplicateEventLabelException extends RuntimeException {
         super(message);
     }
 
-    public DuplicateEventLabelException(String message, String error) {
-        super(message + "\n" + error);
-    }
-
 }

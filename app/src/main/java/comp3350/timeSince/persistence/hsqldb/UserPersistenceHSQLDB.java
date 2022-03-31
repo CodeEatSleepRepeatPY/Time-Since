@@ -12,7 +12,6 @@ import java.util.List;
 
 import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
-import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
@@ -64,6 +63,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     @Override
     public List<UserDSO> getUserList() {
         final String query = "SELECT * FROM users";
+        List<UserDSO> toReturn = null;
         final List<UserDSO> users = new ArrayList<>();
 
         try (final Connection c = connection();
@@ -74,12 +74,14 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 UserDSO user = fromResultSet(resultSet);
                 users.add(user);
             }
-            return users;
+            toReturn = users;
 
         } catch (final SQLException e) {
+            System.out.println("The list of users could not be returned.\n" + e.getMessage());
             e.printStackTrace();
-            throw new PersistenceException("The list of users could not be returned.", e.getMessage());
+            // will return null if unsuccessful.
         }
+        return toReturn;
     }
 
     @Override
@@ -101,7 +103,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         } catch (final SQLException e) {
             e.printStackTrace();
             throw new UserNotFoundException("The user: " + userID
-                    + " could not be found.", e.getMessage());
+                    + " could not be found.\n" + e.getMessage());
         }
         return toReturn;
     }
@@ -111,7 +113,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         final String query = "INSERT INTO users VALUES(?, ?, ?, ?)";
 
         UserDSO toReturn = null;
-        if (newUser != null){
+        if (newUser != null) {
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
@@ -129,7 +131,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new DuplicateUserException("The user: " + newUser.getName()
-                        + " could not be added.", e.getMessage());
+                        + " could not be added.\n" + e.getMessage());
             }
         }
         return toReturn;
@@ -157,7 +159,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new UserNotFoundException("The user: " + user.getName() +
-                        " could not be updated.", e.getMessage());
+                        " could not be updated.\n" + e.getMessage());
             }
         }
         return toReturn;
@@ -183,7 +185,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new UserNotFoundException("The user: " + user.getName()
-                        + " could not be deleted.", e.getMessage());
+                        + " could not be deleted.\n" + e.getMessage());
             }
         }
         return toReturn;
@@ -225,18 +227,18 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             }
 
         } catch (final SQLException e) {
+            System.out.println("The number of users could not be calculated.\n" + e.getMessage());
             e.printStackTrace();
-            throw new PersistenceException("The number of users could not be calculated.",
-                    e.getMessage());
+            // will return -1 if unsuccessful.
         }
 
         return toReturn;
     }
 
     /**
-     * @param c Connection to the database.
+     * @param c      Connection to the database.
      * @param labels List of Event Label objects associated with the User.
-     * @param uid The unique (String) ID of the User.
+     * @param uid    The unique (String) ID of the User.
      * @throws SQLException Any database / SQL issue.
      */
     private void addLabelConnections(Connection c, List<EventLabelDSO> labels, String uid) throws SQLException {
@@ -257,9 +259,9 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     /**
-     * @param c Connection to the database.
+     * @param c      Connection to the database.
      * @param events List of Event objects associated with the User.
-     * @param uid The unique (String) ID of the User.
+     * @param uid    The unique (String) ID of the User.
      * @throws SQLException Any database / SQL issue.
      */
     private void addEventConnections(Connection c, List<EventDSO> events, String uid) throws SQLException {
@@ -280,7 +282,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     /**
-     * @param c Connection to the database.
+     * @param c   Connection to the database.
      * @param uid The unique (String) ID of the User.
      * @throws SQLException Any database / SQL issue.
      */
@@ -299,7 +301,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     /**
-     * @param c Connection to the database.
+     * @param c   Connection to the database.
      * @param uid The unique (String) ID of the User.
      * @throws SQLException Any database / SQL issue.
      */
@@ -320,7 +322,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     /**
      * @param user The User object to add Events to.
      */
-    private void connectUsersAndEvents(UserDSO user) {
+    private void connectUsersAndEvents(UserDSO user) throws SQLException {
         final String query = "SELECT eid FROM usersevents WHERE usersevents.uid = ?";
 
         try (Connection c = connection();
@@ -340,8 +342,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             }
 
         } catch (final SQLException e) {
-            e.printStackTrace();
-            throw new PersistenceException("Events could not be added to user: "
+            throw new SQLException("Events could not be added to user: "
                     + user.getName() + ".", e.getMessage());
         }
     }
@@ -349,7 +350,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     /**
      * @param user The User object to add Event Label's to.
      */
-    private void connectUsersAndLabels(UserDSO user) {
+    private void connectUsersAndLabels(UserDSO user) throws SQLException {
         final String query = "SELECT eventslabels.lid "
                 + "FROM usersevents INNER JOIN eventslabels ON usersevents.eid = eventslabels.eid "
                 + "WHERE usersevents.uid = ?";
@@ -371,8 +372,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             }
 
         } catch (final SQLException e) {
-            e.printStackTrace();
-            throw new PersistenceException("Labels could not be added to user: "
+            throw new SQLException("Labels could not be added to user: "
                     + user.getID() + ".", e.getMessage());
         }
     }
@@ -382,7 +382,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
      *
      * @param user The User object to add favourites to.
      */
-    private void connectUsersAndFavorites(UserDSO user) {
+    private void connectUsersAndFavorites(UserDSO user) throws SQLException {
         final String query = "SELECT eid FROM usersevents WHERE usersevents.uid = ?";
 
         try (Connection c = connection();
@@ -402,8 +402,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             }
 
         } catch (final SQLException e) {
-            e.printStackTrace();
-            throw new PersistenceException("Favorites could not be added to user: "
+            throw new SQLException("Favorites could not be added to user: "
                     + user.getName() + ".", e.getMessage());
         }
     }

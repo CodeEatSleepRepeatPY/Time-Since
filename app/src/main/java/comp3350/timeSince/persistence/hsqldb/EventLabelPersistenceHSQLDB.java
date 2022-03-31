@@ -11,7 +11,6 @@ import java.util.List;
 
 import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
-import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 
@@ -83,7 +82,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
         } catch (final SQLException e) {
             e.printStackTrace();
             throw new EventLabelNotFoundException("The event label: " + labelID
-                    + " could not be found.", e.getMessage());
+                    + " could not be found.\n" + e.getMessage());
         }
         return toReturn;
     }
@@ -105,10 +104,10 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
                 toReturn = newEventLabel;
             }
 
-        } catch (PersistenceException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new DuplicateEventLabelException("The event label: " + newEventLabel.getName()
-                    + " could not be added.", e.getMessage());
+                    + " could not be added.\n" + e.getMessage());
         }
 
         return toReturn;
@@ -131,7 +130,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new EventLabelNotFoundException("The event label: " + eventLabel.getName()
-                        + " could not be updated.", e.getMessage());
+                        + " could not be updated.\n" + e.getMessage());
             }
         }
         return toReturn;
@@ -156,7 +155,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new EventLabelNotFoundException("The event label: " + eventLabel.getName()
-                        + " could not be deleted.", e.getMessage());
+                        + " could not be deleted.\n" + e.getMessage());
             }
         }
         return toReturn;
@@ -207,7 +206,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
     }
 
     /**
-     * @param c Connection to the database.
+     * @param c   Connection to the database.
      * @param lid The unique (positive integer) ID of the Event Label.
      * @throws SQLException Any database / SQL issue.
      */
