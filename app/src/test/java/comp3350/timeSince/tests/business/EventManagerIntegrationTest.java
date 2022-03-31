@@ -59,7 +59,7 @@ public class EventManagerIntegrationTest {
 
     @After
     public void tearDown() {
-        tempDB.delete();
+        //tempDB.delete();
     }
 
     @Test
@@ -138,7 +138,7 @@ public class EventManagerIntegrationTest {
         assertNotNull("event4 should be inserted",
                 eventManager.insertEvent("user1", currDate, "event4", "label4", true));
         assertNotNull("event5 should be inserted",
-                eventManager.insertEvent("user1", currDate, "event5", "label5", true));
+                eventManager.insertEvent("user1", currDate, "event5", "label5", false));
         assertNotNull("event6 should be inserted",
                 eventManager.insertEvent("user1", currDate, "event6", "label6", true));
 
@@ -147,8 +147,12 @@ public class EventManagerIntegrationTest {
         EventDSO event6 = eventManager.getEventByID(6);
 
         assertEquals("event with id 4 should have the name 'event4'", "event4", event4.getName());
+        assertTrue("event with id 4 should be a favorite", event4.isFavorite());
         assertEquals("event with id 5 should have the name 'event5'", "event5", event5.getName());
+        assertFalse("event with id 5 should not be a favorite", event5.isFavorite());
         assertEquals("event with id 6 should have the name 'event6'", "event6", event6.getName());
+        assertTrue("event with id 6 should be a favorite", event6.isFavorite());
+        assertEquals("the database should contain 6 events", 6, eventManager.numEvents());
     }
 
     @Test
