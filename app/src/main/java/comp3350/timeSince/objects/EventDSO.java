@@ -97,7 +97,7 @@ public class EventDSO {
     //----------------------------------------
 
     public boolean validate() {
-        return (id >= 0 && eventName != null);
+        return (id >= 1 && eventName != null);
     }
 
     public void appendDescription(String newDescription) {

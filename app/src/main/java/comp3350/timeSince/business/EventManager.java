@@ -120,7 +120,7 @@ public class EventManager {
         if (event != null) {
             Calendar currentDate = Calendar.getInstance();
             Calendar eventDueDate = event.getTargetFinishTime();
-            toReturn = currentDate.equals(eventDueDate) || currentDate.after(eventDueDate);
+            toReturn = currentDate.equals(eventDueDate) || currentDate.after(eventDueDate) || event.isDone();
         }
         return toReturn;
     }
