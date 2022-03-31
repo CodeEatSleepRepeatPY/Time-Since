@@ -2,14 +2,21 @@ package comp3350.timeSince.presentation;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.Spinner;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import android.widget.AdapterView;
+import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,8 +26,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
-import comp3350.timeSince.R;
 import comp3350.timeSince.application.Services;
+
+import comp3350.timeSince.R;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
@@ -28,12 +36,13 @@ import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
 public class CreateOwnEventActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener,
-        AdapterView.OnItemSelectedListener {
+        AdapterView.OnItemSelectedListener
+{
     private boolean favorite = false;
-    private boolean update = false;
     private ArrayList<EventLabelDSO> eventLabels;
     private Bundle extras;
     private TextView eventName;
+    private boolean labelNotClicked = true;
     private TextView dueDate;
     private TextView dueTime;
     private TextView isFavorite;
@@ -80,6 +89,14 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
         selectEventLabel.setOnItemSelectedListener(this);
 
+        findViewById(R.id.clear_event_labels).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                eventLabels.clear();
+                eventLabelName.setText(concatenateLabels());
+            }
+        });
+
         findViewById(R.id.save_event).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,7 +109,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
+    public boolean onSupportNavigateUp(){
         finish();
         return true;
     }
@@ -100,11 +117,25 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         EventLabelDSO eventLabelDSO;
-        if (adapterView == findViewById(R.id.select_event_label)) {
+        if(adapterView == findViewById(R.id.select_event_label)){
             eventLabelDSO = (EventLabelDSO) adapterView.getItemAtPosition(position);
-            eventLabels.add(eventLabelDSO);
-            eventLabelName.setText(eventLabelDSO.getName());
+            if( labelNotClicked ){
+                eventLabels.clear();
+                labelNotClicked = false;
+            }else{
+                eventLabels.add(eventLabelDSO );
+                eventLabelName.setText(concatenateLabels());
+            }
         }
+    }
+
+    private String concatenateLabels(){
+        StringBuilder sb = new StringBuilder();
+
+        for(EventLabelDSO eventLabel : eventLabels){
+            sb.append(" "+eventLabel.getName() );
+        }
+        return(sb.toString());
     }
 
     @Override
@@ -112,15 +143,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelName.setText("");
     }
 
-    /* menu on the top right, might be used later
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.menu_event_labels, menu);
-        return true;
-    }
-    */
 
-    private void loadEventLabelList() {
+    private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
         //TODO: should just be the user's labels, not the whole database
         //TODO this will be replaced by Logic layer function; now it is only for test
@@ -138,9 +162,20 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelsAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_items);
     }
 
-    private void saveContents() {
+    private void saveContents(){
         //TODO save the user input, let the logic handles the data and update the DB
         extras = getIntent().getExtras();
+        //save information to the database
+        Intent nextIntent = new Intent(this, ViewEventActivity.class);
+
+        //if the event is successfully created
+        String message = "Creation successful! ";
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+
+        CreateOwnEventActivity.this.startActivity(nextIntent);
+        //else throw createEvent exception: invalid event name and/or description /data time over pass
+
+
 
     }
 
@@ -150,10 +185,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         mCalendar.set(Calendar.HOUR_OF_DAY, hour);
         mCalendar.set(Calendar.MINUTE, minute);
         SimpleDateFormat mSDF = new SimpleDateFormat("hh:mm a");
-        dueTime.setText(mSDF.format(mCalendar.getTime()));
+        dueTime.setText( mSDF.format(mCalendar.getTime()) );
     }
 
-    private void showPickTimeDialogue() {
+    private void showPickTimeDialogue(){
         Calendar mCalendar = Calendar.getInstance();
         int mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
         int mMinute = mCalendar.get(Calendar.MINUTE);
@@ -165,10 +200,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        dueDate.setText(String.format("%d/%d/%d", day, month, year));
+        dueDate.setText(String.format("%d/%d/%d",day, month, year));
     }
 
-    private void showPickDateDialogue() {
+    private void showPickDateDialogue(){
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,
                 this,
@@ -179,14 +214,13 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         datePickerDialog.show();
     }
 
-    public void buttonSetEventOnClick(View v) {
+    public void buttonSetEventOnClick(View v){
         updateFavorite();
     }
 
     private void updateFavorite() {
-        if (favoriteBtn != null) {
+        if(favoriteBtn != null) {
             favorite = !favorite;
-            update = true;
             if (favorite) {
                 favoriteBtn.setBackgroundResource(R.drawable.heart_filled);
                 isFavorite.setText("Favorite: yes");

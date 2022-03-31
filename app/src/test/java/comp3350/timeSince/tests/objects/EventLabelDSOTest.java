@@ -1,9 +1,9 @@
 package comp3350.timeSince.tests.objects;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,51 +12,55 @@ import comp3350.timeSince.objects.EventLabelDSO;
 public class EventLabelDSOTest {
     private EventLabelDSO eventLabelDSO;
     private String name;
-    private EventLabelDSO.Color color;
 
     @Before
     public void setUp() {
-        this.name = "Super Secret Sauce";
-        this.color = EventLabelDSO.Color.red;
-
-        this.eventLabelDSO = new EventLabelDSO(1, name);
-        eventLabelDSO.setColor(color);
+        name = "Super Secret Sauce";
+        eventLabelDSO = new EventLabelDSO(1, name);
     }
 
     @Test
     public void testTestGetName() {
-        String message = String.format("The initial name should be %s",
-                this.name);
-
-        Assert.assertEquals(message, this.name, this.eventLabelDSO.getName());
-    }
-
-    @Test
-    public void testGetColor() {
-        String message = String.format("The initial color should be %s",
-                this.color.name());
-
-        Assert.assertEquals(message, this.color, this.eventLabelDSO.getColor());
+        String message = String.format("The initial name should be %s", name);
+        assertEquals(message, name, eventLabelDSO.getName());
     }
 
     @Test
     public void testTestSetName() {
         String newName = "When You Have Time";
-        String message = String.format("The name should now be set to %s",
-                newName);
-        this.eventLabelDSO.setName(newName);
+        String message = String.format("The name should now be set to %s", newName);
 
-        Assert.assertEquals(message, newName, this.eventLabelDSO.getName());
+        eventLabelDSO.setName(newName);
+        assertEquals(message, newName, this.eventLabelDSO.getName());
     }
 
     @Test
-    public void testSetColor() {
-        EventLabelDSO.Color newColor = EventLabelDSO.Color.yellow;
-        String message = String.format("The color should now be set to %s",
-                newColor.name());
-        this.eventLabelDSO.setColor(newColor);
+    public void testValidate() {
+        assertTrue("An Event Label with both a valid ID and name should be valid.",
+                eventLabelDSO.validate());
 
-        Assert.assertEquals(message, newColor, this.eventLabelDSO.getColor());
+        EventLabelDSO badLabel = new EventLabelDSO(-1,null);
+        assertFalse("An Event Label with both invalid parameters should not be valid.",
+                badLabel.validate());
+
+        badLabel = new EventLabelDSO(-1,"hello");
+        assertFalse("An Event Label with an invalid ID should not be valid.",
+                badLabel.validate());
+
+        badLabel = new EventLabelDSO(3,null);
+        assertFalse("An Event Label with an invalid name should not be valid.",
+                badLabel.validate());
+    }
+
+    @Test
+    public void testToString() {
+        String expected = String.format("#%s", eventLabelDSO.getName());
+        String message = "The Event Label should display as: '# ?labelName?'";
+        assertEquals(message, expected, eventLabelDSO.toString());
+
+        eventLabelDSO.setName(null);
+        assertEquals("If label name does not exist, should display as: '#'",
+                "#", eventLabelDSO.toString());
     }
 
     @Test

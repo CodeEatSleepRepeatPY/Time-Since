@@ -8,8 +8,12 @@ package comp3350.timeSince.business.exceptions;
  */
 public class PersistenceException extends RuntimeException {
 
-    public PersistenceException(String error) {
-        super("Database error:\n" + error);
+    public PersistenceException(String message) {
+        super(message);
+    }
+
+    public PersistenceException(String message, String error) {
+        super(message + "\n" + error);
     }
 
 }

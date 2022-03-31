@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
-import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.persistence.IEventPersistence;
 
@@ -23,7 +23,7 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO getEventByID(int eventID) {
+    public EventDSO getEventByID(int eventID) throws EventNotFoundException {
         for (int i = 0; i < eventList.size(); i++) {
             if (eventList.get(i).getID() == eventID) {
                 return eventList.get(i);
@@ -33,17 +33,17 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO insertEvent(EventDSO newEvent) {
+    public EventDSO insertEvent(EventDSO newEvent) throws DuplicateEventException {
         int index = eventList.indexOf(newEvent);
         if (index < 0) {
             eventList.add(newEvent);
             return newEvent;
         } //else: already exists in database
-        throw new PersistenceException("The event: " + newEvent.getName() + " already exists.");
+        throw new DuplicateEventException("The event: " + newEvent.getName() + " already exists.");
     }
 
     @Override
-    public EventDSO updateEvent(EventDSO event) {
+    public EventDSO updateEvent(EventDSO event) throws EventNotFoundException {
         int index = eventList.indexOf(event);
         if (index >= 0) {
             eventList.set(index, event);
@@ -53,7 +53,7 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO deleteEvent(EventDSO event) {
+    public EventDSO deleteEvent(EventDSO event) throws EventNotFoundException {
         int index = eventList.indexOf(event);
         if (index >= 0) {
             eventList.remove(index);
@@ -65,6 +65,19 @@ public class EventPersistence implements IEventPersistence {
     @Override
     public int numEvents() {
         return eventList.size();
+    }
+
+    @Override
+    public int getNextID() {
+        int toReturn = 0;
+
+        for (EventDSO event : eventList) {
+            if (event.getID() > toReturn) {
+                toReturn = event.getID();
+            }
+        }
+
+        return toReturn + 1;
     }
 
 }

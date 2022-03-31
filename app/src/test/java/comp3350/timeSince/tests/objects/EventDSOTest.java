@@ -2,7 +2,6 @@ package comp3350.timeSince.tests.objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -11,7 +10,6 @@ import org.junit.Test;
 
 import java.util.Calendar;
 
-import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.objects.EventDSO;
 
 public class EventDSOTest {
@@ -28,7 +26,7 @@ public class EventDSOTest {
         date = Calendar.getInstance();
         event = new EventDSO(1, date, name);
         assertNotNull(message, event);
-        targetDate = DateUtils.timestampToCal(null);
+        targetDate = Calendar.getInstance();
     }
 
     @Test
@@ -103,7 +101,7 @@ public class EventDSOTest {
 
     @Test
     public void testSetTargetFinishTime() {
-        Calendar newDate = DateUtils.timestampToCal(null);
+        Calendar newDate = Calendar.getInstance();
         event.setTargetFinishTime(newDate);
         String message = String.format("The event target finish time should be %s",
                 newDate);
@@ -111,18 +109,43 @@ public class EventDSOTest {
     }
 
     @Test
-    public void testSetFrequency() {
-        int twoWeeks = 20160; // two weeks in minutes
-        String message = String.format("The event frequency should be %d", twoWeeks);
-        event.setFrequency(twoWeeks);
-        assertEquals(message, twoWeeks, event.getFrequency());
+    public void testIsDone() {
+        assertFalse("Default should be not done.", event.isDone());
+        event.setIsDone(true);
+        assertTrue("After setting as done, Event should be done.",
+                event.isDone());
+        event.setIsDone(false);
+        assertFalse("After setting the Event as not done, it should be not done.",
+                event.isDone());
+    }
 
-        int negNum = -10;
-        event.setFrequency(negNum);
-        assertNotEquals("The event frequency should not be a negative number",
-                negNum, event.getFrequency());
-        assertEquals("The event frequency should not have changed",
-                twoWeeks, event.getFrequency());
+    @Test
+    public void testValidate() {
+        assertTrue("An Event with valid ID and name should be valid.",
+                event.validate());
+
+        EventDSO badEvent = new EventDSO(-1,date,null);
+        assertFalse("An Event with both invalid parameters should not be valid.",
+                badEvent.validate());
+
+        badEvent = new EventDSO(-1, date, "hello");
+        assertFalse("An Event with an invalid ID should not be valid.",
+                badEvent.validate());
+
+        badEvent = new EventDSO(3, date, null);
+        assertFalse("An Event with an invalid name should not be valid.",
+                badEvent.validate());
+    }
+
+    @Test
+    public void testToString() {
+        String expected = String.format("Event Name: %s", event.getName());
+        String message = "The Event should display as: 'EventID: %d, Name: ?id?, ?eventName?'";
+        assertEquals(message, expected, event.toString());
+
+        event.setName(null);
+        assertEquals("The Event should display as: 'No Named Event' when no name is given.",
+                "No Named Event", event.toString());
     }
 
     @Test
@@ -134,4 +157,5 @@ public class EventDSOTest {
         assertFalse("Events with different ID's should not be equal",
                 event.equals(other));
     }
+
 }

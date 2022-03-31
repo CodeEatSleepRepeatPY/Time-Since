@@ -7,6 +7,7 @@ import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
+import comp3350.timeSince.persistence.fakes.UserPersistence;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -15,23 +16,22 @@ import java.util.Calendar;
 
 public class UserManagerTest {
     private UserManager userManger;
-    private IUserPersistence userDatabase;
     private Calendar defaultDate;
 
 
     @Before
     public void setUp(){
-        userManger = new UserManager();
-        userDatabase = Services.getUserPersistence();
+        userManger = new UserManager(new UserPersistence());
+
         defaultDate = Calendar.getInstance();
 
-        userDatabase.insertUser(new UserDSO("kevin@qq.com",
+        userManger.insertUser(new UserDSO("kevin@qq.com",
                 defaultDate, "Kevin12345"));
-        userDatabase.insertUser(new UserDSO("bob23@qq.com",
+        userManger.insertUser(new UserDSO("bob23@qq.com",
                 defaultDate, "Bob1234"));
-        userDatabase.insertUser(new UserDSO("James98@qq.com",
+        userManger.insertUser(new UserDSO("James98@qq.com",
                 defaultDate, "James1234"));
-        userDatabase.insertUser(new UserDSO("Jack233@qq.com",
+        userManger.insertUser(new UserDSO("Jack233@qq.com",
                 defaultDate, "JACK1234"));
     }
 
@@ -50,14 +50,14 @@ public class UserManagerTest {
                 userManger.accountCheck(testUserName2,testUserPassword2));
     }
 
-    @Test
-    public void lengthCheckTest(){
-        String invalidPassword = "bob12";
-        String validPassword = "Bob12345";
-
-        assertFalse("Since the length of the bob12 is 5 should return false", userManger.lengthCheck(invalidPassword));
-        assertTrue("The length of Bob12345 is 8 should return true",userManger.lengthCheck(validPassword));
-    }
+//    @Test
+//    public void lengthCheckTest(){
+//        String invalidPassword = "bob12";
+//        String validPassword = "Bob12345";
+//
+//        assertFalse("Since the length of the bob12 is 5 should return false", userManger.lengthCheck(invalidPassword));
+//        assertTrue("The length of Bob12345 is 8 should return true",userManger.lengthCheck(validPassword));
+//    }
 
     @Test
     public void uniqueNameTest(){

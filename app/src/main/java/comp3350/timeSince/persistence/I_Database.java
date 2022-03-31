@@ -1,15 +1,11 @@
 package comp3350.timeSince.persistence;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 
-/**
- * @deprecated
- */
 public interface I_Database {
     void addUser(UserDSO user);
 
@@ -25,5 +21,5 @@ public interface I_Database {
 
     UserDSO getUser(String uuid);
 
-    ArrayList<UserDSO> getUsers();
+    List<UserDSO> getUsers();
 }

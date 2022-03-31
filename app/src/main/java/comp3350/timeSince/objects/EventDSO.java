@@ -1,23 +1,21 @@
 package comp3350.timeSince.objects;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Calendar;
 
 public class EventDSO {
 
-    private final int id;
-    private String eventName;
-    private final Calendar DATE_CREATED;
+    private final int id; // not null, positive integer
+    private String eventName; // not null
+    private final Calendar DATE_CREATED; // not null
     private String description;
 
     private Calendar targetFinishTime;
-    private int frequency; //TODO: This should probably change to a different format?
-    private boolean isFavorite;
+    private boolean isFavorite; // not null
+    private boolean isDone;
     private final List<EventLabelDSO> labels;
-
-    private boolean eventIsDone;
 
     //----------------------------------------
     // constructor
@@ -30,8 +28,8 @@ public class EventDSO {
         description = "";
         targetFinishTime = null;
         isFavorite = false;
+        isDone = false;
         labels = new ArrayList<>();
-        eventIsDone = false;
     }
 
     //----------------------------------------
@@ -58,19 +56,17 @@ public class EventDSO {
         return targetFinishTime;
     }
 
-    public int getFrequency() {
-        return frequency;
-    }
-
     public boolean isFavorite() {
         return isFavorite;
+    }
+
+    public boolean isDone() {
+        return isDone;
     }
 
     public List<EventLabelDSO> getEventLabels() {
         return Collections.unmodifiableList(labels);
     }
-
-    public boolean getEventIsDone(){ return eventIsDone; }
 
     //----------------------------------------
     // setters
@@ -88,22 +84,21 @@ public class EventDSO {
         targetFinishTime = target;
     }
 
-    public void setFrequency(int frequency) {
-        if (frequency > 0) {
-            this.frequency = frequency;
-        }
-        // TODO: throw an exception?
-    }
-
     public void setFavorite(boolean isFavorite) {
         this.isFavorite = isFavorite;
     }
 
-    public void setEventIsDone(boolean isDone){ eventIsDone = isDone; }
+    public void setIsDone(boolean isDone) {
+        this.isDone = isDone;
+    }
 
     //----------------------------------------
     // general
     //----------------------------------------
+
+    public boolean validate() {
+        return (id >= 0 && eventName != null);
+    }
 
     public void appendDescription(String newDescription) {
         description += newDescription;
@@ -122,14 +117,15 @@ public class EventDSO {
     }
 
     public String toString() {
-        return String.format("EventID: %d, Name: %s", id, eventName);
+        String toReturn = "No Named Event";
+        if (eventName != null) {
+            toReturn = String.format("Event Name: %s", eventName);
+        }
+        return toReturn;
     }
 
     public boolean equals(EventDSO other) {
         return this.id == other.getID();
     }
 
-    public boolean validName(){
-        return (eventName != null);
-    }
 }

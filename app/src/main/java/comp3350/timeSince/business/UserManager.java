@@ -1,22 +1,26 @@
 package comp3350.timeSince.business;
 
-import java.util.List;
+
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import comp3350.timeSince.application.Services;
+import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserManager {
-    private List<UserDSO> userList;
+
     private final IUserPersistence databasePersistence;
 
     public UserManager() {
         databasePersistence = Services.getUserPersistence();
-        accessUsers();
     }
 
-    private void accessUsers() {
-        userList = databasePersistence.getUserList();
+    public UserManager(IUserPersistence databasePersistence) {
+        this.databasePersistence = databasePersistence;
     }
 
     //-----------------------------------------
@@ -24,38 +28,43 @@ public class UserManager {
     //-----------------------------------------
 
     public boolean uniqueName(String userName) {
-        boolean unique = true;
-
-        accessUsers();
-
-        for (int i = 0; i < userList.size() && unique; i++) {
-            if (userName.equals(userList.get(i).getID())) {
-                unique = false;
-            }
-        }
-        return unique;
-    }
-
-    public boolean lengthCheck(String password) {
-        final int MIN_LENGTH = 8;
-
-        //this method is to ensure the password isn't too short(less than 8)
-        return password.length() >= MIN_LENGTH;
+        return databasePersistence.isUnique(userName);
     }
 
     //When register the password, at least one of the character should be capital letter
     //And the password and confirmed password should be same
     public boolean passwordRequirements(String password, String confirmedPassword) {
         int capital = 0; //count the number of capital letters in password
+        final int MIN_LENGTH = 8;
+        boolean capitalLetter =true;
+        boolean match = true;
+        boolean length = true;
 
         //checking each char in the password
-        for (int i = 0; i < password.length(); i++) {
+        for(int i = 0; i < password.length();i++){
             char c = password.charAt(i);
-            if (c >= 'A' && c <= 'Z') {
+            if(c >= 'A' && c <= 'Z') {
                 capital++;
             }
         }
-        return capital >= 1 && password.equals(confirmedPassword);
+
+        if(capital<1){
+            capitalLetter = false;
+            throw new PasswordErrorException("Your password should contains at least one capital letter!");
+        }
+
+        if(!password.equals(confirmedPassword)){
+            match = false;
+            throw new PasswordErrorException("The entered passwords do not match!");
+        }
+
+        if (password.length() < 8){
+            length = false;
+            throw new PasswordErrorException("The length of your password should more than 8 characters.");
+        }
+
+        return capitalLetter&&match&&length;
+
     }
 
     //-------------------------------------------------------
@@ -64,29 +73,52 @@ public class UserManager {
 
     public boolean accountCheck(String typedUserName, String typedPassword) {
         //first we need to check if this account is exist in the list
-        boolean exist = false;
-        boolean correct = false;
-        int accountIndex = 0; //store the index for the existing account in the list
+        boolean toReturn = false;
 
-        accessUsers();
-
-        for (int i = 0; i < userList.size() && !exist; i++) {
-            if (typedUserName.equals(userList.get(i).getID())) {
-                exist = true;
-                accountIndex = i;
-            }
+        UserDSO user = databasePersistence.getUserByID(typedUserName);
+        if (user != null && typedPassword.equals(user.getPasswordHash())) {
+            toReturn = true;
         }
-
-        //If the username is exist, then we can check the password
-        if (exist) {
-            if (typedPassword.equals(userList.get(accountIndex).getPasswordHash())) {
-                correct = true;
-            }
-        }
-        return exist && correct;
+        return toReturn;
     }
 
     public boolean loginProcess(String userName, String password) {
         return accountCheck(userName, password);
+    }
+
+    //same method from database
+    public UserDSO insertUser(UserDSO currentUser){
+        return databasePersistence.insertUser(currentUser);
+    }
+
+    public UserDSO updateUser(UserDSO currentUser){
+        return databasePersistence.updateUser(currentUser);
+    }
+
+    public void deleteUser(UserDSO currentUser){
+        databasePersistence.deleteUser(currentUser);
+    }
+
+    public String hashPassword(String inputPassword) throws NoSuchAlgorithmException {
+        //TODO test this method
+        String strHash = "";
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(inputPassword.getBytes(StandardCharsets.UTF_8));
+
+        BigInteger notHash = new BigInteger(1,hash);
+        strHash = notHash.toString(16);
+
+        return strHash;
+    }
+
+    //This method is called when the register button is hit
+    //to show if the user create a new account successfully or not
+    public boolean tryRegistration(String newUsername, String newPassword,String confirmedPassword) {
+        boolean success = false;
+        if(uniqueName(newUsername) && passwordRequirements(newPassword,confirmedPassword)){
+            success = true;
+           // insertUser(new UserDSO(newUsername,new Date(System.currentTimeMillis()),newPassword));
+        }
+        return success;
     }
 }

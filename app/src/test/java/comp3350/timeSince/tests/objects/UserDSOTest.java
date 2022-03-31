@@ -1,18 +1,17 @@
 package comp3350.timeSince.tests.objects;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
+
 import comp3350.timeSince.objects.UserDSO;
 
 public class UserDSOTest {
     private UserDSO userDSO;
-    private UserDSO.MembershipType membershipType;
     private String id;
     private String passwordHash;
     Calendar defaultDate;
@@ -20,12 +19,10 @@ public class UserDSOTest {
     @Before
     public void setUp() {
         this.id = "bobby_g@gmail.com";
-        this.membershipType = UserDSO.MembershipType.free;
         this.passwordHash = "p4ssw0rd";
         defaultDate = Calendar.getInstance();
 
         this.userDSO = new UserDSO(id, defaultDate, passwordHash);
-        this.userDSO.setMembershipType(membershipType);
     }
 
     @Test
@@ -37,15 +34,6 @@ public class UserDSOTest {
     }
 
     @Test
-    public void testGetMembershipType() {
-        String message = String.format("Initial membership type should be set" +
-                "to %s", this.membershipType.name());
-
-        Assert.assertEquals(message, this.membershipType,
-                this.userDSO.getMembershipType());
-    }
-
-    @Test
     public void testGetID() {
         String message = String.format("Initial uuid should be set to %s",
                 this.id);
@@ -53,13 +41,16 @@ public class UserDSOTest {
         Assert.assertEquals(message, this.id, this.userDSO.getID());
     }
 
-    /*
     @Test
     public void testGetDateRegistered() {
         int wiggleRoom = 10;
-        Date slightPast = new Date(System.currentTimeMillis() - wiggleRoom);
-        Date slightFuture = new Date(System.currentTimeMillis() + wiggleRoom);
-        Date dateRegistered = this.userDSO.getDateRegistered();
+        Calendar slightPast = Calendar.getInstance();
+        slightPast.setTimeInMillis(System.currentTimeMillis() - wiggleRoom);
+        Calendar slightFuture = Calendar.getInstance();
+        slightFuture.setTimeInMillis(System.currentTimeMillis() + wiggleRoom);
+
+        Calendar dateRegistered = this.userDSO.getDateRegistered();
+
         String message = String.format("Expected the date registered to be " +
                         "in the range %s < date registered < %s ", slightPast,
                 slightFuture);
@@ -67,7 +58,6 @@ public class UserDSOTest {
         Assert.assertTrue(message, dateRegistered.after(slightPast) &&
                 dateRegistered.before(slightFuture));
     }
-     */
 
     @Test
     public void testGetPasswordHash() {
@@ -116,27 +106,6 @@ public class UserDSOTest {
     }
 
     @Test
-    public void testSetMembershipType() {
-        UserDSO.MembershipType newMembership = UserDSO.MembershipType.paid;
-        String message = String.format("The membership status should now be" +
-                "set to %s", newMembership.name());
-        this.userDSO.setMembershipType(newMembership);
-
-        Assert.assertEquals(message, newMembership,
-                this.userDSO.getMembershipType());
-    }
-
-/*    @Test
-    public void testSetUuid() {
-        String newUuid = "cheese@gmail.com";
-        String message = String.format("The user's uuid should now be" +
-                "set to %s", newUuid);
-        this.userDSO.setID(newUuid);
-
-        Assert.assertEquals(message, newUuid, this.userDSO.getID());
-    }*/
-
-    @Test
     public void testSetPasswordHash() {
         String newPasswordHash = "11111";
         String message = String.format("The user's password hash should now " +
@@ -145,6 +114,23 @@ public class UserDSOTest {
 
         Assert.assertEquals(message, newPasswordHash,
                 this.userDSO.getPasswordHash());
+    }
+
+    @Test
+    public void testToString() {
+        String expected = String.format("Name: %s, UserID: %s",
+                userDSO.getName(), userDSO.getID());
+        String message = "The User should display as: 'Name: ?name?, UserID: ?id?'";
+        assertEquals(message, expected, userDSO.toString());
+
+        userDSO.setName(null);
+        expected = String.format("UserID: %s", userDSO.getID());
+        message = "The User should display as: 'UserID: ?id?' when no name is given.";
+        assertEquals(message, expected, userDSO.toString());
+
+        UserDSO testUser = new UserDSO(null, defaultDate, passwordHash);
+        assertEquals("Nothing should be displayed if no name or id.",
+                "", testUser.toString());
     }
 
     @Test

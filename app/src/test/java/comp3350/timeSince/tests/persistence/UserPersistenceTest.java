@@ -1,11 +1,6 @@
 package comp3350.timeSince.tests.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -18,7 +13,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.UserDSO;
@@ -39,7 +33,6 @@ public class UserPersistenceTest {
     public void setUp() {
         userDatabase = new UserPersistence();
         defaultDate = Calendar.getInstance();
-
         user1 = new UserDSO("uid1", defaultDate, "hash1");
         user2 = new UserDSO("uid2", defaultDate, "hash2");
         user3 = new UserDSO("uid3", defaultDate, "hash3");
@@ -85,8 +78,11 @@ public class UserPersistenceTest {
         UserDSO actual = userDatabase.getUserByID("uid1");
         assertEquals("The correct user should be returned if present",
                 user1, actual);
-        assertNull("Null should be returned if user is not present",
-                userDatabase.getUserByID("uid4"));
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testGetUserByIDException() {
+        userDatabase.getUserByID("uid4"); // should not be able to get user not in db
     }
 
     @Test
@@ -124,12 +120,11 @@ public class UserPersistenceTest {
         userDatabase.updateUser(user1);
         assertEquals("New attributes should match", "hello",
                 userDatabase.getUserByID("uid1").getName());
+    }
 
-        userDatabase.insertUser(user3);
-        user3.setMembershipType(UserDSO.MembershipType.paid);
-        assertNotEquals("Old attributes should be changed",
-                UserDSO.MembershipType.free,
-                userDatabase.getUserByID("uid3").getMembershipType());
+    @Test (expected = UserNotFoundException.class)
+    public void testUpdateUserException() {
+        userDatabase.updateUser(user1); // should not be able to update user not in db
     }
 
     @Test
@@ -146,9 +141,6 @@ public class UserPersistenceTest {
 
         assertEquals("Size of database should be 2", 2,
                 userDatabase.numUsers());
-
-        assertNull("Deleted user should no longer be in database",
-                userDatabase.getUserByID(user1.getID()));
     }
 
     @Test(expected = UserNotFoundException.class)
