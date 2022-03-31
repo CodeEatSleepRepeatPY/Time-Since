@@ -106,14 +106,14 @@ public class SingleEventActivity extends AppCompatActivity {
             tags_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // [TODO]
+                    // The event tag UI isn't created yet.  This will be part
+                    // of another iteration.
+                    // Here's what clicking this button should do:
                     // It should take you to another page that lists
                     // all of the tags, and allows you to edit the tags
                     // associated with this event, as well as edit the
                     // available tag presets
-
-
-
-
                 }
             });
         }catch(Exception exception){
@@ -175,10 +175,7 @@ public class SingleEventActivity extends AppCompatActivity {
                     DatePickerDialog picker = new DatePickerDialog(
                             SingleEventActivity.this,
                             android.R.style.Widget_Holo_ActionBar_Solid,
-                            listener,
-                            year,
-                            month,
-                            day
+                            listener, year, month, day
                     );
 
                     picker.show();
