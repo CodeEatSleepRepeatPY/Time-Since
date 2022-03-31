@@ -23,18 +23,17 @@ public class UserPersistence implements IUserPersistence {
     }
 
     @Override
-    public UserDSO getUserByID(String uID) {
-        UserDSO toReturn = null;
-        for (int i = 0; i < userList.size() && toReturn == null; i++) {
+    public UserDSO getUserByID(String uID) throws UserNotFoundException {
+        for (int i = 0; i < userList.size(); i++) {
             if (userList.get(i).getID().equals(uID)) {
-                toReturn = userList.get(i);
+                return userList.get(i);
             }
         }
-        return toReturn;
+        throw new UserNotFoundException("The user: " + uID + " could not be found.");
     }
 
     @Override
-    public UserDSO insertUser(UserDSO newUser) {
+    public UserDSO insertUser(UserDSO newUser) throws DuplicateUserException {
         int index = userList.indexOf(newUser);
         if (index < 0) {
             userList.add(newUser);
@@ -44,7 +43,7 @@ public class UserPersistence implements IUserPersistence {
     }
 
     @Override
-    public UserDSO updateUser(UserDSO user) {
+    public UserDSO updateUser(UserDSO user) throws UserNotFoundException {
         int index = userList.indexOf(user);
         if (index >= 0) {
             userList.set(index, user);
@@ -54,7 +53,7 @@ public class UserPersistence implements IUserPersistence {
     }
 
     @Override
-    public UserDSO deleteUser(UserDSO user) {
+    public UserDSO deleteUser(UserDSO user) throws UserNotFoundException {
         int index = userList.indexOf(user);
         if (index >= 0) {
             userList.remove(index);

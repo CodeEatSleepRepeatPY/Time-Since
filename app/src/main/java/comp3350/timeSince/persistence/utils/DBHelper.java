@@ -33,6 +33,7 @@ public class DBHelper {
         } catch (final IOException ioe) {
             System.out.println("Unable to access application data: " + ioe.getMessage());
         }
+
     }
 
     private static void copyAssetsToDirectory(Context context, String[] assets, File directory) throws IOException {
@@ -61,5 +62,6 @@ public class DBHelper {
                 in.close();
             }
         }
+
     }
 }
