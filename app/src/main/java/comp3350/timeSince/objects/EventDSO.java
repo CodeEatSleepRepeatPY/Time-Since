@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import comp3350.timeSince.business.exceptions.EventDescriptionException;
+
 public class EventDSO {
 
     private final int id; // not null, positive integer
@@ -76,8 +78,12 @@ public class EventDSO {
         this.eventName = newName;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescription(String description) throws EventDescriptionException {
+        if (description.length() < 100) {
+            this.description = description;
+        } else {
+            throw new EventDescriptionException("The description must be less than 100 characters.");
+        }
     }
 
     public void setTargetFinishTime(Calendar target) {
@@ -100,8 +106,12 @@ public class EventDSO {
         return (id >= 0 && eventName != null);
     }
 
-    public void appendDescription(String newDescription) {
-        description += newDescription;
+    public void appendDescription(String newDescription) throws EventDescriptionException {
+        if (description.length() + newDescription.length() < 100) {
+            description += newDescription;
+        } else {
+            throw new EventDescriptionException("The description must be less than 100 characters.");
+        }
     }
 
     public void addLabel(EventLabelDSO eventLabelDSO) {
