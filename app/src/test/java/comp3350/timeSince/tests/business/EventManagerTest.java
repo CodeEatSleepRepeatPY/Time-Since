@@ -16,6 +16,9 @@ import org.junit.Test;
 import java.util.Calendar;
 
 import comp3350.timeSince.business.EventManager;
+import comp3350.timeSince.business.exceptions.DuplicateEventException;
+import comp3350.timeSince.business.exceptions.EventNotFoundException;
+import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
@@ -49,11 +52,12 @@ public class EventManagerTest {
         event3 = new EventDSO(2, currDate, "event3");
     }
 
-    @Test
+    @Test(expected = EventNotFoundException.class)
     public void testGetEventByID() {
         when(eventPersistence.getEventByID(0)).thenReturn(event1);
         when(eventPersistence.getEventByID(1)).thenReturn(event2);
         when(eventPersistence.getEventByID(2)).thenReturn(event3);
+        when(eventPersistence.getEventByID(-1)).thenThrow(EventNotFoundException.class);
 
         assertEquals("eventManager.getEventByID(0) should return event1",
                 event1, eventManager.getEventByID(0));
@@ -61,21 +65,22 @@ public class EventManagerTest {
                 event2, eventManager.getEventByID(1));
         assertEquals("eventManager.getEventByID(2) should return event3",
                 event3, eventManager.getEventByID(2));
-        assertNull("eventManager.getEventByID(-1) should return null",
-                eventManager.getEventByID(-1));
 
         verify(eventPersistence).getEventByID(0);
         verify(eventPersistence).getEventByID(1);
         verify(eventPersistence).getEventByID(2);
+
+        assertNull("eventManager.getEventByID(-1) should return null",
+                eventManager.getEventByID(-1));
     }
 
-    @Test
+    @Test(expected = DuplicateEventException.class)
     public void testInsertEvent() {
         when(eventPersistence.getNextID())
                 .thenReturn(0).thenReturn(1).thenReturn(2);
-
         when(eventPersistence.insertEvent(any(EventDSO.class)))
-                .thenReturn(event1).thenReturn(event2).thenReturn(event3);
+                .thenReturn(event1).thenReturn(event2).thenReturn(event3)
+                .thenThrow(DuplicateEventException.class);
 
         assertEquals("eventManager.insertEvent(\"event1\") should return event1",
                 event1, eventManager.insertEvent("event1", currDate));
@@ -86,12 +91,16 @@ public class EventManagerTest {
 
         verify(eventPersistence, times(3))
                 .insertEvent(any(EventDSO.class));
+
+        eventManager.insertEvent("event1", currDate);
     }
 
-    @Test
+    @Test(expected = EventNotFoundException.class)
     public void testUpdateEvent() {
         when(eventPersistence.getEventByID(0))
                 .thenReturn(event1);
+        when(eventPersistence.getEventByID(-1))
+                .thenThrow(EventNotFoundException.class);
         when(eventPersistence.updateEvent(any(EventDSO.class)))
                 .thenReturn(event1);
 
@@ -108,13 +117,19 @@ public class EventManagerTest {
                 .getEventByID(0);
         verify(eventPersistence, times(4))
                 .updateEvent(any(EventDSO.class));
+
+        eventManager.updateEventName("updateEventName",-1); // should throw exception
+        eventManager.updateEventDescription("updateEventDesc",-1); // should throw exception
+        eventManager.updateEventFinishTime(currDate,-1); // should throw exception
+        eventManager.updateEventFavorite(true,-1); // should throw exception
     }
 
-    @Test
+    @Test(expected = EventNotFoundException.class)
     public void testDeleteEvent() {
         when(eventPersistence.getEventByID(0)).thenReturn(event1);
         when(eventPersistence.getEventByID(1)).thenReturn(event2);
         when(eventPersistence.getEventByID(2)).thenReturn(event3);
+        when(eventPersistence.getEventByID(-1)).thenThrow(EventNotFoundException.class);
 
         when(eventPersistence.deleteEvent(any(EventDSO.class)))
                 .thenReturn(event1).thenReturn(event2).thenReturn(event3);
@@ -128,24 +143,33 @@ public class EventManagerTest {
 
         verify(eventPersistence, times(3))
                 .deleteEvent(any(EventDSO.class));
+
+        assertEquals("eventManager.deleteEvent() of none existent event should throw exception",
+                event3, eventManager.deleteEvent(-1));
     }
 
-    @Test
+    @Test(expected = EventNotFoundException.class)
     public void testMarkEventAsDone(){
         when(eventPersistence.getEventByID(0)).thenReturn(event1);
+        when(eventPersistence.getEventByID(-1)).thenThrow(EventNotFoundException.class);
+
         eventManager.markEventAsDone(0, true);
         assertTrue("event1 should be marked as done", event1.isDone());
+
         eventManager.markEventAsDone(0, false);
         assertFalse("event1 should be marked as not done", event1.isDone());
 
         verify(eventPersistence, times(2)).getEventByID(0);
+
+        eventManager.markEventAsDone(-1, false); //should throw exception
     }
 
-    @Test
+    @Test(expected = EventNotFoundException.class)
     public void testIsDone() {
         Calendar futureDate = Calendar.getInstance();
         futureDate.set(9999, 10, 10);
 
+        when(eventPersistence.getEventByID(-1)).thenThrow(EventNotFoundException.class);
         when(eventPersistence.getEventByID(0)).thenReturn(event1);
         when(eventPersistence.getEventByID(1)).thenReturn(event2);
 
@@ -159,18 +183,24 @@ public class EventManagerTest {
 
         verify(eventPersistence).getEventByID(0);
         verify(eventPersistence).getEventByID(1);
+
+        eventManager.isDone(-1); // should throw exception
     }
 
-    @Test
+    @Test(expected = Exception.class)
     public void testCreateOwnEvent() {
         UserDSO user = new UserDSO("user1", currDate, "hash1");
         EventLabelDSO eventLabel = new EventLabelDSO(0, "eventLabel1");
         String eventName = "event1", tagName = "Sports";
 
+        when(userPersistence.getUserByID("userNotFound"))
+                .thenThrow(UserNotFoundException.class);
         when(userPersistence.getUserByID("user1"))
                 .thenReturn(user);
         when(eventPersistence.insertEvent(any(EventDSO.class)))
-                .thenReturn(event1);
+                .thenReturn(event1)
+                .thenReturn(event1)
+                .thenThrow(DuplicateEventException.class);
         when(eventLabelPersistence.insertEventLabel(any(EventLabelDSO.class)))
                 .thenReturn(eventLabel);
 
@@ -178,9 +208,17 @@ public class EventManagerTest {
                 eventManager.createOwnEvent("user1", Calendar.getInstance(),
                         eventName, tagName, true));
 
-        verify(userPersistence).getUserByID("user1");
         verify(eventPersistence).insertEvent(any(EventDSO.class));
         verify(eventLabelPersistence).insertEventLabel(any(EventLabelDSO.class));
+
+        eventManager.createOwnEvent("userNotFound", Calendar.getInstance(),
+                eventName, tagName, true); //should throw UserNotFoundException
+
+        eventManager.createOwnEvent("user1", Calendar.getInstance(),
+                eventName, tagName, true); // should throw duplicateEventException
+
+        verify(userPersistence, times(2)).getUserByID("user1");
+        verify(userPersistence).getUserByID("userNotFound");
 
         /*
         The code below was used to test that createOwnEvent() actually worked, but it cannot be used
@@ -202,7 +240,4 @@ public class EventManagerTest {
                 5, eventManager.numEvents());
         verify(eventPersistence).numEvents();
     }
-
-    //TODO: Test that the methods throw an exception
-
 }
