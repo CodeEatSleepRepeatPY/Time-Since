@@ -2,6 +2,7 @@ package comp3350.timeSince.tests.persistence;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -127,6 +128,10 @@ public class EventLabelPersistenceTest {
         labelDatabase.updateEventLabel(label1);
         assertEquals("New attributes should match", "hello",
                 labelDatabase.getEventLabelByID(label1.getID()).getName());
+
+        label1.setName("good-bye");
+        assertEquals("Updated label should be returned", "good-bye",
+                labelDatabase.updateEventLabel(label1).getName());
     }
 
     @Test(expected = EventLabelNotFoundException.class)
@@ -157,12 +162,37 @@ public class EventLabelPersistenceTest {
 
     @Test(expected = EventLabelNotFoundException.class)
     public void testDeleteEventLabelException() {
+        labelDatabase.deleteEventLabel(label4); // should not be able to delete
+                                                        // event label not in db
+    }
+
+    @Test
+    public void testGetNextID() {
+        assertEquals("The first ID should be 1",
+                1, labelDatabase.getNextID());
+        labelDatabase.insertEventLabel(label1);
+        assertEquals("The ID of the first label inserted should be 1",
+                1, label1.getID());
+
+        assertEquals("The second ID should be 2",
+                2, labelDatabase.getNextID());
         labelDatabase.insertEventLabel(label2);
+        assertEquals("The ID of the second label inserted should be 2",
+                2, label2.getID());
+
+        labelDatabase.insertEventLabel(label3);
+        try {
+            labelDatabase.insertEventLabel(label3);
+        } catch (PersistenceException e) {
+            System.out.println(e.getMessage());
+        }
+        assertEquals("The next ID after three labels, with one duplicate attempt should be 4.",
+                4, labelDatabase.getNextID());
+
         labelDatabase.deleteEventLabel(label2);
-        assertNull("Deleted event label should no longer be in database",
-                labelDatabase.getEventLabelByID(label2.getID()));
-        assertNull("Shouldn't be able to delete an event label that doesn't exist",
-                labelDatabase.deleteEventLabel(label3));
+        assertNotEquals("The next ID after a deletion should not be the deleted ID.",
+                label2.getID(), labelDatabase.getNextID());
+        assertEquals("The next ID should be 4", 4, labelDatabase.getNextID());
     }
 
 }

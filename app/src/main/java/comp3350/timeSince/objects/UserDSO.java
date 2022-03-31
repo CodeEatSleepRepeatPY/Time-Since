@@ -12,13 +12,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class UserDSO {
+
     //----------------------------------------
     // instance variables
     //----------------------------------------
 
-    private String id; // could be email, or randomly generated
+    private final String id; // could be email, or unique name
     private String name;
-
     private final Calendar DATE_REGISTERED; // generated when creating new object
     private String passwordHash;
     private final List<EventDSO> userEvents;
@@ -120,7 +120,14 @@ public class UserDSO {
     }
 
     public String toString() {
-        return String.format("Name: %s, UserID: %s", name, id);
+        String toReturn = "";
+        if (name != null && id != null) {
+            toReturn = String.format("Name: %s, UserID: %s", name, id);
+        }
+        if (name == null && id != null) {
+            toReturn = String.format("UserID: %s", id);
+        }
+        return toReturn;
     }
 
     public boolean equals(UserDSO other) {
