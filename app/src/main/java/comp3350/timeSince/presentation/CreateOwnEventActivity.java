@@ -29,6 +29,7 @@ import java.util.Objects;
 import comp3350.timeSince.application.Services;
 
 import comp3350.timeSince.R;
+import comp3350.timeSince.business.exceptions.EventCreationTimeException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
@@ -50,6 +51,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private Button favoriteBtn;
     private Spinner selectEventLabel;
     private IEventLabelPersistence eventLabelPersistence;
+    private Calendar mCalendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         isFavorite = findViewById(R.id.favorite);
         eventLabelName = findViewById(R.id.event_label);
         eventLabels = new ArrayList<EventLabelDSO>();
+        mCalendar = Calendar.getInstance();
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,19 +176,26 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
         CreateOwnEventActivity.this.startActivity(nextIntent);
-        //else throw createEvent exception: invalid event name and/or description /data time over pass
-
-
+        //else throw createEvent exception: fail to add into the database, or the mandatory fields are empty
 
     }
 
     @Override
     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-        Calendar mCalendar = Calendar.getInstance();
+        Calendar currentTime = Calendar.getInstance();
+
         mCalendar.set(Calendar.HOUR_OF_DAY, hour);
         mCalendar.set(Calendar.MINUTE, minute);
         SimpleDateFormat mSDF = new SimpleDateFormat("hh:mm a");
         dueTime.setText( mSDF.format(mCalendar.getTime()) );
+
+        try{
+            if( mCalendar.before(currentTime) ){
+                throw new EventCreationTimeException("");
+            }
+        }catch( EventCreationTimeException error ){
+            Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void showPickTimeDialogue(){
@@ -200,7 +210,11 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+        mCalendar.set(Calendar.YEAR, year);
+        mCalendar.set(Calendar.MONTH, month);
+        mCalendar.set(Calendar.DAY_OF_MONTH, day);
         dueDate.setText(String.format("%d/%d/%d",day, month, year));
+
     }
 
     private void showPickDateDialogue(){
