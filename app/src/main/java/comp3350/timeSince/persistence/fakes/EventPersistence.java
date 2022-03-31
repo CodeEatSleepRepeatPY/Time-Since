@@ -7,6 +7,7 @@ import java.util.List;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventPersistence;
 
 public class EventPersistence implements IEventPersistence {

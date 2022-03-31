@@ -87,6 +87,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         final String query = "SELECT * FROM users WHERE uid = ?";
 
         UserDSO toReturn = null;
+
         try (final Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
 

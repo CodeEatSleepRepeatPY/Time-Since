@@ -106,7 +106,27 @@ public class UserDSOTest {
     }
 
     @Test
-    public void testSetPasswordHash() {
+    public void testMeetsNewPasswordReq(){
+        final int MIN_LENGTH = 8;
+        String newPassword = "Hunter1";
+        String message = String.format("Passwords should require a minimum " +
+                        "length of at least %d", MIN_LENGTH);
+
+        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
+
+        newPassword = "hunter12";
+        message = "Passwords should require a capital.";
+        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
+
+        newPassword = "Hunter12";
+        message = String.format("%s should pass the minimum requirements of " +
+                "having a capital letter, and being at least %d in length.",
+                newPassword, MIN_LENGTH);
+        assertTrue(message, UserDSO.meetsNewPasswordReq(newPassword));
+    }
+
+    @Test
+    public void testSetNewPassword(){
         String newPasswordHash = "11111";
         String message = String.format("The user's password hash should now " +
                 "be set to %s", newPasswordHash);
@@ -142,4 +162,15 @@ public class UserDSOTest {
         assertFalse("Users with different ID's should not be equal",
                 userDSO.equals(other));
     }
+
+    public void testMatchesExistingPassword(){
+        String otherPasswordHash = "Hunter12";
+        String message = "matchesExistingPassword should return false when " +
+                "given a different password hash.";
+
+        assertFalse(message, this.userDSO.matchesExistingPassword(otherPasswordHash));
+
+        message = "matchesExistingPassword should return true when given " +
+                "the same password hash";
+
 }

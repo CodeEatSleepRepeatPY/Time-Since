@@ -67,6 +67,9 @@ public class SingleEventActivity extends AppCompatActivity {
                 eventFinishTime.get(Calendar.MONTH),
                 eventFinishTime.get(Calendar.DAY_OF_MONTH));
         dueDate.setText(dateText);
+
+        // set the color for the due date text to indicate if it's overdue
+        setDateColor(eventFinishTime);
     }
 
     @Override
@@ -161,6 +164,7 @@ public class SingleEventActivity extends AppCompatActivity {
                     String displayDate = String.format("%d-%d-%d", year, month + 1, day);
                     dueDate.setText(displayDate);
                     eventManager.updateEventFinishTime(calendar, eventID);
+                    setDateColor(calendar);
                 }
             };
 
@@ -183,6 +187,15 @@ public class SingleEventActivity extends AppCompatActivity {
             });
         } catch (Exception exception) {
             exception.printStackTrace();
+        }
+    }
+
+    // sets the date text color based on if the event due date has passed
+    void setDateColor(Calendar calendar){
+        if (calendar.before(Calendar.getInstance())) { // event is due
+            dueDate.setTextColor(Color.RED);
+        } else {
+            dueDate.setTextColor(Color.BLACK);
         }
     }
 
