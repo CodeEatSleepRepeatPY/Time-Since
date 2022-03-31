@@ -8,6 +8,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
+import org.junit.FixMethodOrder;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 import comp3350.timeSince.business.UserManager;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class EventManagerIntegrationTest {
 
     private EventManager eventManager;
@@ -63,7 +66,7 @@ public class EventManagerIntegrationTest {
     }
 
     @Test
-    public void testGetEventByID() {
+    public void testA_GetEventByID() {
         assertEquals("The default event with ID 1 is 'event1'.",
                 "event1", eventManager.getEventByID(1).getName());
         assertEquals("The default event with ID 2 is 'event2'.",
@@ -74,7 +77,7 @@ public class EventManagerIntegrationTest {
     }
 
     @Test
-    public void testUpdateEvent(){
+    public void testB_UpdateEvent(){
         EventDSO event = eventManager.getEventByID(1);
         Calendar cal = Calendar.getInstance();
         cal.set(1990, 10, 10);
@@ -102,7 +105,7 @@ public class EventManagerIntegrationTest {
     }
 
     @Test
-    public void testDeleteEvent() {
+    public void testC_DeleteEvent() {
         assertNotNull("event1 should be deleted", eventManager.deleteEvent(1));
         assertNotNull("event2 should be deleted", eventManager.deleteEvent(2));
         assertNotNull("event3 should be deleted", eventManager.deleteEvent(3));
@@ -116,7 +119,7 @@ public class EventManagerIntegrationTest {
     }
 
     @Test
-    public void testIsDone() {
+    public void testD_IsDone() {
         Calendar cal = Calendar.getInstance();
         cal.set(1990, 10, 10);
         eventManager.getEventByID(1).setTargetFinishTime(cal);
@@ -134,7 +137,7 @@ public class EventManagerIntegrationTest {
     }
 
     @Test
-    public void testInsertEvent(){
+    public void testE_InsertEvent(){
         assertNotNull("event4 should be inserted",
                 eventManager.insertEvent("user1", currDate, "event4", "label4", true));
         assertNotNull("event5 should be inserted",
@@ -156,7 +159,7 @@ public class EventManagerIntegrationTest {
     }
 
     @Test
-    public void testNumEvent() {
-        assertEquals("There are 3 default events", 3, eventManager.numEvents());
+    public void testF_NumEvent() {
+        assertEquals("There are 6 default events", 6, eventManager.numEvents());
     }
 }
