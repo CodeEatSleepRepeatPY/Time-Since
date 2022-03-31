@@ -70,19 +70,37 @@ public class EventManagerTest {
     }
 
     @Test
-    public void testInsertEvent() {
+    public void testCreateOwnEvent() {
+        UserDSO user = new UserDSO("user1", currDate, "hash1");
+        EventLabelDSO eventLabel = new EventLabelDSO(0, "eventLabel1");
+        String eventName = "event1", tagName = "Sports";
+
+        when(userPersistence.getUserByID("user1"))
+                .thenReturn(user);
         when(eventPersistence.insertEvent(any(EventDSO.class)))
-                .thenReturn(event1).thenReturn(event2).thenReturn(event3);
+                .thenReturn(event1);
+        when(eventLabelPersistence.insertEventLabel(any(EventLabelDSO.class)))
+                .thenReturn(eventLabel);
 
-        assertEquals("eventManager.insertEvent(event1) should return event1",
-                event1, eventManager.insertEvent("event1", currDate));
-        assertEquals("eventManager.insertEvent(event2) should return event2",
-                event2, eventManager.insertEvent("event2", currDate));
-        assertEquals("eventManager.insertEvent(event3) should return event3",
-                event3, eventManager.insertEvent("event3", currDate));
+        assertTrue("eventManager.deleteEvent(event1) should return event1",
+                eventManager.insertEvent("user1", Calendar.getInstance(),
+                        eventName, tagName, true).equals(event1));
 
-        verify(eventPersistence, times(3))
-                .insertEvent(any(EventDSO.class));
+        verify(userPersistence).getUserByID("user1");
+        verify(eventPersistence).insertEvent(any(EventDSO.class));
+        verify(eventLabelPersistence).insertEventLabel(any(EventLabelDSO.class));
+
+        /*
+        The code below was used to test that createOwnEvent() actually worked, but it cannot be used
+        in production since it modifies the actual database.
+        ---------------------------------------------------------------------------------------------
+        EventManager eManager = new EventManager();
+        eManager.createOwnEvent(user, dueDate, eventName, tagName, true);
+        assertEquals("user should have 1 event", 1, user.getUserEvents().size());
+        assertEquals("user should have an event with the name `event1` in his event list", "event1", user.getUserEvents().get(0).getName());
+        assertEquals("user should have a tag with the name `Sports` in his tag list", "Sports", user.getUserLabels().get(0).getName());
+        assertEquals("user should have an event with the name `event1` in his favorites", "event1", user.getFavoritesList().get(0).getName());
+         */
     }
 
     @Test
@@ -143,40 +161,6 @@ public class EventManagerTest {
 
         verify(eventPersistence).getEventByID(0);
         verify(eventPersistence).getEventByID(1);
-    }
-
-    @Test
-    public void testCreateOwnEvent() {
-        UserDSO user = new UserDSO("user1", currDate, "hash1");
-        EventLabelDSO eventLabel = new EventLabelDSO(0, "eventLabel1");
-        String eventName = "event1", tagName = "Sports";
-
-        when(userPersistence.getUserByID("user1"))
-                .thenReturn(user);
-        when(eventPersistence.insertEvent(any(EventDSO.class)))
-                .thenReturn(event1);
-        when(eventLabelPersistence.insertEventLabel(any(EventLabelDSO.class)))
-                .thenReturn(eventLabel);
-
-        assertTrue("eventManager.deleteEvent(event1) should return event1",
-                eventManager.createOwnEvent("user1", Calendar.getInstance(),
-                        eventName, tagName, true));
-
-        verify(userPersistence).getUserByID("user1");
-        verify(eventPersistence).insertEvent(any(EventDSO.class));
-        verify(eventLabelPersistence).insertEventLabel(any(EventLabelDSO.class));
-
-        /*
-        The code below was used to test that createOwnEvent() actually worked, but it cannot be used
-        in production since it modifies the actual database.
-        ---------------------------------------------------------------------------------------------
-        EventManager eManager = new EventManager();
-        eManager.createOwnEvent(user, dueDate, eventName, tagName, true);
-        assertEquals("user should have 1 event", 1, user.getUserEvents().size());
-        assertEquals("user should have an event with the name `event1` in his event list", "event1", user.getUserEvents().get(0).getName());
-        assertEquals("user should have a tag with the name `Sports` in his tag list", "Sports", user.getUserLabels().get(0).getName());
-        assertEquals("user should have an event with the name `event1` in his favorites", "event1", user.getFavoritesList().get(0).getName());
-         */
     }
 
     @Test

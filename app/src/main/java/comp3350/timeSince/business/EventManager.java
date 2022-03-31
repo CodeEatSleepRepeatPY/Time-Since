@@ -48,13 +48,37 @@ public class EventManager {
         return eventPersistence.getEventByID(eventID); // may cause exception
     }
 
-    public EventDSO insertEvent(String name, Calendar calendar) throws DuplicateEventException {
+    public EventDSO insertEvent(String userID, Calendar dueDate, String eventName,
+                                   String eventLabelName, boolean favorite)
+            throws UserNotFoundException, DuplicateEventException {
+
         EventDSO toReturn = null;
-        EventDSO newEvent = new EventDSO(eventPersistence.getNextID(), calendar, name);
-        if (newEvent.validate()) {
-            EventDSO insertedEvent = eventPersistence.insertEvent(newEvent); // may cause exception
-            if (insertedEvent != null) {
-                toReturn = insertedEvent;
+        UserDSO databaseUser = userPersistence.getUserByID(userID); // may cause exception
+
+        if (databaseUser != null) {
+            Calendar calendar = Calendar.getInstance();
+            EventDSO event = new EventDSO(eventPersistence.getNextID(), calendar,
+                    eventName); // create event object with specified name
+            EventLabelDSO eventLabel = new EventLabelDSO(eventLabelPersistence.getNextID(),
+                    eventLabelName); // create label object with specified name
+
+            if (event.validate() && eventLabel.validate()) {
+                event.setTargetFinishTime(dueDate); // set event's due date
+                event.addLabel(eventLabel); // add label
+                event.setFavorite(favorite); // set if favorite or not
+
+                databaseUser.addEvent(event); // add event to user's events list
+                databaseUser.addLabel(eventLabel); // add event label to user's event labels list
+
+                if (favorite) {
+                    databaseUser.addFavorite(event);
+                }
+
+                // insert event into the database, may cause exception
+                eventPersistence.insertEvent(event);
+                // insert the newly created event label into the database, may cause exception
+                eventLabelPersistence.insertEventLabel(eventLabel);
+                toReturn = event; // successful
             }
         }
         return toReturn;
@@ -135,42 +159,6 @@ public class EventManager {
             Calendar currentDate = Calendar.getInstance();
             Calendar eventDueDate = event.getTargetFinishTime();
             toReturn = currentDate.equals(eventDueDate) || currentDate.after(eventDueDate);
-        }
-        return toReturn;
-    }
-
-    public boolean createOwnEvent(String userID, Calendar dueDate, String eventName,
-                                  String eventLabelName, boolean favorite)
-            throws UserNotFoundException, DuplicateEventException {
-
-        boolean toReturn = false;
-        UserDSO databaseUser = userPersistence.getUserByID(userID); // may cause exception
-
-        if (databaseUser != null) {
-            Calendar calendar = Calendar.getInstance();
-            EventDSO event = new EventDSO(eventPersistence.getNextID(), calendar,
-                    eventName); // create event object with specified name
-            EventLabelDSO eventLabel = new EventLabelDSO(eventLabelPersistence.getNextID(),
-                    eventLabelName); // create label object with specified name
-
-            if (event.validate() && eventLabel.validate()) {
-                event.setTargetFinishTime(dueDate); // set event's due date
-                event.addLabel(eventLabel); // add label
-                event.setFavorite(favorite); // set if favorite or not
-
-                databaseUser.addEvent(event); // add event to user's events list
-                databaseUser.addLabel(eventLabel); // add event label to user's event labels list
-
-                if (favorite) {
-                    databaseUser.addFavorite(event);
-                }
-
-                // insert event into the database, may cause exception
-                eventPersistence.insertEvent(event);
-                // insert the newly created event label into the database, may cause exception
-                eventLabelPersistence.insertEventLabel(eventLabel);
-                toReturn = true; // successful
-            }
         }
         return toReturn;
     }
