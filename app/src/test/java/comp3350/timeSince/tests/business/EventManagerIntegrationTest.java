@@ -14,7 +14,7 @@ import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
-public class EventMangerIntegrationTest {
+public class EventManagerIntegrationTest {
 
     private EventManager eventManager;
     private File tempDB;
