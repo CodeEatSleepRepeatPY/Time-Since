@@ -47,6 +47,10 @@ public class SingleEventActivity extends AppCompatActivity {
         tags_button = findViewById(R.id.event_tags_button);
         favorite_button = findViewById(R.id.event_favorite_button);
 
+        // initialize the colors for the buttons
+        setDoneColor();
+        setFavoriteColor();
+
         // EditText fields
         name = findViewById(R.id.event_name);
         description = findViewById(R.id.event_description);
@@ -76,17 +80,22 @@ public class SingleEventActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     EventManager.markEventAsDone(eventID, !isDone);
-
-                    // toggle the colour
-                    if (isDone){
-                        done_button.setBackgroundColor(Color.BLUE);
-                    } else {
-                        done_button.setBackgroundColor(Color.WHITE);
-                    }
+                    setDoneColor(); // change the button color
                 }
             });
         }catch(Exception exception){
             exception.printStackTrace();
+        }
+    }
+
+    private void setDoneColor(){
+        boolean isDone = EventManager.isDone(eventID);
+
+        // toggle the colour
+        if (isDone){
+            done_button.setBackgroundColor(Color.BLUE);
+        } else {
+            done_button.setBackgroundColor(Color.WHITE);
         }
     }
 
@@ -118,17 +127,22 @@ public class SingleEventActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     EventManager.updateEventFavorite(!isFavorite, eventID);
-
-                    // toggle the colour
-                    if (isFavorite){
-                        favorite_button.setBackgroundColor(Color.BLUE);
-                    } else {
-                        favorite_button.setBackgroundColor(Color.WHITE);
-                    }
+                    setFavoriteColor(); // change the button color
                 }
             });
         }catch(Exception exception){
             exception.printStackTrace();
+        }
+    }
+
+    private void setFavoriteColor(){
+        boolean isFavorite = eventDSO.isFavorite();
+
+        // toggle the colour
+        if (isFavorite){
+            favorite_button.setBackgroundColor(Color.BLUE);
+        } else {
+            favorite_button.setBackgroundColor(Color.WHITE);
         }
     }
 
@@ -169,7 +183,6 @@ public class SingleEventActivity extends AppCompatActivity {
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-
     }
 
     // upon leaving, saves the name and description entered in the UI
