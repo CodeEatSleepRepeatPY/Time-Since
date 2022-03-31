@@ -2,6 +2,7 @@ package comp3350.timeSince.business;
 
 import java.util.Calendar;
 
+import comp3350.timeSince.application.Main;
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
@@ -12,6 +13,7 @@ import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
+import comp3350.timeSince.persistence.hsqldb.EventPersistenceHSQLDB;
 
 public class EventManager {
 
