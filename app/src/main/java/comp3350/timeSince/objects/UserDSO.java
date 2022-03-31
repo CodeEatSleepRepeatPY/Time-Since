@@ -120,46 +120,57 @@ public class UserDSO {
         favoritesList.remove(event);
     }
 
-    public String toString() {
-        String toReturn = "";
-        if (name != null && id != null) {
-            toReturn = String.format("Name: %s, UserID: %s", name, id);
-        }
-        if (name == null && id != null) {
-            toReturn = String.format("UserID: %s", id);
-        }
-        return toReturn;
-    }
-
-    public boolean equals(UserDSO other) {
-        return this.id.equals(other.getID());
-    }
-
     // does the passed password meet the new password requirements?
     // When register the password, at least one of the character should be capital letter
     // Ensure the password isn't too short(less than 8)
-    public static boolean meetsNewPasswordReq(String password)  {
+    public static boolean meetsNewPasswordReq(String password) {
         return hasMinLength(password) && hasCapital(password);
     }
 
     // helper for meetsNewPasswordReq
-    private static boolean hasMinLength(String password){
+    private static boolean hasMinLength(String password) {
         final int MIN_LENGTH = 8;
 
         return password.length() >= MIN_LENGTH;
     }
 
     // helper for meetsNewPasswordReq
-    private static boolean hasCapital(String password){
+    private static boolean hasCapital(String password) {
         boolean hasCapital = false;
         char letter;
 
         // checking that the password has a capital letter
-        for(int i = 0; i < password.length() && !hasCapital;i++){
+        for (int i = 0; i < password.length() && !hasCapital; i++) {
             letter = password.charAt(i);
-            if (Character.isUpperCase(letter)){
+            if (Character.isUpperCase(letter)) {
                 hasCapital = true;
             }
+        }
+
+        return hasCapital;
+    }
+
+    // confirm the old password before changing to the new password
+    public boolean setNewPassword(String oldPasswordHash, String newPasswordHash) {
+        boolean success = false;
+
+        if (oldPasswordHash.equals(this.passwordHash)) {
+            this.passwordHash = newPasswordHash;
+            success = true;
+        }
+
+        return success;
+    }
+
+    // when logging in, have entered the right password?
+    public boolean matchesExistingPassword(String passwordHash) {
+        return passwordHash.equals(this.passwordHash);
+    }
+
+    public String toString() {
+        String toReturn = "";
+        if (name != null && id != null) {
+            toReturn = String.format("Name: %s, UserID: %s", name, id);
         }
         if (name == null && id != null) {
             toReturn = String.format("UserID: %s", id);

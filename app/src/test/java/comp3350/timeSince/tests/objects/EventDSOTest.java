@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.Calendar;
 
+import comp3350.timeSince.business.exceptions.EventDescriptionException;
 import comp3350.timeSince.objects.EventDSO;
 
 public class EventDSOTest {
@@ -65,6 +66,15 @@ public class EventDSOTest {
         assertEquals(message, event.getDescription(), description2);
     }
 
+    @Test (expected = EventDescriptionException.class)
+    public void testSetDescriptionException() {
+        String tooLong = "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog";
+        event.setDescription(tooLong);
+    }
+
     @Test
     public void appendDescription() {
         String message, newDescription;
@@ -79,6 +89,16 @@ public class EventDSOTest {
         message = String.format("The event's description should not be %s",
                 currentDescription + newDescription);
         assertEquals(message, event.getDescription(), currentDescription + newDescription);
+    }
+
+    @Test (expected = EventDescriptionException.class)
+    public void testAppendDescriptionException() {
+        String description = "The quick brown fox jumped over the lazy dog.";
+        String append = "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog";
+        event.setDescription(description);
+        event.appendDescription(append);
     }
 
     @Test
