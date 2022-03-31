@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="50dp"
+    >
+
+    <EditText
+        android:id="@+id/event_name"
+        android:text=""
+        android:hint="@string/hint_single_event_name"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        />
+
+    <TextView
+        android:id="@+id/event_due_date"
+        android:text=""
+        android:hint="@string/date_hint"
+        android:onClick="dueDateOnClick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/event_name"
+        android:layout_marginBottom="5dp"
+        />
+
+    <Button
+        android:id="@+id/event_done_button"
+        android:text="@string/event_done_button"
+        android:onClick="buttonEventDoneOnClick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/event_tags_button"
+        android:layout_alignParentEnd="true"
+        />
+
+    <Button
+        android:id="@+id/event_tags_button"
+        android:text="@string/event_tag_button"
+        android:onClick="buttonEventTagsOnClick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/event_due_date"
+        android:layout_marginBottom="25dp"
+        android:layout_centerHorizontal="true"
+        />
+
+    <Button
+        android:id="@+id/event_favorite_button"
+        android:text="@string/event_favorite_button"
+        android:onClick="buttonEventFavoriteOnClick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/event_tags_button"
+        />
+    
+    <EditText
+        android:id="@+id/event_description"
+        android:text=""
+        android:hint="@string/single_event_hint"
+        android:textStyle="italic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/event_done_button"
+        />
+
+</RelativeLayout>
