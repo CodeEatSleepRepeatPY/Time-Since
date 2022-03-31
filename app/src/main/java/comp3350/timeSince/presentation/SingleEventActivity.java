@@ -42,14 +42,14 @@ public class SingleEventActivity extends AppCompatActivity {
         eventID = eventDSO.getID();
 
         // Button fields
-        done_button = (Button) findViewById(R.id.event_done_button);
-        tags_button = (Button) findViewById(R.id.event_tags_button);
-        favorite_button = (Button) findViewById(R.id.event_favorite_button);
+        done_button = findViewById(R.id.event_done_button);
+        tags_button = findViewById(R.id.event_tags_button);
+        favorite_button = findViewById(R.id.event_favorite_button);
 
         // EditText fields
-        name = (EditText) findViewById(R.id.event_name);
-        description = (EditText) findViewById(R.id.event_description);
-        dueDate = (TextView) findViewById(R.id.event_due_date);
+        name = findViewById(R.id.event_name);
+        description = findViewById(R.id.event_description);
+        dueDate = findViewById(R.id.event_due_date);
 
         // initializing EditText fields
         name.setText(eventDSO.getName());
@@ -171,10 +171,7 @@ public class SingleEventActivity extends AppCompatActivity {
 
     }
 
-    // consider adding an exit / back button that you can click.  This will
-    // take you back to the list of all events, and it'll set the text in the
-    // eventDSO to whatever the text was changed to in the layout
-    // (when a user changes the description, you want to keep it...)
+    // upon leaving, saves the name and description entered in the UI
     @Override
     public boolean onSupportNavigateUp(){
         EventManager.updateEventName(name.getText(), eventID);
