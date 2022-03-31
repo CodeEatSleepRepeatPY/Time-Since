@@ -1,6 +1,8 @@
 package comp3350.timeSince.tests.objects;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,11 +24,11 @@ public class UsersWithEventsTest {
         Calendar date = Calendar.getInstance();
         user = new UserDSO("admin", date, "12345");
         event1 = new EventDSO(1, date, "Water Plants");
-        event2 = new EventDSO(2,date,"New Toothbrush");
-        event3 = new EventDSO(3,date,"Wash Sheets");
-        label1 = new EventLabelDSO(1,"Bathroom");
+        event2 = new EventDSO(2, date, "New Toothbrush");
+        event3 = new EventDSO(3, date, "Wash Sheets");
+        label1 = new EventLabelDSO(1, "Bathroom");
         label2 = new EventLabelDSO(2, "Kitchen");
-        label3 = new EventLabelDSO(3,"Bedroom");
+        label3 = new EventLabelDSO(3, "Bedroom");
     }
 
     @Test

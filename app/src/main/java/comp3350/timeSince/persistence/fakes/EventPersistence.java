@@ -7,6 +7,7 @@ import java.util.List;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventPersistence;
 
 public class EventPersistence implements IEventPersistence {
@@ -65,6 +66,18 @@ public class EventPersistence implements IEventPersistence {
     @Override
     public int numEvents() {
         return eventList.size();
+    }
+
+    @Override
+    public int getNextID() {
+        int toReturn = 0;
+
+        for (EventDSO event : eventList) {
+            if (event.getID() > toReturn) {
+                toReturn = event.getID();
+            }
+        }
+        return toReturn + 1;
     }
 
 }

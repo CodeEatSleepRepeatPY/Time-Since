@@ -2,7 +2,6 @@ package comp3350.timeSince.tests.persistence;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -39,7 +38,6 @@ public class UserPersistenceTest {
     public void setUp() {
         userDatabase = new UserPersistence();
         defaultDate = Calendar.getInstance();
-
         user1 = new UserDSO("uid1", defaultDate, "hash1");
         user2 = new UserDSO("uid2", defaultDate, "hash2");
         user3 = new UserDSO("uid3", defaultDate, "hash3");
@@ -124,6 +122,11 @@ public class UserPersistenceTest {
         userDatabase.updateUser(user1);
         assertEquals("New attributes should match", "hello",
                 userDatabase.getUserByID("uid1").getName());
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testUpdateUserException() {
+        userDatabase.updateUser(user1); // should not be able to update user not in db
     }
 
     @Test
