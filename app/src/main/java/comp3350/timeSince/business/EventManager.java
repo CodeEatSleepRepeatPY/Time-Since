@@ -46,18 +46,6 @@ public class EventManager {
         return eventPersistence.getEventByID(eventID); // may cause exception
     }
 
-    public EventDSO insertEvent(String name, Calendar calendar) throws DuplicateEventException {
-        EventDSO toReturn = null;
-        EventDSO newEvent = new EventDSO(eventPersistence.getNextID(), calendar, name);
-        if (newEvent.validate()) {
-            EventDSO insertedEvent = eventPersistence.insertEvent(newEvent); // may cause exception
-            if (insertedEvent != null) {
-                toReturn = insertedEvent;
-            }
-        }
-        return toReturn;
-    }
-
     public EventDSO updateEventName(String newName, int eventID) throws EventNotFoundException {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
@@ -137,11 +125,11 @@ public class EventManager {
         return toReturn;
     }
 
-    public boolean createOwnEvent(String userID, Calendar dueDate, String eventName,
+    public EventDSO insertEvent(String userID, Calendar dueDate, String eventName,
                                   String eventLabelName, boolean favorite)
             throws UserNotFoundException, DuplicateEventException {
 
-        boolean toReturn = false;
+        EventDSO toReturn = null;
         UserDSO databaseUser = userPersistence.getUserByID(userID); // may cause exception
 
         if (databaseUser != null) {
@@ -164,10 +152,9 @@ public class EventManager {
                 }
 
                 // insert event into the database, may cause exception
-                eventPersistence.insertEvent(event);
+                toReturn = eventPersistence.insertEvent(event); // successful
                 // insert the newly created event label into the database, may cause exception
                 eventLabelPersistence.insertEventLabel(eventLabel);
-                toReturn = true; // successful
             }
         }
         return toReturn;

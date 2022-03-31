@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,27 +73,6 @@ public class EventManagerTest {
 
         assertNull("eventManager.getEventByID(-1) should return null",
                 eventManager.getEventByID(-1));
-    }
-
-    @Test(expected = DuplicateEventException.class)
-    public void testInsertEvent() {
-        when(eventPersistence.getNextID())
-                .thenReturn(0).thenReturn(1).thenReturn(2);
-        when(eventPersistence.insertEvent(any(EventDSO.class)))
-                .thenReturn(event1).thenReturn(event2).thenReturn(event3)
-                .thenThrow(DuplicateEventException.class);
-
-        assertEquals("eventManager.insertEvent(\"event1\") should return event1",
-                event1, eventManager.insertEvent("event1", currDate));
-        assertEquals("eventManager.insertEvent(\"event2\") should return event2",
-                event2, eventManager.insertEvent("event2", currDate));
-        assertEquals("eventManager.insertEvent(\"event3\") should return event3",
-                event3, eventManager.insertEvent("event3", currDate));
-
-        verify(eventPersistence, times(3))
-                .insertEvent(any(EventDSO.class));
-
-        eventManager.insertEvent("event1", currDate);
     }
 
     @Test(expected = EventNotFoundException.class)
@@ -188,7 +168,7 @@ public class EventManagerTest {
     }
 
     @Test(expected = Exception.class)
-    public void testCreateOwnEvent() {
+    public void testInsertEvent() {
         UserDSO user = new UserDSO("user1", currDate, "hash1");
         EventLabelDSO eventLabel = new EventLabelDSO(0, "eventLabel1");
         String eventName = "event1", tagName = "Sports";
@@ -204,17 +184,17 @@ public class EventManagerTest {
         when(eventLabelPersistence.insertEventLabel(any(EventLabelDSO.class)))
                 .thenReturn(eventLabel);
 
-        assertTrue("eventManager.deleteEvent(event1) should return event1",
-                eventManager.createOwnEvent("user1", Calendar.getInstance(),
+        Assert.assertNotNull("eventManager.deleteEvent(event1) should return event1",
+                eventManager.insertEvent("user1", Calendar.getInstance(),
                         eventName, tagName, true));
 
         verify(eventPersistence).insertEvent(any(EventDSO.class));
         verify(eventLabelPersistence).insertEventLabel(any(EventLabelDSO.class));
 
-        eventManager.createOwnEvent("userNotFound", Calendar.getInstance(),
+        eventManager.insertEvent("userNotFound", Calendar.getInstance(),
                 eventName, tagName, true); //should throw UserNotFoundException
 
-        eventManager.createOwnEvent("user1", Calendar.getInstance(),
+        eventManager.insertEvent("user1", Calendar.getInstance(),
                 eventName, tagName, true); // should throw duplicateEventException
 
         verify(userPersistence, times(2)).getUserByID("user1");
