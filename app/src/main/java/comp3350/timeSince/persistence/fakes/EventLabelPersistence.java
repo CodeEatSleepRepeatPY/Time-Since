@@ -69,4 +69,16 @@ public class EventLabelPersistence implements IEventLabelPersistence {
         return eventLabels.size();
     }
 
+    @Override
+    public int getNextID() {
+        int toReturn = 0;
+
+        for (EventLabelDSO label : eventLabels) {
+            if (label.getID() > toReturn) {
+                toReturn = label.getID();
+            }
+        }
+        return toReturn + 1;
+    }
+
 }

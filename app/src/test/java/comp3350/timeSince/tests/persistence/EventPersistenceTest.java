@@ -1,10 +1,6 @@
 package comp3350.timeSince.tests.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -131,6 +127,10 @@ public class EventPersistenceTest {
         eventDatabase.updateEvent(event1);
         assertEquals("New attributes should match", "hello",
                 eventDatabase.getEventByID(event1.getID()).getDescription());
+
+        event1.setName("good-bye");
+        assertEquals("Updated event should be returned", "good-bye",
+                eventDatabase.updateEvent(event1).getName());
     }
 
     @Test(expected = EventNotFoundException.class)
@@ -160,11 +160,35 @@ public class EventPersistenceTest {
 
     @Test(expected = EventNotFoundException.class)
     public void testDeleteEventException() {
+        eventDatabase.deleteEvent(event4); // should not be able to delete an event not in db
+    }
+
+    @Test
+    public void testGetNextID() {
+        assertEquals("The first ID should be 1",
+                1, eventDatabase.getNextID());
+        eventDatabase.insertEvent(event1);
+        assertEquals("The ID of the first event inserted should be 1",
+                1, event1.getID());
+
+        assertEquals("The second ID should be 2",
+                2, eventDatabase.getNextID());
         eventDatabase.insertEvent(event2);
+        assertEquals("The ID of the second event inserted should be 2",
+                2, event2.getID());
+
+        eventDatabase.insertEvent(event3);
+        try {
+            eventDatabase.insertEvent(event3);
+        } catch (PersistenceException e) {
+            System.out.println(e.getMessage());
+        }
+        assertEquals("The next ID after three events, with one duplicate attempt should be 4.",
+                4, eventDatabase.getNextID());
+
         eventDatabase.deleteEvent(event2);
-        assertNull("Deleted event should no longer be in database",
-                eventDatabase.getEventByID(event2.getID()));
-        assertNull("Shouldn't be able to delete an event that doesn't exist",
-                eventDatabase.deleteEvent(new EventDSO(4, date, "event4")));
+        assertNotEquals("The next ID after a deletion should not be the deleted ID.",
+                event2.getID(), eventDatabase.getNextID());
+        assertEquals("The next ID should be 4", 4, eventDatabase.getNextID());
     }
 }

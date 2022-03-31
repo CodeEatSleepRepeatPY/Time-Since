@@ -1,8 +1,6 @@
 package comp3350.timeSince.tests.objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.hsqldb.rights.User;
 import org.junit.Assert;
@@ -10,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
+
 import comp3350.timeSince.objects.UserDSO;
 
 public class UserDSOTest {
@@ -53,6 +52,7 @@ public class UserDSOTest {
         slightFuture.setTimeInMillis(System.currentTimeMillis() + wiggleRoom);
 
         Calendar dateRegistered = this.userDSO.getDateRegistered();
+
         String message = String.format("Expected the date registered to be " +
                         "in the range %s < date registered < %s ", slightPast,
                 slightFuture);
@@ -109,16 +109,6 @@ public class UserDSOTest {
     }
 
     @Test
-    public void testEquals() {
-        UserDSO other = new UserDSO("bobby_g@gmail.com", defaultDate, "12345");
-        assertTrue("Users with the same ID should be equal",
-                userDSO.equals(other));
-        other = new UserDSO("bobby2_g@gmail.com", defaultDate, "12345");
-        assertFalse("Users with different ID's should not be equal",
-                userDSO.equals(other));
-    }
-
-    @Test
     public void testMeetsNewPasswordReq(){
         final int MIN_LENGTH = 8;
         String newPassword = "Hunter1";
@@ -153,6 +143,32 @@ public class UserDSOTest {
     }
 
     @Test
+    public void testToString() {
+        String expected = String.format("Name: %s, UserID: %s",
+                userDSO.getName(), userDSO.getID());
+        String message = "The User should display as: 'Name: ?name?, UserID: ?id?'";
+        assertEquals(message, expected, userDSO.toString());
+
+        userDSO.setName(null);
+        expected = String.format("UserID: %s", userDSO.getID());
+        message = "The User should display as: 'UserID: ?id?' when no name is given.";
+        assertEquals(message, expected, userDSO.toString());
+
+        UserDSO testUser = new UserDSO(null, defaultDate, passwordHash);
+        assertEquals("Nothing should be displayed if no name or id.",
+                "", testUser.toString());
+    }
+
+    @Test
+    public void testEquals() {
+        UserDSO other = new UserDSO("bobby_g@gmail.com", defaultDate, "12345");
+        assertTrue("Users with the same ID should be equal",
+                userDSO.equals(other));
+        other = new UserDSO("bobby2_g@gmail.com", defaultDate, "12345");
+        assertFalse("Users with different ID's should not be equal",
+                userDSO.equals(other));
+    }
+
     public void testMatchesExistingPassword(){
         String otherPasswordHash = "Hunter12";
         String message = "matchesExistingPassword should return false when " +

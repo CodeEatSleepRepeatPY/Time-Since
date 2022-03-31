@@ -25,5 +25,5 @@ public interface I_Database {
 
     UserDSO getUser(String uuid);
 
-    ArrayList<UserDSO> getUsers();
+    List<UserDSO> getUsers();
 }

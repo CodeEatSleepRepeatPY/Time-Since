@@ -18,4 +18,6 @@ public interface IEventLabelPersistence {
 
     int numLabels();
 
+    int getNextID();
+
 }

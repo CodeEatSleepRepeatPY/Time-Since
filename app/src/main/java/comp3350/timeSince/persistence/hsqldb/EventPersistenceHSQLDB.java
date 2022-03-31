@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.PersistenceException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
-import comp3350.timeSince.business.DateUtils;
 
 public class EventPersistenceHSQLDB implements IEventPersistence {
 
@@ -40,13 +40,11 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
         final Calendar dateCreated = DateUtils.timestampToCal(rs.getTimestamp("date_created"));
         final String description = rs.getString("description");
         final Calendar targetFinish = DateUtils.timestampToCal(rs.getTimestamp("target_finish_time"));
-        final int timeInterval = rs.getInt("time_interval");
         final int isFavorite = rs.getInt("is_favorite");
 
         EventDSO newEvent = new EventDSO(id, dateCreated, eventName);
         newEvent.setDescription(description);
         newEvent.setTargetFinishTime(targetFinish);
-        newEvent.setFrequency(timeInterval);
         newEvent.setFavorite(isFavorite == 1);
 
         connectEventsAndLabels(newEvent);
@@ -70,7 +68,9 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             return events;
 
         } catch (final SQLException e) {
-            throw new PersistenceException("List of events could not be returned.");
+            e.printStackTrace();
+            throw new PersistenceException("The list of events could not be returned.",
+                    e.getMessage());
         }
     }
 
@@ -78,61 +78,63 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
     public EventDSO getEventByID(int eventID) {
         final String query = "SELECT * FROM events WHERE eid = ?";
         EventDSO event = null;
+
         try (final Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
 
             statement.setInt(1, eventID);
             ResultSet resultSet = statement.executeQuery();
+
             if (resultSet.next()) {
                 event = fromResultSet(resultSet);
             }
+
             return event;
 
         } catch (final SQLException e) {
-            throw new EventNotFoundException("The event: " + eventID + " could not be found.");
+            e.printStackTrace();
+            throw new EventNotFoundException("The event: " + eventID
+                    + " could not be found.", e.getMessage());
         }
     }
 
     @Override
     public EventDSO insertEvent(EventDSO newEvent) {
-        final String query = "INSERT INTO events VALUES(DEFAULT, ?, ?, ?, ?, ?, ?)";
-        final String queryID = "SELECT * FROM events WHERE event_name = ? AND date_created = ?";
+        final String query = "INSERT INTO events VALUES(?, ?, ?, ?, ?, ?)";
+        EventDSO toReturn = null;
 
         try (final Connection c = connection();
-             final PreparedStatement statement = c.prepareStatement(query);
-             final PreparedStatement newStatement = c.prepareStatement(queryID)) {
+             final PreparedStatement statement = c.prepareStatement(query)) {
 
-            statement.setString(1, newEvent.getName());
-            statement.setTimestamp(2, DateUtils.calToTimestamp(newEvent.getDateCreated()));
-            statement.setString(3, newEvent.getDescription());
-            statement.setTimestamp(4, DateUtils.calToTimestamp(newEvent.getTargetFinishTime()));
-            statement.setInt(5, newEvent.getFrequency());
-            statement.setBoolean(6, newEvent.isFavorite());
-            statement.executeUpdate();
+            int id = getNextID(); // may cause Persistence Exception
+            if (id != -1) {
+                statement.setInt(1, id);
+                statement.setString(2, newEvent.getName());
+                statement.setTimestamp(3, DateUtils.calToTimestamp(newEvent.getDateCreated()));
+                statement.setString(4, newEvent.getDescription());
+                statement.setTimestamp(5, DateUtils.calToTimestamp(newEvent.getTargetFinishTime()));
+                statement.setInt(6, newEvent.isFavorite() ? 1 : 0);
+                statement.executeUpdate();
 
-            // Since the event was automatically assigned an ID by the database
-            // we need to retrieve the event using name + creation date to get its ID
-            newStatement.setString(1, newEvent.getName());
-            newStatement.setTimestamp(2, DateUtils.calToTimestamp(newEvent.getDateCreated()));
+                addLabelsConnections(c, newEvent.getEventLabels(), id);
 
-            final ResultSet resultSet = newStatement.executeQuery();
-            if (resultSet.next()) {
-                final EventDSO event = fromResultSet(resultSet);
-                addLabelsConnections(c, newEvent.getEventLabels(), event.getID());
+                toReturn = newEvent;
             }
 
-            return newEvent;
-
-        } catch (final SQLException e) {
-            throw new PersistenceException("The event: " + newEvent.getName() + " could not be added.");
+        } catch (PersistenceException | SQLException e) {
+            e.printStackTrace();
+            throw new PersistenceException("The event: " + newEvent.getName()
+                    + " could not be added.", e.getMessage());
         }
+
+        return toReturn;
     }
 
     @Override
     public EventDSO updateEvent(EventDSO event) {
         final String query = "UPDATE events SET event_name = ?, description = ?, "
-                + "target_finish_time = ?, time_interval = ?, "
-                + "is_favorite = ?, WHERE eid = ?";
+                + "target_finish_time = ?, is_favorite = ? "
+                + "WHERE eid = ?";
 
         try (final Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
@@ -140,8 +142,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             statement.setString(1, event.getName());
             statement.setString(2, event.getDescription());
             statement.setTimestamp(3, DateUtils.calToTimestamp(event.getTargetFinishTime()));
-            statement.setInt(4, event.getFrequency());
-            statement.setBoolean(5, event.isFavorite());
+            statement.setBoolean(4, event.isFavorite());
             statement.executeUpdate();
 
             addLabelsConnections(c, event.getEventLabels(), event.getID());
@@ -149,7 +150,9 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             return event;
 
         } catch (final SQLException e) {
-            throw new EventNotFoundException("The event: " + event.getName() + " could not be updated.");
+            e.printStackTrace();
+            throw new EventNotFoundException("The event: " + event.getName()
+                    + " could not be updated.", e.getMessage());
         }
     }
 
@@ -168,43 +171,83 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             return event;
 
         } catch (final SQLException e) {
-            throw new EventNotFoundException("The event: " + event.getName() + " could not be deleted.");
+            e.printStackTrace();
+            throw new EventNotFoundException("The event: " + event.getName()
+                    + " could not be deleted.", e.getMessage());
         }
     }
 
     @Override
     public int numEvents() {
-        final String query = "SELECT count(*) AS numEvents FROM events";
+        final String query = "SELECT COUNT(*) AS numEvents FROM events";
+        int toReturn = -1;
 
         try (final Connection c = connection();
              final Statement statement = c.createStatement();
              final ResultSet resultSet = statement.executeQuery(query)) {
 
-            resultSet.next();
-            return resultSet.getInt("numEvents");
+            if (resultSet.next()) {
+                toReturn = resultSet.getInt("numEvents");
+            }
 
         } catch (final SQLException e) {
-            throw new PersistenceException("The number of events could not be calculated.");
+            e.printStackTrace();
+            throw new PersistenceException("The number of events could not be calculated.",
+                    e.getMessage());
         }
+
+        return toReturn;
+    }
+
+    @Override
+    public int getNextID() {
+        final String query = "SELECT MAX(eid) FROM events";
+        int toReturn = -1;
+
+        try (final Connection c = connection();
+             final Statement statement = c.createStatement();
+             final ResultSet resultSet = statement.executeQuery(query)) {
+
+            if (resultSet.next()) {
+                toReturn = resultSet.getRow() + 1;
+            }
+
+        } catch (final SQLException e) {
+            e.printStackTrace();
+            throw new PersistenceException("The next event ID could not be identified.",
+                    e.getMessage());
+        }
+
+        return toReturn;
     }
 
     private void addLabelsConnections(Connection c, List<EventLabelDSO> labels, int eid) throws SQLException {
         final String query = "INSERT IGNORE INTO eventslabels VALUES(?, ?)";
 
-        for (EventLabelDSO eventLabel : labels) {
-            final PreparedStatement statement = c.prepareStatement(query);
-            statement.setInt(1, eid);
-            statement.setInt(2, eventLabel.getID());
-            statement.executeUpdate();
+        try {
+            for (EventLabelDSO eventLabel : labels) {
+                final PreparedStatement statement = c.prepareStatement(query);
+                statement.setInt(1, eid);
+                statement.setInt(2, eventLabel.getID());
+                statement.executeUpdate();
+            }
+
+        } catch (final SQLException e) {
+            throw new SQLException("Event: " + eid + "'s labels could not be connected.", e);
         }
     }
 
     private void removeLabelsConnections(Connection c, int eid) throws SQLException {
         final String query = "DELETE FROM eventslabels WHERE eid = ?";
 
-        final PreparedStatement userEvents = c.prepareStatement(query);
-        userEvents.setInt(1, eid);
-        userEvents.executeUpdate();
+        try {
+            final PreparedStatement userEvents = c.prepareStatement(query);
+            userEvents.setInt(1, eid);
+            userEvents.executeUpdate();
+
+        } catch (final SQLException e) {
+            throw new SQLException("Event: " + eid + "'s labels could not be disconnected.", e);
+        }
     }
 
     private void connectEventsAndLabels(EventDSO event) {
@@ -225,10 +268,12 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
                     }
                 }
             }
-        } catch (final SQLException e) {
-            throw new PersistenceException("Labels could not be added to the event " + event.getName());
-        }
 
+        } catch (final SQLException e) {
+            e.printStackTrace();
+            throw new PersistenceException("Labels could not be added to the event "
+                    + event.getName() + ".", e.getMessage());
+        }
     }
 
 } //EventPersistenceHSQLDB

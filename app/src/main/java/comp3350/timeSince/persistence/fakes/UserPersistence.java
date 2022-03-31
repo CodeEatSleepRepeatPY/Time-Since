@@ -66,8 +66,8 @@ public class UserPersistence implements IUserPersistence {
     @Override
     public boolean isUnique(String userID) {
         boolean toReturn = true;
-        for (int i = 0; i < userList.size() && toReturn; i++){
-            if (userID.equals(userList.get(i).getID())){
+        for (int i = 0; i < userList.size() && toReturn; i++) {
+            if (userID.equals(userList.get(i).getID())) {
                 toReturn = false;
             }
         }
@@ -78,4 +78,5 @@ public class UserPersistence implements IUserPersistence {
     public int numUsers() {
         return userList.size();
     }
+
 }

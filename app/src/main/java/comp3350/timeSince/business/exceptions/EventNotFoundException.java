@@ -1,7 +1,13 @@
 package comp3350.timeSince.business.exceptions;
 
 public class EventNotFoundException extends RuntimeException {
-    public EventNotFoundException(String error) {
-        super("The event was not found:\n" + error);
+
+    public EventNotFoundException(String message) {
+        super(message);
     }
+
+    public EventNotFoundException(String message, String error) {
+        super(message + "\n" + error);
+    }
+
 }
