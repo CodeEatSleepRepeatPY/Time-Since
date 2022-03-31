@@ -5,8 +5,6 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -26,10 +24,15 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
+
 import comp3350.timeSince.application.Services;
 
 import comp3350.timeSince.R;
+import comp3350.timeSince.business.UserManager;
+import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.exceptions.EventCreationTimeException;
+import comp3350.timeSince.business.exceptions.UserNotFoundException;
+import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
@@ -52,6 +55,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private Spinner selectEventLabel;
     private IEventLabelPersistence eventLabelPersistence;
     private Calendar mCalendar;
+    private EventManager eventManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,13 +153,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
-        //TODO: should just be the user's labels, not the whole database
         //TODO this will be replaced by Logic layer function; now it is only for test
         eventLabelPersistence = Services.getEventLabelPersistence();
         //dummy data for test
         //eventLabelPersistence.insertEventLabel(new EventLabelDSO(1, "label1"));
-        //eventLabelPersistence.insertEventLabel(new EventLabelDSO(2, "label2"));
-        //eventLabelPersistence.insertEventLabel(new EventLabelDSO(3, "label3"));
 
         List<EventLabelDSO> eventLabels = eventLabelPersistence.getEventLabelList();
         eventLabelsAdapter = new SpinnerEventLabelList(this,
@@ -166,18 +167,25 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     }
 
     private void saveContents(){
-        //TODO save the user input, let the logic handles the data and update the DB
         extras = getIntent().getExtras();
-        //save information to the database
-        Intent nextIntent = new Intent(this, ViewEventActivity.class);
-
-        //if the event is successfully created
+        EventDSO newEvent;
         String message = "Creation successful! ";
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Intent nextIntent = new Intent(this, ViewEventActivity.class);
+        eventManager = new EventManager();
 
-        CreateOwnEventActivity.this.startActivity(nextIntent);
-        //else throw createEvent exception: fail to add into the database, or the mandatory fields are empty
-
+        //if the event is successfully created, save information to the database
+        try{
+             newEvent = eventManager.insertEvent(eventName.getText().toString(), mCalendar);
+             if(newEvent != null){
+                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                 CreateOwnEventActivity.this.startActivity(nextIntent);
+             }else{
+                 Toast.makeText(this, "The new event is not successfully created.", Toast.LENGTH_SHORT).show();
+             }
+        }catch(UserNotFoundException exception){
+            //else throw createEvent exception: fail to add into the database
+            Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -189,12 +197,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         SimpleDateFormat mSDF = new SimpleDateFormat("hh:mm a");
         dueTime.setText( mSDF.format(mCalendar.getTime()) );
 
-        try{
-            if( mCalendar.before(currentTime) ){
-                throw new EventCreationTimeException("");
-            }
-        }catch( EventCreationTimeException error ){
-            Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+        if( mCalendar.before(currentTime) ){
+            Toast.makeText(this, "The due date is before the current datetime!", Toast.LENGTH_LONG).show();
+            dueDate.setText("");
+            dueTime.setText("");
         }
     }
 
