@@ -20,6 +20,7 @@ import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.business.EventManager;
 
 public class SingleEventActivity extends AppCompatActivity {
+    private EventManager eventManager;
     private Button done_button;
     private Button tags_button;
     private Button favorite_button;
@@ -34,13 +35,14 @@ public class SingleEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_single_event);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        eventManager = new EventManager();
         Calendar eventFinishTime;
         String dateText;
         Intent i = getIntent();
 
         // initialize event information
         eventID = i.getIntExtra("eventID", -1);
-        eventDSO = EventManager.getEventByID(eventID);
+        eventDSO = eventManager.getEventByID(eventID);
 
         // Button fields
         done_button = findViewById(R.id.event_done_button);
@@ -73,13 +75,13 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     public void buttonEventDoneOnClick(View v) {
-        boolean isDone = EventManager.isDone(eventID);
+        boolean isDone = eventManager.isDone(eventID);
 
         try{
             done_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    EventManager.markEventAsDone(eventID, !isDone);
+                    eventManager.markEventAsDone(eventID, !isDone);
                     setDoneColor(); // change the button color
                 }
             });
@@ -89,7 +91,7 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     private void setDoneColor(){
-        boolean isDone = EventManager.isDone(eventID);
+        boolean isDone = eventManager.isDone(eventID);
 
         // toggle the colour
         if (isDone){
@@ -126,7 +128,7 @@ public class SingleEventActivity extends AppCompatActivity {
             favorite_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    EventManager.updateEventFavorite(!isFavorite, eventID);
+                    eventManager.updateEventFavorite(!isFavorite, eventID);
                     setFavoriteColor(); // change the button color
                 }
             });
@@ -153,10 +155,12 @@ public class SingleEventActivity extends AppCompatActivity {
             listener = new DatePickerDialog.OnDateSetListener() {
                 @Override
                 public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                    month = month + 1;
-                    String displayDate = String.format("%d-%d-%d", year, month, day);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(year, month, day);
+
+                    String displayDate = String.format("%d-%d-%d", year, month + 1, day);
                     dueDate.setText(displayDate);
-                    EventManager.updateEventFinishTime(datePicker, eventID);
+                    eventManager.updateEventFinishTime(calendar, eventID);
                 }
             };
 
@@ -188,8 +192,8 @@ public class SingleEventActivity extends AppCompatActivity {
     // upon leaving, saves the name and description entered in the UI
     @Override
     public boolean onSupportNavigateUp(){
-        EventManager.updateEventName(name.getText(), eventID);
-        EventManager.updateEventDescription(description.getText(), eventID);
+        eventManager.updateEventName(name.getText().toString(), eventID);
+        eventManager.updateEventDescription(description.getText().toString(), eventID);
 
         finish();
         return true;
