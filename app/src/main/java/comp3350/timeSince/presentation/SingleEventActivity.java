@@ -37,9 +37,10 @@ public class SingleEventActivity extends AppCompatActivity {
         Calendar eventFinishTime;
         String dateText;
         Intent i = getIntent();
-        eventDSO = (EventDSO) i.getExtras("THIS_EVENT");
 
-        eventID = eventDSO.getID();
+        // initialize event information
+        eventID = i.getIntExtra("eventID", -1);
+        eventDSO = EventManager.getEventByID(eventID);
 
         // Button fields
         done_button = findViewById(R.id.event_done_button);
