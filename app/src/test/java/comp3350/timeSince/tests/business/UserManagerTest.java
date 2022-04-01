@@ -1,6 +1,10 @@
 package comp3350.timeSince.tests.business;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -8,16 +12,10 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
-import comp3350.timeSince.business.exceptions.UserRegistrationFailedException;
-import comp3350.timeSince.objects.EventDSO;
-import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
 public class UserManagerTest {
@@ -53,7 +51,7 @@ public class UserManagerTest {
         assertFalse("admin is exist so it is not unique, returns false", userManager.uniqueName(user2));
     }
 
-    @Test (expected = PasswordErrorException.class)
+    @Test(expected = PasswordErrorException.class)
     public void passwordRequirementsTest() {
         String password1 = "Bob12345";
         String password2 = "BoB123";
@@ -74,7 +72,7 @@ public class UserManagerTest {
         assertNotEquals("As K and k is not same, these two password are not equal.", userManager.hashPassword(inputPassword1), userManager.hashPassword(inputPassword2));
     }
 
-    @Test (expected = DuplicateUserException.class)
+    @Test
     public void tryRegistrationTest() {
         String newUserName = "Emma@qq.com";
         String existUserName = "admin";
@@ -88,7 +86,7 @@ public class UserManagerTest {
             assertFalse("The password and confirmed password are not same", userManager.insertUser(newUserName, password, wrongConfirmedPassword, null));
             assertFalse("admin is not exist in the db, should return false.",
                     userManager.insertUser(existUserName, password, correctConfirmedPassword, null));
-        } catch (NoSuchAlgorithmException e) {
+        } catch (DuplicateUserException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
     }
