@@ -12,8 +12,8 @@ import comp3350.timeSince.application.Main;
 
 public class DBHelper {
 
-    public static void copyDatabaseToDevice(Context context) {
-        final String DB_PATH = "db";
+    public static void copyDatabaseToDevice(Context context, String path) {
+        final String DB_PATH = path;
 
         String[] assetNames;
         File dataDirectory = context.getDir(DB_PATH, Context.MODE_PRIVATE);

@@ -1,6 +1,7 @@
 package comp3350.timeSince.business;
 
 import java.util.Calendar;
+import java.util.List;
 
 import comp3350.timeSince.application.Main;
 import comp3350.timeSince.application.Services;
@@ -45,6 +46,10 @@ public class EventManager {
 
     public EventDSO getEventByID(int eventID) throws EventNotFoundException {
         return eventPersistence.getEventByID(eventID); // may cause exception
+    }
+
+    public List<EventDSO> getEventList() {
+        return eventPersistence.getEventList();
     }
 
     public EventDSO insertEvent(String userID, Calendar dueDate, String eventName,

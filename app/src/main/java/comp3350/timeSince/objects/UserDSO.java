@@ -17,10 +17,10 @@ public class UserDSO {
     // instance variables
     //----------------------------------------
 
-    private final String id; // could be email, or unique name
+    private final String id; // could be email, or unique name, not null
     private String name;
-    private final Calendar DATE_REGISTERED; // generated when creating new object
-    private String passwordHash;
+    private final Calendar DATE_REGISTERED; // generated when creating new object, not null
+    private String passwordHash; // not null
     private final List<EventDSO> userEvents;
     private final List<EventDSO> favoritesList; // favorite Events
     private final List<EventLabelDSO> userLabels;
@@ -96,6 +96,10 @@ public class UserDSO {
     //----------------------------------------
     // general
     //----------------------------------------
+
+    public boolean validate() {
+        return (id != null && passwordHash != null && DATE_REGISTERED != null);
+    }
 
     public void addLabel(EventLabelDSO newLabel) {
         if (newLabel != null && !userLabels.contains(newLabel)) {

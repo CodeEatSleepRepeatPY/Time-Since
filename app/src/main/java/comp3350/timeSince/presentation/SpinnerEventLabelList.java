@@ -8,15 +8,17 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import java.util.ArrayList;
+import java.util.List;
+
 import comp3350.timeSince.objects.EventLabelDSO;
 
 public class SpinnerEventLabelList extends ArrayAdapter<EventLabelDSO> {
     private Context mContext;
-    private ArrayList<EventLabelDSO> eventTags;
+    private List<EventLabelDSO> eventTags;
     private final static int TEXT_SIZE = 16;
     private final static int TEXT_HEIGHT = 50;
 
-    public SpinnerEventLabelList(Context context, int textViewResourceId, ArrayList<EventLabelDSO> objects){
+    public SpinnerEventLabelList(Context context, int textViewResourceId, List<EventLabelDSO> objects){
         super(context, textViewResourceId, objects);
         this.mContext = context;
         this.eventTags = objects;

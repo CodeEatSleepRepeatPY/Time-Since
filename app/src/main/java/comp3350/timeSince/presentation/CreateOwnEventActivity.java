@@ -146,7 +146,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelName.setText("");
     }
 
-
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
 
@@ -157,7 +156,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         }
 
         eventLabelsAdapter = new SpinnerEventLabelList(this,
-                R.layout.simple_spinner_dropdown_items, (ArrayList<EventLabelDSO>) eventLabels);
+                R.layout.simple_spinner_dropdown_items, eventLabels);
 
         selectEventLabel.setAdapter(eventLabelsAdapter);
         eventLabelsAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_items);
@@ -168,12 +167,19 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         EventDSO newEvent;
         String message = "Creation successful! ";
         Intent nextIntent = new Intent(this, ViewEventActivity.class);
+        String eventLabelName;
 
         //if the event is successfully created, save information to the database
         try{
-             newEvent = eventManager.insertEvent(extras.get("email").toString(),  mCalendar,
-                     eventName.getText().toString(), eventLabels.get(eventLabels.size()-1).getName(),
-                     favorite);
+            if( eventLabels.size() == 0 ){
+                eventLabelName = "";
+            }else {
+                eventLabelName = eventLabels.get(eventLabels.size() - 1).getName();
+            }
+            newEvent = eventManager.insertEvent(extras.get("email").toString(), mCalendar,
+                        eventName.getText().toString(), eventLabelName,
+                        favorite);
+
              if(newEvent != null){
                  Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                  CreateOwnEventActivity.this.startActivity(nextIntent);
@@ -216,8 +222,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         mCalendar.set(Calendar.YEAR, year);
         mCalendar.set(Calendar.MONTH, month);
         mCalendar.set(Calendar.DAY_OF_MONTH, day);
-        dueDate.setText(String.format("%d/%d/%d",day, month, year));
-
+        dueDate.setText(String.format("%d/%d/%d",day, (month+1), year));
     }
 
     private void showPickDateDialogue(){
