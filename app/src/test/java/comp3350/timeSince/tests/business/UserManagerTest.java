@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
+import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
 public class UserManagerTest {
@@ -46,7 +47,7 @@ public class UserManagerTest {
         assertFalse("admin is exist so it is not unique, returns false", userManger.uniqueName(user2));
     }
 
-    @Test
+    @Test (expected = PasswordErrorException.class)
     public void passwordRequirementsTest() {
         String password1 = "Bob12345";
         String password2 = "BoB123";
@@ -54,20 +55,6 @@ public class UserManagerTest {
         assertTrue("As Bob12345 has 1 capital letter, and user typed same password for two times should return true"
                 , userManger.passwordRequirements(password1));
         assertFalse("Bob123 is less than 8 should return false", userManger.passwordRequirements(password2));
-    }
-
-
-    @Test
-    public void loginProcessTest() throws NoSuchAlgorithmException {
-        String userName1 = "bob23@qq.com";
-        String userName2 = "kristjaf@myumanitoba.ca";
-        String password1 = "Bob1234";
-        String password2 = "12345";
-        String successMsg = userName2 + " is in the database and " + password2
-                + " is the correct password. Login successfully!";
-
-        assertFalse("bob23@qq.com is not in the database", userManger.loginProcess(userName1, password1));
-        assertTrue(successMsg, userManger.loginProcess(userName2, password2));
     }
 
     @Test

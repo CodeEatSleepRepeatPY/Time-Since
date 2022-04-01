@@ -9,6 +9,7 @@ import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
+import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
@@ -51,11 +52,6 @@ public class UserManager {
         return toReturn;
     }
 
-    public boolean loginProcess(String userName, String password)
-            throws UserNotFoundException, NoSuchAlgorithmException {
-        return accountCheck(userName, password);
-    }
-
     public String hashPassword(String inputPassword) throws NoSuchAlgorithmException {
         String strHash = "";
 
@@ -81,7 +77,7 @@ public class UserManager {
     //This method is called when the register button is hit
     //to show if the user create a new account successfully or not
     public boolean insertUser(String userID, String password, String confirmPassword, String name)
-            throws NoSuchAlgorithmException, DuplicateUserException {
+            throws NoSuchAlgorithmException, DuplicateUserException, PasswordErrorException {
 
         boolean toReturn = false; // default is false if something goes wrong
         if (password.equals(confirmPassword)) {
