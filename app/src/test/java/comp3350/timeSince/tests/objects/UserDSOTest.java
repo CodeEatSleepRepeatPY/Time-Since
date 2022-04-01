@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.Calendar;
 
+import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.objects.UserDSO;
 
 public class UserDSOTest {
@@ -109,7 +110,7 @@ public class UserDSOTest {
         Assert.assertEquals(message, newName, this.userDSO.getName());
     }
 
-    @Test
+    @Test (expected = PasswordErrorException.class)
     public void testMeetsNewPasswordReq() {
         final int MIN_LENGTH = 8;
         String newPassword = "Hunter1";
@@ -143,7 +144,7 @@ public class UserDSOTest {
         assertEquals(message, this.userDSO.getPasswordHash(), newPasswordHash);
     }
 
-    @Test
+    @Test (expected = PasswordErrorException.class)
     public void testMatchesExistingPassword() {
         String otherPasswordHash = "Hunter12";
         String message = "matchesExistingPassword should return false when " +

@@ -11,6 +11,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import comp3350.timeSince.business.exceptions.PasswordErrorException;
+
 public class UserDSO {
 
     //----------------------------------------
@@ -98,7 +100,9 @@ public class UserDSO {
     //----------------------------------------
 
     public boolean validate() {
-        return (id != null && passwordHash != null && DATE_REGISTERED != null);
+        return (id != null && id.length() > 0
+                && passwordHash != null
+                && DATE_REGISTERED != null);
     }
 
     public void addLabel(EventLabelDSO newLabel) {
@@ -132,15 +136,26 @@ public class UserDSO {
     }
 
     // when logging in, have entered the right password?
-    public boolean matchesExistingPassword(String passwordHash) {
-        return passwordHash.equals(this.passwordHash);
+    public boolean matchesExistingPassword(String password) throws PasswordErrorException {
+        if (!passwordHash.equals(password)) {
+            throw new PasswordErrorException("The entered passwords do not match!");
+        }
+        return true;
     }
 
     // does the passed password meet the new password requirements?
     // When register the password, at least one of the character should be capital letter
     // Ensure the password isn't too short(less than 8)
-    public static boolean meetsNewPasswordReq(String password) {
-        return hasMinLength(password) && hasCapital(password);
+    public static boolean meetsNewPasswordReq(String password) throws PasswordErrorException {
+        boolean minLength = hasMinLength(password);
+        boolean hasCapital = hasCapital(password);
+        if (!minLength) {
+            throw new PasswordErrorException("The length of your password should more than 8 characters.");
+        }
+        if (!hasCapital) {
+            throw new PasswordErrorException("Your password should contains at least one capital letter!");
+        }
+        return true;
     }
 
     public String toString() {
