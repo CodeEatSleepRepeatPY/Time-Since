@@ -38,9 +38,9 @@ public class EventManagerTest {
     private IEventLabelPersistence eventLabelPersistence;
     private EventDSO event1, event2, event3;
     private Calendar currDate;
-    private int id1 = 100;
-    private int id2 = 101;
-    private int id3 = 102;
+    private final int id1 = 100;
+    private final int id2 = 101;
+    private final int id3 = 102;
 
     @Before
     public void setUp() {
@@ -50,7 +50,7 @@ public class EventManagerTest {
         eventManager = new EventManager(userPersistence, eventPersistence,
                 eventLabelPersistence);
         currDate = Calendar.getInstance();
-        event1 = new EventDSO(id1, currDate, "evnet1");
+        event1 = new EventDSO(id1, currDate, "event1");
         event2 = new EventDSO(id2, currDate, "event2");
         event3 = new EventDSO(id3, currDate, "event3");
     }
