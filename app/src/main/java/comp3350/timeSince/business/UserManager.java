@@ -1,8 +1,5 @@
 package comp3350.timeSince.business;
 
-
-import org.hsqldb.rights.User;
-
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -158,14 +155,18 @@ public class UserManager {
         return toReturn;
     }
 
-    public boolean addUserLabel(String userID, EventLabelDSO label) throws UserNotFoundException {
+    public boolean addUserLabel(String userID, List<EventLabelDSO> labels) throws UserNotFoundException {
         boolean toReturn = false;
 
-        UserDSO user = userPersistence.getUserByID(userID);
-        if (user != null && user.validate() && label.validate()) {
-            user.addLabel(label);
-            if (userPersistence.updateUser(user) != null) {
-                toReturn = true;
+        if (labels != null) {
+            UserDSO user = userPersistence.getUserByID(userID);
+            for (EventLabelDSO label : labels) {
+                if (user != null && user.validate() && label.validate()) {
+                    user.addLabel(label);
+                    if (userPersistence.updateUser(user) != null) {
+                        toReturn = true;
+                    }
+                }
             }
         }
         return toReturn;

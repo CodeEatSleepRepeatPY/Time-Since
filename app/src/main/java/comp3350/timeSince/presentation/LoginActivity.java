@@ -28,7 +28,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.user_login_view);
         login = findViewById(R.id.login);
 
-        //TODO: the codes is for testing the login button, this will be replaced by User Manager
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
