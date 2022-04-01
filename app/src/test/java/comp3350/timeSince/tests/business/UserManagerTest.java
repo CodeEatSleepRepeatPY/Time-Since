@@ -87,4 +87,54 @@ public class UserManagerTest {
         }
     }
 
+    @Test
+    public void testGetUserByID() {
+
+    }
+
+    @Test
+    public void updateUserName() {
+
+    }
+
+    @Test
+    public void updateUserPassword() {
+
+    }
+
+    @Test
+    public void addUserEvent() {
+
+    }
+
+    @Test
+    public void addUserFavorite() {
+
+    }
+
+    @Test
+    public void addUserLabel() {
+
+    }
+
+    @Test
+    public void deleteUser() {
+
+    }
+
+    @Test
+    public void getUserEvents() {
+
+    }
+
+    @Test
+    public void getUserFavorites() {
+
+    }
+
+    @Test
+    public void getUserLabels() {
+
+    }
+
 }
