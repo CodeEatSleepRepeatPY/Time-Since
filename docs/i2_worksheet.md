@@ -19,6 +19,11 @@ technical debt we previously incurred by switching all Date objects to Calendar
 objects.  This ensures we're using something that's less likely to be changed,
 or not work, and also it made the UI calls to selecting a date easier.
 
+The type of this technical debt is Prudent and Inadvertent.  We knew we
+didn't want to store the date as a String, so we chose the Date format.
+What we didn't realize when we did this is that Date has been deprecated,
+and now the class people use is Calendar.
+
 ### Splitting the FakeDatabase into three different classes
 
 [Issue](https://code.cs.umanitoba.ca/winter-2022-a02/group-2/time-since-a02-2/-/issues/28)
@@ -31,6 +36,10 @@ so we had to pay off the technical debt by splitting up the one FakeDatabase cla
 a lot of methods into the three new classes that we created; UserPersistence, EventPersistence, 
 and EventLabelPersistence.
 
+This technical debt was Prudent and Inadvertent.  At first we thought that
+it would be a good idea to store the users, events, and event labels all
+in the same class.  We realized that this was not a good idea, because it's
+a SOLID violation, and we split them up into 3 different tables.
 
 SOLID
 -----
