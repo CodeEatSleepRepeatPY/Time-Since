@@ -29,6 +29,8 @@ import java.util.Objects;
 import comp3350.timeSince.application.Services;
 
 import comp3350.timeSince.R;
+import comp3350.timeSince.business.EventManager;
+import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
@@ -49,7 +51,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private TextView eventLabelName;
     private Button favoriteBtn;
     private Spinner selectEventLabel;
-    private IEventLabelPersistence eventLabelPersistence;
+    //private IEventLabelPersistence eventLabelPersistence;
+    private final EventManager eventManager = new EventManager(true);
+    private final UserManager userManager = new UserManager(true);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,18 +148,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelName.setText("");
     }
 
-
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
-        //TODO: should just be the user's labels, not the whole database
-        //TODO this will be replaced by Logic layer function; now it is only for test
-        eventLabelPersistence = Services.getEventLabelPersistence(true);
-        //dummy data for test
-        //eventLabelPersistence.insertEventLabel(new EventLabelDSO(1, "label1"));
-        //eventLabelPersistence.insertEventLabel(new EventLabelDSO(2, "label2"));
-        //eventLabelPersistence.insertEventLabel(new EventLabelDSO(3, "label3"));
-
-        List<EventLabelDSO> eventLabels = eventLabelPersistence.getEventLabelList();
+        extras = getIntent().getExtras();
+        List<EventLabelDSO> eventLabels = userManager.getUserLabels(extras.get("email").toString());
         eventLabelsAdapter = new SpinnerEventLabelList(this,
                 R.layout.simple_spinner_dropdown_items, (ArrayList<EventLabelDSO>) eventLabels);
 
