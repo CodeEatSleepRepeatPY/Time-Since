@@ -3,20 +3,15 @@ package comp3350.timeSince.presentation;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import android.widget.AdapterView;
-import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,20 +21,15 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
-import comp3350.timeSince.application.Services;
-
 import comp3350.timeSince.R;
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.persistence.IEventLabelPersistence;
-import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
 
 public class CreateOwnEventActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener,
-        AdapterView.OnItemSelectedListener
-{
+        AdapterView.OnItemSelectedListener {
     private boolean favorite = false;
     private ArrayList<EventLabelDSO> eventLabels;
     private Bundle extras;
@@ -114,7 +104,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onSupportNavigateUp(){
+    public boolean onSupportNavigateUp() {
         finish();
         return true;
     }
@@ -122,25 +112,25 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         EventLabelDSO eventLabelDSO;
-        if(adapterView == findViewById(R.id.select_event_label)){
+        if (adapterView == findViewById(R.id.select_event_label)) {
             eventLabelDSO = (EventLabelDSO) adapterView.getItemAtPosition(position);
-            if( labelNotClicked ){
+            if (labelNotClicked) {
                 eventLabels.clear();
                 labelNotClicked = false;
-            }else{
-                eventLabels.add(eventLabelDSO );
+            } else {
+                eventLabels.add(eventLabelDSO);
                 eventLabelName.setText(concatenateLabels());
             }
         }
     }
 
-    private String concatenateLabels(){
+    private String concatenateLabels() {
         StringBuilder sb = new StringBuilder();
 
-        for(EventLabelDSO eventLabel : eventLabels){
-            sb.append(" "+eventLabel.getName() );
+        for (EventLabelDSO eventLabel : eventLabels) {
+            sb.append(" " + eventLabel.getName());
         }
-        return(sb.toString());
+        return (sb.toString());
     }
 
     @Override
@@ -148,7 +138,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelName.setText("");
     }
 
-    private void loadEventLabelList(){
+    private void loadEventLabelList() {
         SpinnerEventLabelList eventLabelsAdapter;
         extras = getIntent().getExtras();
         List<EventLabelDSO> eventLabels = userManager.getUserLabels(extras.get("email").toString());
@@ -159,7 +149,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelsAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_items);
     }
 
-    private void saveContents(){
+    private void saveContents() {
         //TODO save the user input, let the logic handles the data and update the DB
         extras = getIntent().getExtras();
         //save information to the database
@@ -172,8 +162,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         CreateOwnEventActivity.this.startActivity(nextIntent);
         //else throw createEvent exception: invalid event name and/or description /data time over pass
 
-
-
     }
 
     @Override
@@ -182,10 +170,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         mCalendar.set(Calendar.HOUR_OF_DAY, hour);
         mCalendar.set(Calendar.MINUTE, minute);
         SimpleDateFormat mSDF = new SimpleDateFormat("hh:mm a");
-        dueTime.setText( mSDF.format(mCalendar.getTime()) );
+        dueTime.setText(mSDF.format(mCalendar.getTime()));
     }
 
-    private void showPickTimeDialogue(){
+    private void showPickTimeDialogue() {
         Calendar mCalendar = Calendar.getInstance();
         int mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
         int mMinute = mCalendar.get(Calendar.MINUTE);
@@ -197,10 +185,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        dueDate.setText(String.format("%d/%d/%d",day, month, year));
+        dueDate.setText(String.format("%d/%d/%d", day, month, year));
     }
 
-    private void showPickDateDialogue(){
+    private void showPickDateDialogue() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,
                 this,
@@ -211,12 +199,12 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         datePickerDialog.show();
     }
 
-    public void buttonSetEventOnClick(View v){
+    public void buttonSetEventOnClick(View v) {
         updateFavorite();
     }
 
     private void updateFavorite() {
-        if(favoriteBtn != null) {
+        if (favoriteBtn != null) {
             favorite = !favorite;
             if (favorite) {
                 favoriteBtn.setBackgroundResource(R.drawable.heart_filled);
