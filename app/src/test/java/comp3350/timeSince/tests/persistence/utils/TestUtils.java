@@ -1,11 +1,11 @@
 package comp3350.timeSince.tests.persistence.utils;
 
-import com.google.common.io.Files;
-
 import java.io.File;
-import java.io.IOException;
 
 import comp3350.timeSince.application.Main;
+import com.google.common.io.Files;
+
+import java.io.IOException;
 
 
 public class TestUtils {
