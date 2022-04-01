@@ -156,12 +156,12 @@ public class UserManager {
 
         if (label != null) {
             UserDSO user = userPersistence.getUserByID(userID);
-                if (user != null && user.validate() && label.validate()) {
-                    user.addLabel(label);
-                    if (userPersistence.updateUser(user) != null) {
-                        toReturn = true;
-                    }
+            if (user != null && user.validate() && label.validate()) {
+                user.addLabel(label);
+                if (userPersistence.updateUser(user) != null) {
+                    toReturn = true;
                 }
+            }
         }
         return toReturn;
     }

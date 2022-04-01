@@ -171,7 +171,7 @@ public class EventManagerTest {
     public void testInsertEvent() {
         UserDSO user = new UserDSO("user1", currDate, "hash1");
         EventLabelDSO eventLabel = new EventLabelDSO(1, "eventLabel1");
-        String eventName = "event1", tagName = "Sports";
+        String eventName = "event1", tagName = "Sports", eventDesc = "desc";
 
         when(eventPersistence.getNextID()).thenReturn(1).thenReturn(2).thenReturn(3);
         when(eventLabelPersistence.getNextID()).thenReturn(1).thenReturn(2).thenReturn(3);
@@ -188,16 +188,16 @@ public class EventManagerTest {
 
         Assert.assertNotNull("eventManager.insertEvent(event1) should return event1",
                 eventManager.insertEvent("user1", Calendar.getInstance(),
-                        eventName, tagName, true));
+                        eventName, tagName, eventDesc, true));
 
         verify(eventPersistence).insertEvent(any(EventDSO.class));
         verify(eventLabelPersistence).insertEventLabel(any(EventLabelDSO.class));
 
         eventManager.insertEvent("userNotFound", Calendar.getInstance(),
-                eventName, tagName, true); //should throw UserNotFoundException
+                eventName, tagName, eventDesc, true); //should throw UserNotFoundException
 
         eventManager.insertEvent("user1", Calendar.getInstance(),
-                eventName, tagName, true); // should throw duplicateEventException
+                eventName, tagName, eventDesc, true); // should throw duplicateEventException
 
         verify(userPersistence, times(2)).getUserByID("user1");
         verify(userPersistence).getUserByID("userNotFound");
