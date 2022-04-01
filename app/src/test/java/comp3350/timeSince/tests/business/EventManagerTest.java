@@ -172,9 +172,11 @@ public class EventManagerTest {
     @Test(expected = Exception.class)
     public void testInsertEvent() {
         UserDSO user = new UserDSO("user1", currDate, "hash1");
-        EventLabelDSO eventLabel = new EventLabelDSO(id1, "eventLabel1");
+        EventLabelDSO eventLabel = new EventLabelDSO(1, "eventLabel1");
         String eventName = "event1", tagName = "Sports";
 
+        when(eventPersistence.getNextID()).thenReturn(1).thenReturn(2).thenReturn(3);
+        when(eventLabelPersistence.getNextID()).thenReturn(1).thenReturn(2).thenReturn(3);
         when(userPersistence.getUserByID("userNotFound"))
                 .thenThrow(UserNotFoundException.class);
         when(userPersistence.getUserByID("user1"))
