@@ -211,3 +211,4 @@ public class EventManagerTest {
         verify(eventPersistence).numEvents();
     }
 }
+
