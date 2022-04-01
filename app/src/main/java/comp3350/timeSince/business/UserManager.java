@@ -151,19 +151,17 @@ public class UserManager {
         return toReturn;
     }
 
-    public boolean addUserLabel(String userID, List<EventLabelDSO> labels) throws UserNotFoundException {
+    public boolean addUserLabel(String userID, EventLabelDSO label) throws UserNotFoundException {
         boolean toReturn = false;
 
-        if (labels != null) {
+        if (label != null) {
             UserDSO user = userPersistence.getUserByID(userID);
-            for (EventLabelDSO label : labels) {
                 if (user != null && user.validate() && label.validate()) {
                     user.addLabel(label);
                     if (userPersistence.updateUser(user) != null) {
                         toReturn = true;
                     }
                 }
-            }
         }
         return toReturn;
     }
@@ -209,6 +207,7 @@ public class UserManager {
         UserDSO user = userPersistence.getUserByID(userID);
         if (user != null && user.validate()) {
             toReturn = user.getUserLabels();
+
         }
 
         return toReturn;
