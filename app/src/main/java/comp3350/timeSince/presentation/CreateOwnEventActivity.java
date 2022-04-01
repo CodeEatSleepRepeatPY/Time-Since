@@ -153,7 +153,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         extras = getIntent().getExtras();
         List<EventLabelDSO> eventLabels = userManager.getUserLabels(extras.get("email").toString());
         eventLabelsAdapter = new SpinnerEventLabelList(this,
-                R.layout.simple_spinner_dropdown_items, (ArrayList<EventLabelDSO>) eventLabels);
+                R.layout.simple_spinner_dropdown_items, (List<EventLabelDSO>) eventLabels);
 
         selectEventLabel.setAdapter(eventLabelsAdapter);
         eventLabelsAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_items);
