@@ -8,12 +8,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.security.NoSuchAlgorithmException;
+
 import comp3350.timeSince.R;
 import comp3350.timeSince.business.UserManager;
+import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
 
 public class RegisterActivity extends AppCompatActivity {
-    private final UserManager userManager = new UserManager();
+    private final UserManager userManager = new UserManager(true);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,7 @@ public class RegisterActivity extends AppCompatActivity {
         String strConfirmPassword = editConfirmPassword.getText().toString();
 
         try {
-            if (userManager.tryRegistration(strUsername, strPassword, strConfirmPassword)) {
+            if (userManager.insertUser(strUsername, strPassword, strConfirmPassword, null)) {
                 Toast.makeText(this, "Registration success!", Toast.LENGTH_LONG).show();
                 userIntent = new Intent(RegisterActivity.this, ViewEventActivity.class);
             } else {
@@ -47,12 +50,11 @@ public class RegisterActivity extends AppCompatActivity {
             }
             startActivity(userIntent);
             finish();
-        }catch (PasswordErrorException e){
+        }catch (PasswordErrorException | DuplicateUserException | NoSuchAlgorithmException e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             editUsername.setText("");
             editPassword.setText("");
             editConfirmPassword.setText("");
-
         }
     }
 }

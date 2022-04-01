@@ -6,8 +6,4 @@ public class EventLabelNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public EventLabelNotFoundException(String message, String error) {
-        super(message + "\n" + error);
-    }
-
 }

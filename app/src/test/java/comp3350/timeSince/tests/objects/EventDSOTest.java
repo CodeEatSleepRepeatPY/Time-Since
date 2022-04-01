@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import java.util.Calendar;
 
-import comp3350.timeSince.business.DateUtils;
+import comp3350.timeSince.business.exceptions.EventDescriptionException;
 import comp3350.timeSince.objects.EventDSO;
 
 public class EventDSOTest {
@@ -66,6 +66,15 @@ public class EventDSOTest {
         assertEquals(message, event.getDescription(), description2);
     }
 
+    @Test (expected = EventDescriptionException.class)
+    public void testSetDescriptionException() {
+        String tooLong = "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog";
+        event.setDescription(tooLong);
+    }
+
     @Test
     public void appendDescription() {
         String message, newDescription;
@@ -80,6 +89,16 @@ public class EventDSOTest {
         message = String.format("The event's description should not be %s",
                 currentDescription + newDescription);
         assertEquals(message, event.getDescription(), currentDescription + newDescription);
+    }
+
+    @Test (expected = EventDescriptionException.class)
+    public void testAppendDescriptionException() {
+        String description = "The quick brown fox jumped over the lazy dog.";
+        String append = "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog "
+                + "The quick brown fox jumped over the lazy dog";
+        event.setDescription(description);
+        event.appendDescription(append);
     }
 
     @Test
@@ -107,6 +126,35 @@ public class EventDSOTest {
         String message = String.format("The event target finish time should be %s",
                 newDate);
         assertEquals(message, newDate, event.getTargetFinishTime());
+    }
+
+    @Test
+    public void testIsDone() {
+        assertFalse("Default should be not done.", event.isDone());
+        event.setIsDone(true);
+        assertTrue("After setting as done, Event should be done.",
+                event.isDone());
+        event.setIsDone(false);
+        assertFalse("After setting the Event as not done, it should be not done.",
+                event.isDone());
+    }
+
+    @Test
+    public void testValidate() {
+        assertTrue("An Event with valid ID and name should be valid.",
+                event.validate());
+
+        EventDSO badEvent = new EventDSO(-1,date,null);
+        assertFalse("An Event with both invalid parameters should not be valid.",
+                badEvent.validate());
+
+        badEvent = new EventDSO(-1, date, "hello");
+        assertFalse("An Event with an invalid ID should not be valid.",
+                badEvent.validate());
+
+        badEvent = new EventDSO(3, date, null);
+        assertFalse("An Event with an invalid name should not be valid.",
+                badEvent.validate());
     }
 
     @Test

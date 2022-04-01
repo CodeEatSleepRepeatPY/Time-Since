@@ -17,10 +17,10 @@ public class UserDSO {
     // instance variables
     //----------------------------------------
 
-    private final String id; // could be email, or unique name
+    private final String id; // could be email, or unique name, not null
     private String name;
-    private final Calendar DATE_REGISTERED; // generated when creating new object
-    private String passwordHash;
+    private final Calendar DATE_REGISTERED; // generated when creating new object, not null
+    private String passwordHash; // not null
     private final List<EventDSO> userEvents;
     private final List<EventDSO> favoritesList; // favorite Events
     private final List<EventLabelDSO> userLabels;
@@ -81,13 +81,25 @@ public class UserDSO {
         this.name = name;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    // confirm the old password before changing to the new password
+    public boolean setNewPassword(String oldPasswordHash, String newPasswordHash) {
+        boolean success = false;
+
+        if (oldPasswordHash.equals(this.passwordHash)) {
+            this.passwordHash = newPasswordHash;
+            success = true;
+        }
+
+        return success;
     }
 
     //----------------------------------------
     // general
     //----------------------------------------
+
+    public boolean validate() {
+        return (id != null && passwordHash != null && DATE_REGISTERED != null);
+    }
 
     public void addLabel(EventLabelDSO newLabel) {
         if (newLabel != null && !userLabels.contains(newLabel)) {
@@ -119,6 +131,18 @@ public class UserDSO {
         favoritesList.remove(event);
     }
 
+    // when logging in, have entered the right password?
+    public boolean matchesExistingPassword(String passwordHash) {
+        return passwordHash.equals(this.passwordHash);
+    }
+
+    // does the passed password meet the new password requirements?
+    // When register the password, at least one of the character should be capital letter
+    // Ensure the password isn't too short(less than 8)
+    public static boolean meetsNewPasswordReq(String password) {
+        return hasMinLength(password) && hasCapital(password);
+    }
+
     public String toString() {
         String toReturn = "";
         if (name != null && id != null) {
@@ -134,29 +158,22 @@ public class UserDSO {
         return this.id.equals(other.getID());
     }
 
-    // does the passed password meet the new password requirements?
-    // When register the password, at least one of the character should be capital letter
-    // Ensure the password isn't too short(less than 8)
-    public static boolean meetsNewPasswordReq(String password)  {
-        return hasMinLength(password) && hasCapital(password);
-    }
-
     // helper for meetsNewPasswordReq
-    private static boolean hasMinLength(String password){
+    private static boolean hasMinLength(String password) {
         final int MIN_LENGTH = 8;
 
         return password.length() >= MIN_LENGTH;
     }
 
     // helper for meetsNewPasswordReq
-    private static boolean hasCapital(String password){
+    private static boolean hasCapital(String password) {
         boolean hasCapital = false;
         char letter;
 
         // checking that the password has a capital letter
-        for(int i = 0; i < password.length() && !hasCapital;i++){
+        for (int i = 0; i < password.length() && !hasCapital; i++) {
             letter = password.charAt(i);
-            if (Character.isUpperCase(letter)){
+            if (Character.isUpperCase(letter)) {
                 hasCapital = true;
             }
         }
@@ -164,20 +181,4 @@ public class UserDSO {
         return hasCapital;
     }
 
-    // confirm the old password before changing to the new password
-    public boolean setNewPassword(String oldPasswordHash, String newPasswordHash){
-        boolean success = false;
-
-        if (oldPasswordHash.equals(this.passwordHash)){
-            this.passwordHash = newPasswordHash;
-            success = true;
-        }
-
-        return success;
-    }
-
-    // when logging in, have entered the right password?
-    public boolean matchesExistingPassword(String passwordHash){
-        return passwordHash.equals(this.passwordHash);
-    }
 }
