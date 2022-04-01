@@ -53,7 +53,7 @@ public class EventManager {
     }
 
     public EventDSO insertEvent(String userID, Calendar dueDate, String eventName,
-                                   String eventLabelName, boolean favorite)
+                                   String eventLabelName, String eventDesc, boolean favorite)
             throws UserNotFoundException, DuplicateEventException {
 
         EventDSO toReturn = null;
@@ -70,6 +70,7 @@ public class EventManager {
                 event.setTargetFinishTime(dueDate); // set event's due date
                 event.addLabel(eventLabel); // add label
                 event.setFavorite(favorite); // set if favorite or not
+                event.setDescription(eventDesc);
 
                 databaseUser.addEvent(event); // add event to user's events list
                 databaseUser.addLabel(eventLabel); // add event label to user's event labels list

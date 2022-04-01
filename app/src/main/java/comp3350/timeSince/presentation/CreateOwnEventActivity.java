@@ -41,6 +41,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private Bundle extras;
     private TextView eventName;
     private boolean labelNotClicked = true;
+    private TextView description;
     private TextView dueDate;
     private TextView dueTime;
     private TextView isFavorite;
@@ -58,6 +59,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         eventName = findViewById(R.id.event_name);
+        description = findViewById(R.id.event_description);
         dueDate = findViewById(R.id.due_date);
         dueTime = findViewById(R.id.due_datetime);
         favoriteBtn = findViewById(R.id.favorite_btn);
@@ -82,6 +84,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
                 showPickDateDialogue();
             }
         });
+
 
         findViewById(R.id.select_datetime).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,7 +181,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
             }
             newEvent = eventManager.insertEvent(extras.get("email").toString(), mCalendar,
                         eventName.getText().toString(), eventLabelName,
-                        favorite);
+                        description.getText().toString(), favorite);
 
              if(newEvent != null){
                  Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
