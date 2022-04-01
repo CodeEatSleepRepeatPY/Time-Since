@@ -9,12 +9,14 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.business.exceptions.UserRegistrationFailedException;
+import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
@@ -93,42 +95,36 @@ public class UserManagerTest {
 
     @Test
     public void testGetUserByID() {
+        assertNotNull("the user admin should exist in the database",
+                userManager.getUserByID("admin"));
 
+        assertNotNull("the user kristjaf@myumanitoba.ca should exist in the database",
+                userManager.getUserByID("kristjaf@myumanitoba.ca"));
+
+        assertEquals("admin should have the event named New Toothbrush",
+                "New Toothbrush",
+                userManager.getUserByID("admin").getUserEvents().get(0).getName());
+
+        assertEquals("kristjaf@myumanitoba.ca should have the event named New Toothbrush",
+                "New Toothbrush",
+                userManager.getUserByID("kristjaf@myumanitoba.ca").getUserEvents().get(0).getName());
     }
 
     @Test
     public void updateUserName() {
-
+        assertTrue("admin's username should've been updated", userManager.updateUserName("admin", "wow"));
+        assertEquals("admin should now have the username 'wow'", "wow", userManager.getUserByID("admin").getName());
+        assertTrue("wow's username should've been updated back to admin", userManager.updateUserName("admin", "admin"));
+        assertEquals("wow should now have the username 'admin'", "admin", userManager.getUserByID("admin").getName());
     }
 
     @Test
-    public void updateUserPassword() {
+    public void updateUserPassword() throws NoSuchAlgorithmException {
+        assertTrue("admin's password should've been updated", userManager.updateUserPassword("admin", "12345", "A12345678"));
 
-    }
-
-    @Test
-    public void addUserEvent() {
-
-    }
-
-    @Test
-    public void addUserFavorite() {
-
-    }
-
-    @Test
-    public void deleteUser() {
-
-    }
-
-    @Test
-    public void getUserEvents() {
-
-    }
-
-    @Test
-    public void getUserFavorites() {
-
+        assertEquals("admin's password should now be the sha256 hash of 'A12345678'",
+                "3b4e266a89805c9d020f9aca6638ad63e8701fc8c75c0ca1952d14054d1f10cf",
+                userManager.getUserByID("admin").getPasswordHash());
     }
 
 }
