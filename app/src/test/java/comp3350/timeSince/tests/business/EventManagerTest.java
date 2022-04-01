@@ -38,9 +38,9 @@ public class EventManagerTest {
     private IEventLabelPersistence eventLabelPersistence;
     private EventDSO event1, event2, event3;
     private Calendar currDate;
-    private final int id1 = 100;
-    private final int id2 = 101;
-    private final int id3 = 102;
+    private final int id1 = 1;
+    private final int id2 = 2;
+    private final int id3 = 3;
 
     @Before
     public void setUp() {
