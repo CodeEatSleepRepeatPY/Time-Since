@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import comp3350.timeSince.tests.business.EventManagerTest;
+import comp3350.timeSince.tests.business.EventMangerIntegrationTest;
 import comp3350.timeSince.tests.objects.EventsWithLabelsTest;
 import comp3350.timeSince.tests.objects.UsersWithEventsTest;
 
@@ -11,7 +12,8 @@ import comp3350.timeSince.tests.objects.UsersWithEventsTest;
 @Suite.SuiteClasses({
         UsersWithEventsTest.class,
         EventsWithLabelsTest.class,
-        EventManagerTest.class
+        EventManagerTest.class,
+        EventMangerIntegrationTest.class
 })
 public class IntegrationTests {
 }

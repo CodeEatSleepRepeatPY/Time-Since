@@ -3,7 +3,6 @@ package comp3350.timeSince.presentation;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -24,18 +23,13 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
-
-import comp3350.timeSince.application.Services;
-
 import comp3350.timeSince.R;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.EventManager;
-import comp3350.timeSince.business.exceptions.EventCreationTimeException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
-import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
 
 public class CreateOwnEventActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener,
@@ -53,9 +47,9 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private TextView eventLabelName;
     private Button favoriteBtn;
     private Spinner selectEventLabel;
-    private IEventLabelPersistence eventLabelPersistence;
     private Calendar mCalendar;
     private EventManager eventManager;
+    private UserManager userManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +66,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelName = findViewById(R.id.event_label);
         eventLabels = new ArrayList<EventLabelDSO>();
         mCalendar = Calendar.getInstance();
+        extras = getIntent().getExtras();
+        eventManager = new EventManager(true);
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,12 +149,13 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
-        //TODO this will be replaced by Logic layer function; now it is only for test
-        eventLabelPersistence = Services.getEventLabelPersistence();
-        //dummy data for test
-        //eventLabelPersistence.insertEventLabel(new EventLabelDSO(1, "label1"));
 
-        List<EventLabelDSO> eventLabels = eventLabelPersistence.getEventLabelList();
+        userManager = new UserManager(true);
+        List<EventLabelDSO> eventLabels = userManager.getUserLabels(extras.get("email").toString());
+        if(eventLabels.size() == 0){
+            Toast.makeText(this, "The EventLabel list for the user is empty.", Toast.LENGTH_SHORT).show();
+        }
+
         eventLabelsAdapter = new SpinnerEventLabelList(this,
                 R.layout.simple_spinner_dropdown_items, (ArrayList<EventLabelDSO>) eventLabels);
 
@@ -171,11 +168,12 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         EventDSO newEvent;
         String message = "Creation successful! ";
         Intent nextIntent = new Intent(this, ViewEventActivity.class);
-        eventManager = new EventManager();
 
         //if the event is successfully created, save information to the database
         try{
-             newEvent = eventManager.insertEvent(eventName.getText().toString(), mCalendar);
+             newEvent = eventManager.insertEvent(extras.get("email").toString(),  mCalendar,
+                     eventName.getText().toString(), eventLabels.get(eventLabels.size()-1).getName(),
+                     favorite);
              if(newEvent != null){
                  Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                  CreateOwnEventActivity.this.startActivity(nextIntent);
@@ -183,7 +181,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
                  Toast.makeText(this, "The new event is not successfully created.", Toast.LENGTH_SHORT).show();
              }
         }catch(UserNotFoundException exception){
-            //else throw createEvent exception: fail to add into the database
             Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }

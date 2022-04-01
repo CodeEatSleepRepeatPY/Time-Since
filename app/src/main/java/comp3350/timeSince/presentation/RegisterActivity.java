@@ -13,7 +13,7 @@ import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
 
 public class RegisterActivity extends AppCompatActivity {
-    private final UserManager userManager = new UserManager();
+    private final UserManager userManager = new UserManager(true);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

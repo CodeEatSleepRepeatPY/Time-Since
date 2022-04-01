@@ -6,8 +6,4 @@ public class DuplicateUserException extends RuntimeException {
         super(message);
     }
 
-    public DuplicateUserException(String message, String error) {
-        super(message + "\n" + error);
-    }
-
 }

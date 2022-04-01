@@ -16,29 +16,41 @@ public class Services {
     private static IEventLabelPersistence eventLabelPersistence = null;
     private static IUserPersistence userPersistence = null;
 
-
-    public static synchronized IEventPersistence getEventPersistence() {
+    public static synchronized IEventPersistence getEventPersistence(boolean forProduction) {
         if (eventPersistence == null) {
-            eventPersistence = new EventPersistence();
-            //eventPersistence = new EventPersistenceHSQLDB(Main.getDBPathName());
+            if (forProduction) {
+                eventPersistence = new EventPersistenceHSQLDB(Main.getDBPathName(),
+                        getEventLabelPersistence(true));
+            } else {
+                eventPersistence = new EventPersistence();
+            }
         }
         return eventPersistence;
     }
 
-    public static synchronized IEventLabelPersistence getEventLabelPersistence() {
+    public static synchronized IEventLabelPersistence getEventLabelPersistence(boolean forProduction) {
         if (eventLabelPersistence == null) {
-            eventLabelPersistence = new EventLabelPersistence();
-            //eventLabelPersistence = new EventLabelPersistenceHSQLDB(Main.getDBPathName());
+            if (forProduction) {
+                eventLabelPersistence = new EventLabelPersistenceHSQLDB(Main.getDBPathName());
+            } else {
+                eventLabelPersistence = new EventLabelPersistence();
+            }
         }
         return eventLabelPersistence;
     }
 
-    public static synchronized IUserPersistence getUserPersistence() {
+    public static synchronized IUserPersistence getUserPersistence(boolean forProduction) {
         if (userPersistence == null) {
-            userPersistence = new UserPersistence();
-            //userPersistence = new UserPersistenceHSQLDB(Main.getDBPathName());
+            if (forProduction) {
+                userPersistence = new UserPersistenceHSQLDB(Main.getDBPathName(),
+                        getEventPersistence(true),
+                        getEventLabelPersistence(true));
+            } else {
+                userPersistence = new UserPersistence();
+            }
         }
         return userPersistence;
     }
 
 }
+

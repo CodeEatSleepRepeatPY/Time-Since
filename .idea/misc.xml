@@ -26,6 +26,8 @@
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.24010416666666667" />
         <entry key="app/src/main/res/layout/create_own_event_view.xml" value="0.2828125" />
         <entry key="app/src/main/res/layout/user_login_view.xml" value="0.2828125" />
+        <entry key="app/src/main/res/layout/user_registration_view.xml" value="0.28177083333333336" />
+        <entry key="app/src/main/res/layout/view_single_event.xml" value="0.28177083333333336" />
       </map>
     </option>
   </component>

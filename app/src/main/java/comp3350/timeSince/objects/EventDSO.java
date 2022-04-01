@@ -4,17 +4,19 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Calendar;
+
+import comp3350.timeSince.business.exceptions.EventDescriptionException;
 
 public class EventDSO {
 
-    private final int id;
-    private String eventName;
-    private final Calendar DATE_CREATED;
+    private final int id; // not null, positive integer
+    private String eventName; // not null
+    private final Calendar DATE_CREATED; // not null
     private String description;
 
     private Calendar targetFinishTime;
-    private boolean isFavorite;
+    private boolean isFavorite; // not null
+    private boolean isDone;
     private final List<EventLabelDSO> labels;
 
     //----------------------------------------
@@ -28,6 +30,7 @@ public class EventDSO {
         description = "";
         targetFinishTime = null;
         isFavorite = false;
+        isDone = false;
         labels = new ArrayList<>();
     }
 
@@ -59,6 +62,10 @@ public class EventDSO {
         return isFavorite;
     }
 
+    public boolean isDone() {
+        return isDone;
+    }
+
     public List<EventLabelDSO> getEventLabels() {
         return Collections.unmodifiableList(labels);
     }
@@ -71,8 +78,12 @@ public class EventDSO {
         this.eventName = newName;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescription(String description) throws EventDescriptionException {
+        if (description.length() < 100) {
+            this.description = description;
+        } else {
+            throw new EventDescriptionException("The description must be less than 100 characters.");
+        }
     }
 
     public void setTargetFinishTime(Calendar target) {
@@ -83,12 +94,24 @@ public class EventDSO {
         this.isFavorite = isFavorite;
     }
 
+    public void setIsDone(boolean isDone) {
+        this.isDone = isDone;
+    }
+
     //----------------------------------------
     // general
     //----------------------------------------
 
-    public void appendDescription(String newDescription) {
-        description += newDescription;
+    public boolean validate() {
+        return (id >= 0 && eventName != null);
+    }
+
+    public void appendDescription(String newDescription) throws EventDescriptionException {
+        if (description.length() + newDescription.length() < 100) {
+            description += newDescription;
+        } else {
+            throw new EventDescriptionException("The description must be less than 100 characters.");
+        }
     }
 
     public void addLabel(EventLabelDSO eventLabelDSO) {
@@ -115,7 +138,4 @@ public class EventDSO {
         return this.id == other.getID();
     }
 
-    public boolean validName(){
-        return (eventName != null);
-    }
 }
