@@ -2,7 +2,6 @@ package comp3350.timeSince.business;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
 
 public class DateUtils {
 

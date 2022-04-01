@@ -35,6 +35,24 @@ public class EventLabelDSOTest {
     }
 
     @Test
+    public void testValidate() {
+        assertTrue("An Event Label with both a valid ID and name should be valid.",
+                eventLabelDSO.validate());
+
+        EventLabelDSO badLabel = new EventLabelDSO(-1,null);
+        assertFalse("An Event Label with both invalid parameters should not be valid.",
+                badLabel.validate());
+
+        badLabel = new EventLabelDSO(-1,"hello");
+        assertFalse("An Event Label with an invalid ID should not be valid.",
+                badLabel.validate());
+
+        badLabel = new EventLabelDSO(3,null);
+        assertFalse("An Event Label with an invalid name should not be valid.",
+                badLabel.validate());
+    }
+
+    @Test
     public void testToString() {
         String expected = String.format("#%s", eventLabelDSO.getName());
         String message = "The Event Label should display as: '# ?labelName?'";

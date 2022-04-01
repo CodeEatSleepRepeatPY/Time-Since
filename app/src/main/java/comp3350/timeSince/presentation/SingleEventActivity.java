@@ -35,7 +35,7 @@ public class SingleEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_single_event);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        eventManager = new EventManager();
+        eventManager = new EventManager(true);
         Calendar eventFinishTime;
         String dateText;
         Intent i = getIntent();
@@ -109,7 +109,7 @@ public class SingleEventActivity extends AppCompatActivity {
             tags_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // [TODO]
+                    // For next iteration:
                     // The event tag UI isn't created yet.  This will be part
                     // of another iteration.
                     // Here's what clicking this button should do:

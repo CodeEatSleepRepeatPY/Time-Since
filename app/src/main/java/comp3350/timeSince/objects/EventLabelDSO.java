@@ -12,8 +12,8 @@ public class EventLabelDSO {
     // instance variables
     //----------------------------------------
 
-    private final int id;
-    private String name;    // name of the Event Label
+    private final int id; // not null, positive integer
+    private String name; // not null - name of the Event Label
 
     //----------------------------------------
     // constructors
@@ -47,6 +47,10 @@ public class EventLabelDSO {
     //----------------------------------------
     // general
     //----------------------------------------
+
+    public boolean validate() {
+        return (id >= 1 && name != null);
+    }
 
     public String toString() {
         String toReturn = "#";

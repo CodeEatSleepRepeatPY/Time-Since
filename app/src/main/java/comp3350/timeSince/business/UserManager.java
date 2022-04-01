@@ -1,22 +1,26 @@
 package comp3350.timeSince.business;
 
-
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
+import java.util.List;
 
 import comp3350.timeSince.application.Services;
-import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.business.exceptions.DuplicateUserException;
+import comp3350.timeSince.business.exceptions.UserNotFoundException;
+import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserManager {
 
-    private final IUserPersistence databasePersistence;
+    private final IUserPersistence userPersistence;
 
-    public UserManager() {
-        databasePersistence = Services.getUserPersistence();
+    public UserManager(boolean forProduction) {
+        userPersistence = Services.getUserPersistence(forProduction);
     }
 
     //-----------------------------------------
@@ -24,97 +28,194 @@ public class UserManager {
     //-----------------------------------------
 
     public boolean uniqueName(String userName) {
-        return databasePersistence.isUnique(userName);
+        return userPersistence.isUnique(userName);
     }
 
-    //When register the password, at least one of the character should be capital letter
-    //And the password and confirmed password should be same
-    public boolean passwordRequirements(String password, String confirmedPassword) {
-        int capital = 0; //count the number of capital letters in password
-        final int MIN_LENGTH = 8;
-        boolean capitalLetter =true;
-        boolean match = true;
-        boolean length = true;
-
-        //checking each char in the password
-        for(int i = 0; i < password.length();i++){
-            char c = password.charAt(i);
-            if(c >= 'A' && c <= 'Z') {
-                capital++;
-            }
-        }
-
-        if(capital<1){
-            capitalLetter = false;
-            throw new PasswordErrorException("Your password should contains at least one capital letter!");
-        }
-
-        if(!password.equals(confirmedPassword)){
-            match = false;
-            throw new PasswordErrorException("The entered passwords do not match!");
-        }
-
-        if (password.length() < 8){
-            length = false;
-            throw new PasswordErrorException("The length of your password should more than 8 characters.");
-        }
-
-        return capitalLetter&&match&&length;
-
+    public boolean passwordRequirements(String password) {
+        return UserDSO.meetsNewPasswordReq(password);
     }
 
     //-------------------------------------------------------
     //User account Manager login
     //-------------------------------------------------------
 
-    public boolean accountCheck(String typedUserName, String typedPassword) {
+    public boolean accountCheck(String typedUserName, String typedPassword)
+            throws NoSuchAlgorithmException, UserNotFoundException {
         //first we need to check if this account is exist in the list
         boolean toReturn = false;
 
-        UserDSO user = databasePersistence.getUserByID(typedUserName);
-        if (user != null && typedPassword.equals(user.getPasswordHash())) {
+        UserDSO user = userPersistence.getUserByID(typedUserName);
+        if (user != null && hashPassword(typedPassword).equals(user.getPasswordHash())) {
             toReturn = true;
         }
         return toReturn;
     }
 
-    public boolean loginProcess(String userName, String password) {
+    public boolean loginProcess(String userName, String password)
+            throws UserNotFoundException, NoSuchAlgorithmException {
         return accountCheck(userName, password);
     }
 
-    //same method from database
-    public UserDSO insertUser(UserDSO currentUser){
-        return databasePersistence.insertUser(currentUser);
-    }
-
-    public UserDSO updateUser(UserDSO currentUser){
-        return databasePersistence.updateUser(currentUser);
-    }
-
-    public void deleteUser(UserDSO currentUser){
-        databasePersistence.deleteUser(currentUser);
-    }
-
     public String hashPassword(String inputPassword) throws NoSuchAlgorithmException {
-        //TODO test this method
         String strHash = "";
+
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hash = md.digest(inputPassword.getBytes(StandardCharsets.UTF_8));
 
-        BigInteger notHash = new BigInteger(1,hash);
+        BigInteger notHash = new BigInteger(1, hash);
         strHash = notHash.toString(16);
 
         return strHash;
     }
 
+    public UserDSO getUserByID(String userID) throws UserNotFoundException {
+        UserDSO toReturn = null;
+
+        if (userID != null) {
+            toReturn = userPersistence.getUserByID(userID);
+        }
+
+        return toReturn;
+    }
+
     //This method is called when the register button is hit
     //to show if the user create a new account successfully or not
-    public boolean tryRegistration(String newUsername, String newPassword,String confirmedPassword) {
-        boolean success = false;
-        if(uniqueName(newUsername) && passwordRequirements(newPassword,confirmedPassword)){
-            success = true;
-           // insertUser(new UserDSO(newUsername,new Date(System.currentTimeMillis()),newPassword));
+    public boolean insertUser(String userID, String password, String confirmPassword, String name)
+            throws NoSuchAlgorithmException, DuplicateUserException {
+
+        boolean toReturn = false; // default is false if something goes wrong
+        if (password.equals(confirmPassword)) {
+            String hashedPassword = hashPassword(password);
+            UserDSO newUser = new UserDSO(userID, Calendar.getInstance(), hashedPassword);
+            if (newUser.validate()) {
+                newUser.setName(name);
+                if (userPersistence.insertUser(newUser) != null) { // may cause exception
+                    toReturn = true;
+                }
+            }
         }
-        return success;
+
+        return toReturn;
     }
+
+    public boolean updateUserName(String userID, String newName) throws UserNotFoundException {
+        boolean toReturn = false;
+
+        UserDSO user = userPersistence.getUserByID(userID);
+        if (user != null && user.validate()) {
+            user.setName(newName);
+            if (userPersistence.updateUser(user) != null) {
+                toReturn = true;
+            }
+        }
+        return toReturn;
+    }
+
+    public boolean updateUserPassword(String userID, String oldPassword, String newPassword)
+            throws NoSuchAlgorithmException, UserNotFoundException {
+        boolean toReturn = false;
+
+        UserDSO user = userPersistence.getUserByID(userID);
+        if (user != null && user.validate()) {
+            if (UserDSO.meetsNewPasswordReq(newPassword)) {
+                String oldHash = hashPassword(oldPassword);
+                String newHash = hashPassword(newPassword);
+                user.setNewPassword(oldHash,newHash);
+                if (userPersistence.updateUser(user) != null) {
+                    toReturn = true;
+                }
+            }
+        }
+        return toReturn;
+    }
+
+    public boolean addUserEvent(String userID, EventDSO newEvent) throws UserNotFoundException {
+        boolean toReturn = false;
+
+        UserDSO user = userPersistence.getUserByID(userID);
+        if (user != null && user.validate() && newEvent.validate()) {
+            user.addEvent(newEvent);
+            if (userPersistence.updateUser(user) != null) {
+                toReturn = true;
+            }
+        }
+        return toReturn;
+    }
+
+    public boolean addUserFavorite(String userID, EventDSO fav) throws UserNotFoundException {
+        boolean toReturn = false;
+
+        UserDSO user = userPersistence.getUserByID(userID);
+        if (user != null && user.validate() && fav.validate()) {
+            user.addFavorite(fav);
+            if (userPersistence.updateUser(user) != null) {
+                toReturn = true;
+            }
+        }
+        return toReturn;
+    }
+
+    public boolean addUserLabel(String userID, List<EventLabelDSO> labels) throws UserNotFoundException {
+        boolean toReturn = false;
+
+        if (labels != null) {
+            UserDSO user = userPersistence.getUserByID(userID);
+            for (EventLabelDSO label : labels) {
+                if (user != null && user.validate() && label.validate()) {
+                    user.addLabel(label);
+                    if (userPersistence.updateUser(user) != null) {
+                        toReturn = true;
+                    }
+                }
+            }
+        }
+        return toReturn;
+    }
+
+    public boolean deleteUser(String userID) throws UserNotFoundException {
+        boolean toReturn = false; // default is false if something goes wrong
+
+        UserDSO user = userPersistence.getUserByID(userID);
+        if (user != null && user.validate()) {
+            if (userPersistence.deleteUser(user).equals(user)) {
+                toReturn = true;
+            }
+        }
+
+        return toReturn;
+    }
+
+    public List<EventDSO> getUserEvents(String userID) throws UserNotFoundException {
+        List<EventDSO> toReturn = null;
+
+        UserDSO user = userPersistence.getUserByID(userID);
+        if (user != null && user.validate()) {
+            toReturn = user.getUserEvents();
+        }
+
+        return toReturn;
+    }
+
+    public List<EventDSO> getUserFavorites(String userID) {
+        List<EventDSO> toReturn = null;
+
+        UserDSO user = userPersistence.getUserByID(userID);
+        if (user != null && user.validate()) {
+            toReturn = user.getFavoritesList();
+        }
+
+        return toReturn;
+    }
+
+    public List<EventLabelDSO> getUserLabels(String userID) {
+        List<EventLabelDSO> toReturn = null;
+
+        UserDSO user = userPersistence.getUserByID(userID);
+        if (user != null && user.validate()) {
+            toReturn = user.getUserLabels();
+        }
+
+        return toReturn;
+    }
+
 }

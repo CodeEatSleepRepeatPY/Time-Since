@@ -29,8 +29,9 @@ Exceptional code
 ----------------
 
 In the userLogin() method an exception is thrown in the else{...}. That happens when a user supplies the 
-wrong username or password (either one or both of them dont exist in the database) during the login process.
-The whole method is also surrounded with a try-catch incase something goes unexpectingly wrong. An exception 
+wrong username or password (either one or both of them don't exist in the database) during the login process.
+The whole method is also surrounded with a try-catch in case something goes unexpectedly wrong. 
+An exception 
 is thrown with the error name and it's description in the case that something does go wrong.
 
 https://code.cs.umanitoba.ca/winter-2022-a02/group-2/time-since-a02-2/-/blob/userLogin_logic/app/src/main/java/comp3350/timeSince/presentation/LoginActivity.java
@@ -73,7 +74,7 @@ We pushed two features from iteration 1 to iteration 2, which are CreateAccount 
 We added a new feature "Fake Database".\
 We changed the description for the "Create User Account" user story.\
 \
-links for pushed features and userstories:\
+links for pushed features and user stories:\
 Add Event: https://code.cs.umanitoba.ca/winter-2022-a02/group-2/time-since-a02-2/-/issues/1 \
 Add Event From Presets: https://code.cs.umanitoba.ca/winter-2022-a02/group-2/time-since-a02-2/-/issues/2 \
 Create Own Events: https://code.cs.umanitoba.ca/winter-2022-a02/group-2/time-since-a02-2/-/issues/14 \
