@@ -2,20 +2,24 @@ package comp3350.timeSince.tests.business;
 
 import static org.junit.Assert.*;
 
+import android.media.metrics.Event;
+
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.junit.FixMethodOrder;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
 import comp3350.timeSince.business.EventManager;
-import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
+import comp3350.timeSince.business.UserManager;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class EventManagerIntegrationTest {
@@ -54,7 +58,7 @@ public class EventManagerIntegrationTest {
     }
 
     @Test
-    public void testB_UpdateEvent() {
+    public void testB_UpdateEvent(){
         Calendar cal = Calendar.getInstance();
         cal.set(1990, 10, 10);
 
@@ -112,23 +116,26 @@ public class EventManagerIntegrationTest {
     }
 
     @Test
-    public void testD_InsertEvent() {
+    public void testD_InsertEvent(){
         assertNotNull("event4 should be inserted",
-                eventManager.insertEvent("admin", currDate, "event7", "label7", true));
+                eventManager.insertEvent("admin", currDate, "event7", "label7", "desc7", true));
         assertNotNull("event5 should be inserted",
-                eventManager.insertEvent("admin", currDate, "event8", "label8", false));
+                eventManager.insertEvent("admin", currDate, "event8", "label8", "desc8", false));
         assertNotNull("event6 should be inserted",
-                eventManager.insertEvent("admin", currDate, "event9", "label9", true));
+                eventManager.insertEvent("admin", currDate, "event9", "label9", "desc9", true));
 
         EventDSO event7 = eventManager.getEventByID(7);
         EventDSO event8 = eventManager.getEventByID(8);
         EventDSO event9 = eventManager.getEventByID(9);
 
         assertEquals("event with id 7 should have the name 'event7'", "event7", event7.getName());
+        assertEquals("event with id 7 should have the description 'desc7'", "desc7", event7.getDescription());
         assertTrue("event with id 7 should be a favorite", event7.isFavorite());
         assertEquals("event with id 8 should have the name 'event8'", "event8", event8.getName());
+        assertEquals("event with id 7 should have the description 'desc8'", "desc8", event8.getDescription());
         assertFalse("event with id 8 should not be a favorite", event8.isFavorite());
         assertEquals("event with id 9 should have the name 'event9'", "event9", event9.getName());
+        assertEquals("event with id 7 should have the description 'desc9'", "desc9", event9.getDescription());
         assertTrue("event with id 9 should be a favorite", event9.isFavorite());
         assertEquals("the database should contain 9 events", 9, eventManager.numEvents());
     }
