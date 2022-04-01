@@ -80,7 +80,7 @@ public class UserManager {
             throws NoSuchAlgorithmException, DuplicateUserException, PasswordErrorException {
 
         boolean toReturn = false; // default is false if something goes wrong
-        if (password.equals(confirmPassword)) {
+        if (UserDSO.meetsNewPasswordReq(password) && password.equals(confirmPassword)) {
             String hashedPassword = hashPassword(password);
             UserDSO newUser = new UserDSO(userID, Calendar.getInstance(), hashedPassword);
             if (newUser.validate()) {
