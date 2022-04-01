@@ -49,7 +49,7 @@ public class EventLabelDSO {
     //----------------------------------------
 
     public boolean validate() {
-        return (id >= 0 && name != null);
+        return (id >= 1 && name != null);
     }
 
     public String toString() {

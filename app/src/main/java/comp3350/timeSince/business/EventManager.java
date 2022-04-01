@@ -170,5 +170,5 @@ public class EventManager {
     public int numEvents() {
         return eventPersistence.numEvents();
     }
-}
 
+}
