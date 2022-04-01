@@ -14,6 +14,7 @@ import comp3350.timeSince.R;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.business.exceptions.UserRegistrationFailedException;
 
 public class RegisterActivity extends AppCompatActivity {
     private final UserManager userManager = new UserManager(true);
@@ -45,16 +46,16 @@ public class RegisterActivity extends AppCompatActivity {
             if (userManager.insertUser(strUsername, strPassword, strConfirmPassword, null)) {
                 Toast.makeText(this, "Registration success!", Toast.LENGTH_LONG).show();
                 userIntent = new Intent(RegisterActivity.this, ViewEventActivity.class);
+                startActivity(userIntent);
             } else {
                 userIntent = new Intent(this, RegisterActivity.class);
+                RegisterActivity.this.startActivity(userIntent);
+                throw new UserRegistrationFailedException("Registration Failed.");
             }
-            startActivity(userIntent);
-            finish();
-        }catch (PasswordErrorException | DuplicateUserException | NoSuchAlgorithmException e){
+        } catch (UserRegistrationFailedException | PasswordErrorException | DuplicateUserException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            editUsername.setText("");
-            editPassword.setText("");
-            editConfirmPassword.setText("");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
     }
 }
