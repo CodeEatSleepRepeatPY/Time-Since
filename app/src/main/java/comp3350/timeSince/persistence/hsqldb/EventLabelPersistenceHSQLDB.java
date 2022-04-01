@@ -185,7 +185,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public int getNextID() {
-        final String query = "SELECT MAX(lid) FROM eventslabels";
+        final String query = "SELECT MAX(lid) AS max FROM eventslabels";
         int toReturn = -1;
 
         try (final Connection c = connection();
@@ -193,7 +193,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
              final ResultSet resultSet = statement.executeQuery(query)) {
 
             if (resultSet.next()) {
-                toReturn = resultSet.getRow() + 1;
+                toReturn = resultSet.getInt("max") + 1;
             }
 
         } catch (final SQLException e) {

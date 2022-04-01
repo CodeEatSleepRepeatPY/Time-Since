@@ -155,6 +155,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
                 statement.setString(2, event.getDescription());
                 statement.setTimestamp(3, DateUtils.calToTimestamp(event.getTargetFinishTime()));
                 statement.setBoolean(4, event.isFavorite());
+                statement.setInt(5, event.getID());
                 statement.executeUpdate();
 
                 addLabelsConnections(c, event.getEventLabels(), event.getID());
@@ -219,7 +220,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public int getNextID() {
-        final String query = "SELECT MAX(eid) FROM events";
+        final String query = "SELECT MAX(eid) AS max FROM events";
         int toReturn = -1;
 
         try (final Connection c = connection();
@@ -227,7 +228,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
              final ResultSet resultSet = statement.executeQuery(query)) {
 
             if (resultSet.next()) {
-                toReturn = resultSet.getRow() + 1;
+                toReturn = resultSet.getInt("max") + 1;
             }
 
         } catch (final SQLException e) {
@@ -246,7 +247,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
      * @throws SQLException Any database / SQL issue.
      */
     private void addLabelsConnections(Connection c, List<EventLabelDSO> labels, int eid) throws SQLException {
-        final String query = "INSERT IGNORE INTO eventslabels VALUES(?, ?)";
+        final String query = "INSERT INTO eventslabels VALUES(?, ?)";
 
         try {
             for (EventLabelDSO eventLabel : labels) {

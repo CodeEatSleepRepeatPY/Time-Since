@@ -242,7 +242,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
      * @throws SQLException Any database / SQL issue.
      */
     private void addLabelConnections(Connection c, List<EventLabelDSO> labels, String uid) throws SQLException {
-        final String query = "INSERT IGNORE INTO userslabels VALUES(?, ?)";
+        final String query = "INSERT INTO userslabels VALUES(?, ?)";
 
         try {
             for (EventLabelDSO label : labels) {
@@ -265,7 +265,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
      * @throws SQLException Any database / SQL issue.
      */
     private void addEventConnections(Connection c, List<EventDSO> events, String uid) throws SQLException {
-        final String query = "INSERT IGNORE INTO usersevents VALUES(?, ?)";
+        final String query = "INSERT INTO usersevents VALUES(?, ?)";
 
         try {
             for (EventDSO event : events) {
