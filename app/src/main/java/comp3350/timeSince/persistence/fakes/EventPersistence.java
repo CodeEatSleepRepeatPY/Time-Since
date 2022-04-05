@@ -7,7 +7,7 @@ import java.util.List;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
-import comp3350.timeSince.objects.EventLabelDSO;
+import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventPersistence;
 
 public class EventPersistence implements IEventPersistence {
@@ -24,19 +24,22 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO getEventByID(int eventID) throws EventNotFoundException {
+    public EventDSO getEventByID(String userID, String eventName) throws EventNotFoundException {
         for (int i = 0; i < eventList.size(); i++) {
-            if (eventList.get(i).getID() == eventID) {
+            EventDSO event = eventList.get(i);
+            if (event.getUserID().equals(userID)
+                    && event.getName().equals(eventName)) {
                 return eventList.get(i);
             }
         }
-        throw new EventNotFoundException("The event: " + eventID + " could not be found.");
+        throw new EventNotFoundException("The event: " + eventName + " could not be found.");
     }
 
     @Override
-    public EventDSO insertEvent(EventDSO newEvent) throws DuplicateEventException {
+    public EventDSO insertEvent(UserDSO user, EventDSO newEvent) throws DuplicateEventException {
         int index = eventList.indexOf(newEvent);
         if (index < 0) {
+            user.addEvent(newEvent);
             eventList.add(newEvent);
             return newEvent;
         } //else: already exists in database
@@ -44,9 +47,11 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO updateEvent(EventDSO event) throws EventNotFoundException {
+    public EventDSO updateEvent(UserDSO user, EventDSO event) throws EventNotFoundException {
         int index = eventList.indexOf(event);
         if (index >= 0) {
+            user.removeEvent(event); // remove old version
+            user.addEvent(event); // add new version
             eventList.set(index, event);
             return event;
         }
@@ -54,9 +59,10 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO deleteEvent(EventDSO event) throws EventNotFoundException {
+    public EventDSO deleteEvent(UserDSO user, EventDSO event) throws EventNotFoundException {
         int index = eventList.indexOf(event);
         if (index >= 0) {
+            user.removeEvent(event);
             eventList.remove(index);
             return event;
         } // else: event is not in list
@@ -69,16 +75,9 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public int getNextID() {
-        int toReturn = 0;
-
-        for (EventDSO event : eventList) {
-            if (event.getID() > toReturn) {
-                toReturn = event.getID();
-            }
-        }
-
-        return toReturn + 1;
+    public int numEvents(UserDSO user) {
+        // TODO: finish this
+        return eventList.size();
     }
 
 }

@@ -23,12 +23,12 @@ public class UsersWithEventsTest {
     public void setUp() {
         Calendar date = Calendar.getInstance();
         user = new UserDSO("admin", date, "12345");
-        event1 = new EventDSO(1, date, "Water Plants");
-        event2 = new EventDSO(2, date, "New Toothbrush");
-        event3 = new EventDSO(3, date, "Wash Sheets");
-        label1 = new EventLabelDSO(1, "Bathroom");
-        label2 = new EventLabelDSO(2, "Kitchen");
-        label3 = new EventLabelDSO(3, "Bedroom");
+        event1 = new EventDSO(user.getID(), "Water Plants", date);
+        event2 = new EventDSO(user.getID(), "New Toothbrush", date);
+        event3 = new EventDSO(user.getID(), "Wash Sheets", date);
+        label1 = new EventLabelDSO(user.getID(), "Bathroom");
+        label2 = new EventLabelDSO(user.getID(), "Kitchen");
+        label3 = new EventLabelDSO(user.getID(), "Bedroom");
     }
 
     @Test

@@ -8,26 +8,39 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 import comp3350.timeSince.business.exceptions.EventDescriptionException;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
+import comp3350.timeSince.objects.UserDSO;
 
 public class EventDSOTest {
 
-    public static EventDSO event;
-    public static String name;
-    public static Calendar date;
-    public static Calendar targetDate;
+    private EventDSO event;
+    private String name;
+    private Calendar date;
+    private Calendar targetDate;
+    private UserDSO user;
+    private EventLabelDSO label1, label2, label3, label4;
 
     @Before
     public void instantiateObject() {
         String message = "The event should not be null";
         name = "event0";
         date = Calendar.getInstance();
-        event = new EventDSO(1, date, name);
+        user = new UserDSO("user1", date, "12345");
+        event = new EventDSO(user.getID(), name, date);
         assertNotNull(message, event);
         targetDate = Calendar.getInstance();
+
+        label1 = new EventLabelDSO(user.getID(), "Kitchen");
+        label2 = new EventLabelDSO(user.getID(), "Bathroom");
+        label3 = new EventLabelDSO(user.getID(), "Garage");
+        label4 = new EventLabelDSO(user.getID(), "Bedroom");
     }
 
     @Test
@@ -144,16 +157,12 @@ public class EventDSOTest {
         assertTrue("An Event with valid ID and name should be valid.",
                 event.validate());
 
-        EventDSO badEvent = new EventDSO(-1,date,null);
+        EventDSO badEvent = new EventDSO(null,null, date);
         assertFalse("An Event with both invalid parameters should not be valid.",
                 badEvent.validate());
 
-        badEvent = new EventDSO(-1, date, "hello");
+        badEvent = new EventDSO(null, "hello", date);
         assertFalse("An Event with an invalid ID should not be valid.",
-                badEvent.validate());
-
-        badEvent = new EventDSO(3, date, null);
-        assertFalse("An Event with an invalid name should not be valid.",
                 badEvent.validate());
     }
 
@@ -170,12 +179,82 @@ public class EventDSOTest {
 
     @Test
     public void testEquals() {
-        EventDSO other = new EventDSO(1, date, "Water Plants");
+        EventDSO other = new EventDSO(user.getID(), name, date);
         assertTrue("Events with the same ID should be equal",
                 event.equals(other));
-        other = new EventDSO(2, date, "Water Plants");
+        other = new EventDSO(user.getID(), "Water Plants", date);
         assertFalse("Events with different ID's should not be equal",
                 event.equals(other));
+    }
+
+    @Test
+    public void testGetEventLabels() {
+        assertEquals("The event should have no labels to start",
+                0, event.getEventLabels().size());
+
+        event.addLabel(label1);
+        event.addLabel(label2);
+        event.addLabel(label3);
+        event.addLabel(label4);
+
+        List<EventLabelDSO> eventLabels = event.getEventLabels();
+        assertEquals("The event should now have 4 labels",
+                4, eventLabels.size());
+
+        assertTrue("The event should contain label1",
+                eventLabels.contains(label1));
+        assertTrue("The event should contain label2",
+                eventLabels.contains(label2));
+        assertTrue("The event should contain label3",
+                eventLabels.contains(label3));
+        assertTrue("The event should contain label4",
+                eventLabels.contains(label4));
+    }
+
+    @Test
+    public void testAddDuplicateEventLabel() {
+        assertEquals("The event should have no labels to start",
+                0, event.getEventLabels().size());
+
+        event.addLabel(label1);
+
+        assertEquals("The event should now have 1 label",
+                1, event.getEventLabels().size());
+
+        event.addLabel(label1);
+        assertEquals("Attempting to add a label already in the event should do nothing",
+                1, event.getEventLabels().size());
+    }
+
+    @Test
+    public void testRemoveEventLabel() {
+        assertEquals("The event should have no labels to start",
+                0, event.getEventLabels().size());
+
+        event.addLabel(label1);
+        event.addLabel(label2);
+        event.addLabel(label3);
+        event.addLabel(label4);
+
+        assertEquals("The event should now have 4 labels",
+                4, event.getEventLabels().size());
+
+        event.removeLabel(label1);
+        event.removeLabel(label3);
+        assertEquals("The event should now have two labels",
+                2, event.getEventLabels().size());
+        assertFalse("The event should not contain removed labels",
+                event.getEventLabels().contains(label1));
+        assertFalse("The event should not contain removed labels",
+                event.getEventLabels().contains(label3));
+
+        event.removeLabel(label1);
+        assertEquals("Removing a label not in the list should do nothing",
+                2, event.getEventLabels().size());
+        assertTrue("Removing a label not in the list should do nothing",
+                event.getEventLabels().contains(label2));
+        assertTrue("Removing a label not in the list should do nothing",
+                event.getEventLabels().contains(label4));
     }
 
 }

@@ -7,16 +7,21 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
+
 import comp3350.timeSince.objects.EventLabelDSO;
+import comp3350.timeSince.objects.UserDSO;
 
 public class EventLabelDSOTest {
     private EventLabelDSO eventLabelDSO;
+    private UserDSO user;
     private String name;
 
     @Before
     public void setUp() {
         name = "Super Secret Sauce";
-        eventLabelDSO = new EventLabelDSO(1, name);
+        user = new UserDSO("admin", Calendar.getInstance(), "12345");
+        eventLabelDSO = new EventLabelDSO(user.getID(), name);
     }
 
     @Test
@@ -39,15 +44,15 @@ public class EventLabelDSOTest {
         assertTrue("An Event Label with both a valid ID and name should be valid.",
                 eventLabelDSO.validate());
 
-        EventLabelDSO badLabel = new EventLabelDSO(-1,null);
+        EventLabelDSO badLabel = new EventLabelDSO(null, null);
         assertFalse("An Event Label with both invalid parameters should not be valid.",
                 badLabel.validate());
 
-        badLabel = new EventLabelDSO(-1,"hello");
+        badLabel = new EventLabelDSO(null, "hello");
         assertFalse("An Event Label with an invalid ID should not be valid.",
                 badLabel.validate());
 
-        badLabel = new EventLabelDSO(3,null);
+        badLabel = new EventLabelDSO(user.getID(),null);
         assertFalse("An Event Label with an invalid name should not be valid.",
                 badLabel.validate());
     }
@@ -65,10 +70,10 @@ public class EventLabelDSOTest {
 
     @Test
     public void testEquals() {
-        EventLabelDSO other = new EventLabelDSO(1, "Garage");
+        EventLabelDSO other = new EventLabelDSO(user.getID(), name);
         assertTrue("Event labels with the same ID should be equal",
                 eventLabelDSO.equals(other));
-        other = new EventLabelDSO(2, "Kitchen");
+        other = new EventLabelDSO(user.getID(), "Kitchen");
         assertFalse("Event labels with different ID's should not be equal",
                 eventLabelDSO.equals(other));
     }

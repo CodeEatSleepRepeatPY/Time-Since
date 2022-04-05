@@ -12,15 +12,15 @@ public class EventLabelDSO {
     // instance variables
     //----------------------------------------
 
-    private final int id; // not null, positive integer
+    private final String userID;
     private String name; // not null - name of the Event Label
 
     //----------------------------------------
     // constructors
     //----------------------------------------
 
-    public EventLabelDSO(int id, String name) {
-        this.id = id;
+    public EventLabelDSO(String userID, String name) {
+        this.userID = userID;
         this.name = name;
     }
 
@@ -28,8 +28,8 @@ public class EventLabelDSO {
     // getters
     //----------------------------------------
 
-    public int getID() {
-        return id;
+    public String getUserID() {
+        return userID;
     }
 
     public String getName() {
@@ -49,7 +49,8 @@ public class EventLabelDSO {
     //----------------------------------------
 
     public boolean validate() {
-        return (id >= 1 && name != null);
+        return (userID != null && userID.length() > 0
+                && name != null && name.length() > 0);
     }
 
     public String toString() {
@@ -61,6 +62,7 @@ public class EventLabelDSO {
     }
 
     public boolean equals(EventLabelDSO other) {
-        return this.id == other.getID();
+        return (userID.equals(other.getUserID())
+                && name.equals(other.getName()));
     }
 }

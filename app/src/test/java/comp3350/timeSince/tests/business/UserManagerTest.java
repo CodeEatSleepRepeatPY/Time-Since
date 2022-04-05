@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,19 +15,26 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.business.exceptions.UserNotFoundException;
+import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
 public class UserManagerTest {
     private UserManager userManager;
-    private File tempDB;
 
     @Before
     public void setUp() throws IOException {
-        tempDB = TestUtils.copyDB();
+        File tempDB = TestUtils.copyDB();
         userManager = new UserManager(true);
+    }
+
+    @After
+    public void tearDown() {
+        Services.clean();
     }
 
     @Test
@@ -56,8 +65,8 @@ public class UserManagerTest {
         String password1 = "Bob12345";
         String password2 = "BoB123";
 
-        assertTrue("As Bob12345 has 1 capital letter, and user typed same password for two times should return true"
-                , userManager.passwordRequirements(password1));
+        assertTrue("As Bob12345 has 1 capital letter, and user typed same password for two times should return true",
+                 userManager.passwordRequirements(password1));
         assertFalse("Bob123 is less than 8 should return false", userManager.passwordRequirements(password2));
     }
 
@@ -99,13 +108,9 @@ public class UserManagerTest {
         assertNotNull("the user kristjaf@myumanitoba.ca should exist in the database",
                 userManager.getUserByID("kristjaf@myumanitoba.ca"));
 
-        assertEquals("admin should have the event named New Toothbrush",
-                "New Toothbrush",
-                userManager.getUserByID("admin").getUserEvents().get(0).getName());
-
         assertEquals("kristjaf@myumanitoba.ca should have the event named New Toothbrush",
                 "New Toothbrush",
-                userManager.getUserByID("kristjaf@myumanitoba.ca").getUserEvents().get(0).getName());
+                userManager.getUserEvents("kristjaf@myumanitoba.ca").get(0).getName());
     }
 
     @Test
@@ -123,6 +128,56 @@ public class UserManagerTest {
         assertEquals("admin's password should now be the sha256 hash of 'A12345678'",
                 "3b4e266a89805c9d020f9aca6638ad63e8701fc8c75c0ca1952d14054d1f10cf",
                 userManager.getUserByID("admin").getPasswordHash());
+    }
+
+    @Test
+    public void testAddUserEvent() {
+
+    }
+
+    @Test
+    public void testAddUserFavorite() {
+
+    }
+
+    @Test
+    public void testAddUserLabel() {
+
+    }
+
+    @Test
+    public void testDeleteUser() {
+        assertEquals("There should be two users on startup",
+                2, userManager.getAllUsers().size());
+        assertNotNull("User 'admin' should exist at startup",
+                userManager.getUserByID("admin"));
+        assertTrue("Should return true when a user in the database is deleted",
+                userManager.deleteUser("admin"));
+        assertEquals("There should now only be one user",
+                1, userManager.getAllUsers().size());
+        assertNull("User 'admin' should not exist anymore",
+                userManager.getUserByID("admin"));
+    }
+
+    @Test
+    public void testGetUserEvents() {
+        assertEquals("'admin' should have 6 events on startup",
+                6, userManager.getUserEvents("admin").size());
+        assertEquals("'kristjaf@myumanitoba.ca' should have 1 event on startup",
+                1, userManager.getUserEvents("kristjaf@myumanitoba.ca").size());
+        assertEquals("'kristjaf@myumanitoba.ca's only event should be 'New Toothbrush'",
+                "New Toothbrush",
+                userManager.getUserEvents("kristjaf@myumanitoba.ca").get(0).getName());
+    }
+
+    @Test
+    public void testGetUserFavorites() {
+
+    }
+
+    @Test
+    public void testGetUserLabels() {
+
     }
 
 }

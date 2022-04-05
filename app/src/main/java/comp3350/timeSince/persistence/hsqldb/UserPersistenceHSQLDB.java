@@ -123,8 +123,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 statement.setString(4, newUser.getPasswordHash());
                 statement.executeUpdate();
 
-                addEventConnections(c, newUser.getUserEvents(), newUser.getID());
-
                 toReturn = newUser;
 
             } catch (final SQLException e) {
@@ -151,8 +149,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 statement.setString(3, user.getID());
                 statement.executeUpdate();
 
-                addEventConnections(c, user.getUserEvents(), user.getID());
-
                 toReturn = user;
 
             } catch (final SQLException e) {
@@ -172,9 +168,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         if (user != null) {
             try (final Connection c = connection();
                  final PreparedStatement userDB = c.prepareStatement(query)) {
-
-                removeLabelConnections(c, user.getID());
-                removeEventConnections(c, user.getID());
 
                 userDB.setString(1, user.getID());
                 userDB.executeUpdate();
@@ -235,73 +228,10 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     /**
-     * @param c      Connection to the database.
-     * @param events List of Event objects associated with the User.
-     * @param uid    The unique (String) ID of the User.
-     * @throws SQLException Any database / SQL issue.
-     */
-    private void addEventConnections(Connection c, List<EventDSO> events, String uid) throws SQLException {
-        final String query = "INSERT INTO usersevents VALUES(?, ?)";
-
-        try {
-            for (EventDSO event : events) {
-                final PreparedStatement statement = c.prepareStatement(query);
-                statement.setString(1, uid);
-                statement.setInt(2, event.getID());
-                statement.executeUpdate();
-                statement.close();
-            }
-
-        } catch (final SQLException e) {
-            throw new SQLException("Could not connect events to user: " + uid + ".", e);
-        }
-    }
-
-    /**
-     * @param c   Connection to the database.
-     * @param uid The unique (String) ID of the User.
-     * @throws SQLException Any database / SQL issue.
-     */
-    private void removeLabelConnections(Connection c, String uid) throws SQLException {
-        final String query = "DELETE FROM usersevents "
-                + "INNER JOIN eventslabels ON usersevents.eid = eventslabels.eid "
-                + "WHERE usersevents.uid = ?";
-
-        try {
-            final PreparedStatement userLabels = c.prepareStatement(query);
-            userLabels.setString(1, uid);
-            userLabels.executeUpdate();
-            userLabels.close();
-
-        } catch (final SQLException e) {
-            throw new SQLException("User: " + uid + "'s labels could not be disconnected.", e);
-        }
-    }
-
-    /**
-     * @param c   Connection to the database.
-     * @param uid The unique (String) ID of the User.
-     * @throws SQLException Any database / SQL issue.
-     */
-    private void removeEventConnections(Connection c, String uid) throws SQLException {
-        final String query = "DELETE FROM usersevents WHERE uid = ?";
-
-        try {
-            final PreparedStatement userEvents = c.prepareStatement(query);
-            userEvents.setString(1, uid);
-            userEvents.executeUpdate();
-            userEvents.close();
-
-        } catch (final SQLException e) {
-            throw new SQLException("User: " + uid + "'s events could not be disconnected.", e);
-        }
-    }
-
-    /**
      * @param user The User object to add Events to.
      */
     private void connectUsersAndEvents(UserDSO user) throws SQLException {
-        final String query = "SELECT DISTINCT eid FROM usersevents WHERE usersevents.uid = ?";
+        final String query = "SELECT event_name FROM events WHERE uid = ?";
 
         try (Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
@@ -310,9 +240,9 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             final ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                int eventID = resultSet.getInt("eid");
+                String eventID = resultSet.getString("event_name");
                 for (EventDSO event : eventPersistence.getEventList()) {
-                    if (event.getID() == eventID) {
+                    if (event.getName().equals(eventID)) {
                         user.addEvent(event);
                         break;
                     }
@@ -329,9 +259,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
      * @param user The User object to add Event Label's to.
      */
     private void connectUsersAndLabels(UserDSO user) throws SQLException {
-        final String query = "SELECT DISTINCT eventslabels.lid "
-                + "FROM usersevents FULL JOIN eventslabels ON usersevents.eid = eventslabels.eid "
-                + "WHERE usersevents.uid = ?";
+        final String query = "SELECT label_name FROM labels WHERE uid = ?";
 
         try (Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
@@ -340,9 +268,9 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             final ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                int labelID = resultSet.getInt("lid");
+                String labelName = resultSet.getString("label_name");
                 for (EventLabelDSO label : eventLabelPersistence.getEventLabelList()) {
-                    if (label.getID() == labelID) {
+                    if (label.getName().equals(labelName)) {
                         user.addLabel(label);
                         break;
                     }
@@ -361,7 +289,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
      * @param user The User object to add favourites to.
      */
     private void connectUsersAndFavorites(UserDSO user) throws SQLException {
-        final String query = "SELECT DISTINCT eid FROM usersevents WHERE usersevents.uid = ?";
+        final String query = "SELECT event_name FROM events WHERE uid = ?";
 
         try (Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
@@ -370,9 +298,9 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             final ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                int eventID = resultSet.getInt("eid");
+                String eventName = resultSet.getString("event_name");
                 for (EventDSO event : eventPersistence.getEventList()) {
-                    if (event.getID() == eventID && event.isFavorite()) {
+                    if (event.getName().equals(eventName) && event.isFavorite()) {
                         user.addFavorite(event);
                         break;
                     }

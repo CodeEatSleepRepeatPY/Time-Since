@@ -21,6 +21,7 @@ import comp3350.timeSince.business.EventManager;
 
 public class SingleEventActivity extends AppCompatActivity {
     private EventManager eventManager;
+    private Bundle extras;
     private Button done_button;
     private Button tags_button;
     private Button favorite_button;
@@ -28,20 +29,21 @@ public class SingleEventActivity extends AppCompatActivity {
     private EditText description;
     private TextView dueDate;
     private EventDSO eventDSO;
-    private int eventID;
+    private String eventID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_single_event);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        eventManager = new EventManager(true);
+        extras = getIntent().getExtras();
+        eventManager = new EventManager(extras.getString("email"), true);
         Calendar eventFinishTime;
         String dateText;
         Intent i = getIntent();
 
         // initialize event information
-        eventID = i.getIntExtra("eventID", -1);
+        eventID = extras.getString("eventID");
         eventDSO = eventManager.getEventByID(eventID);
 
         // Button fields

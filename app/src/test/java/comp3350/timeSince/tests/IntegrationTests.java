@@ -13,7 +13,7 @@ import comp3350.timeSince.tests.objects.UsersWithEventsTest;
 @Suite.SuiteClasses({
         UsersWithEventsTest.class,
         EventsWithLabelsTest.class,
-        EventManagerTest.class,
+        //EventManagerTest.class,
         UserManagerTest.class,
         EventManagerIntegrationTest.class
 })

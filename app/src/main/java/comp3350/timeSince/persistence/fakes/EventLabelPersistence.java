@@ -7,6 +7,7 @@ import java.util.List;
 import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.objects.EventLabelDSO;
+import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 
 public class EventLabelPersistence implements IEventLabelPersistence {
@@ -22,19 +23,21 @@ public class EventLabelPersistence implements IEventLabelPersistence {
         return Collections.unmodifiableList(eventLabels);
     }
 
-    public EventLabelDSO getEventLabelByID(int labelID) throws EventLabelNotFoundException {
+    public EventLabelDSO getEventLabelByID(String userID, String labelName) throws EventLabelNotFoundException {
         for (int i = 0; i < eventLabels.size(); i++) {
-            if (eventLabels.get(i).getID() == labelID) {
+            EventLabelDSO label = eventLabels.get(i);
+            if (label.getUserID().equals(userID) && label.getName().equals(labelName)) {
                 return eventLabels.get(i);
             }
         }
-        throw new EventLabelNotFoundException("The event label: " + labelID + " could not be found.");
+        throw new EventLabelNotFoundException("The event label: " + labelName + " could not be found.");
     }
 
     @Override
-    public EventLabelDSO insertEventLabel(EventLabelDSO newEventLabel) throws DuplicateEventLabelException {
+    public EventLabelDSO insertEventLabel(UserDSO user, EventLabelDSO newEventLabel) throws DuplicateEventLabelException {
         int index = eventLabels.indexOf(newEventLabel);
         if (index < 0) {
+            user.addLabel(newEventLabel);
             eventLabels.add(newEventLabel);
             return newEventLabel;
         } // else: duplicate
@@ -43,20 +46,10 @@ public class EventLabelPersistence implements IEventLabelPersistence {
     }
 
     @Override
-    public EventLabelDSO updateEventLabel(EventLabelDSO eventLabel) throws EventLabelNotFoundException {
+    public EventLabelDSO deleteEventLabel(UserDSO user, EventLabelDSO eventLabel) throws EventLabelNotFoundException {
         int index = eventLabels.indexOf(eventLabel);
         if (index >= 0) {
-            eventLabels.set(index, eventLabel);
-            return eventLabel;
-        }
-        throw new EventLabelNotFoundException("The event label: " + eventLabel.getName()
-                + " could not be updated.");
-    }
-
-    @Override
-    public EventLabelDSO deleteEventLabel(EventLabelDSO eventLabel) throws EventLabelNotFoundException {
-        int index = eventLabels.indexOf(eventLabel);
-        if (index >= 0) {
+            user.removeLabel(eventLabel);
             eventLabels.remove(index);
             return eventLabel;
         } // else: event is not in list
@@ -67,18 +60,6 @@ public class EventLabelPersistence implements IEventLabelPersistence {
     @Override
     public int numLabels() {
         return eventLabels.size();
-    }
-
-    @Override
-    public int getNextID() {
-        int toReturn = 0;
-
-        for (EventLabelDSO label : eventLabels) {
-            if (label.getID() > toReturn) {
-                toReturn = label.getID();
-            }
-        }
-        return toReturn + 1;
     }
 
 }

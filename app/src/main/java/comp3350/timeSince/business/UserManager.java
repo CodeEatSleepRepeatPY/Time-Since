@@ -14,14 +14,20 @@ import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.IEventLabelPersistence;
+import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserManager {
 
     private final IUserPersistence userPersistence;
+    private final IEventPersistence eventPersistence;
+    private final IEventLabelPersistence eventLabelPersistence;
 
     public UserManager(boolean forProduction) {
         userPersistence = Services.getUserPersistence(forProduction);
+        eventPersistence = Services.getEventPersistence(forProduction);
+        eventLabelPersistence = Services.getEventLabelPersistence(forProduction);
     }
 
     //-----------------------------------------
@@ -190,7 +196,7 @@ public class UserManager {
         return toReturn;
     }
 
-    public List<EventDSO> getUserFavorites(String userID) {
+    public List<EventDSO> getUserFavorites(String userID) throws UserNotFoundException {
         List<EventDSO> toReturn = null;
 
         UserDSO user = userPersistence.getUserByID(userID);
@@ -201,16 +207,19 @@ public class UserManager {
         return toReturn;
     }
 
-    public List<EventLabelDSO> getUserLabels(String userID) {
+    public List<EventLabelDSO> getUserLabels(String userID) throws UserNotFoundException {
         List<EventLabelDSO> toReturn = null;
 
         UserDSO user = userPersistence.getUserByID(userID);
         if (user != null && user.validate()) {
             toReturn = user.getUserLabels();
-
         }
 
         return toReturn;
+    }
+
+    public List<UserDSO> getAllUsers() {
+        return userPersistence.getUserList();
     }
 
 }

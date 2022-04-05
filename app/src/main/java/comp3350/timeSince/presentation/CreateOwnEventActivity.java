@@ -69,7 +69,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabels = new ArrayList<EventLabelDSO>();
         mCalendar = Calendar.getInstance();
         extras = getIntent().getExtras();
-        eventManager = new EventManager(true);
+        eventManager = new EventManager(extras.getString("email"), true);
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,8 +179,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
             }else {
                 eventLabelName = eventLabels.get(eventLabels.size() - 1).getName();
             }
-            newEvent = eventManager.insertEvent(extras.get("email").toString(), mCalendar,
-                        eventName.getText().toString(), eventLabelName,
+            newEvent = eventManager.insertEvent(mCalendar,
+                    eventName.getText().toString(), eventLabelName,
                         description.getText().toString(), favorite);
 
              if(newEvent != null){

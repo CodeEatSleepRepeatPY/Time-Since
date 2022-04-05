@@ -9,7 +9,7 @@ import comp3350.timeSince.business.exceptions.EventDescriptionException;
 
 public class EventDSO {
 
-    private final int id; // not null, positive integer
+    private final String userID;
     private String eventName; // not null
     private final Calendar DATE_CREATED; // not null
     private String description;
@@ -23,8 +23,8 @@ public class EventDSO {
     // constructor
     //----------------------------------------
 
-    public EventDSO(int id, Calendar creationTime, String name) {
-        this.id = id;
+    public EventDSO(String userID, String name, Calendar creationTime) {
+        this.userID = userID;
         eventName = name;
         DATE_CREATED = creationTime;
         description = "";
@@ -38,8 +38,8 @@ public class EventDSO {
     // getters
     //----------------------------------------
 
-    public int getID() {
-        return this.id;
+    public String getUserID() {
+        return userID;
     }
 
     public String getName() {
@@ -79,10 +79,12 @@ public class EventDSO {
     }
 
     public void setDescription(String description) throws EventDescriptionException {
-        if (description.length() < 100) {
-            this.description = description;
-        } else {
-            throw new EventDescriptionException("The description must be less than 100 characters.");
+        if (description != null) {
+            if (description.length() < 100) {
+                this.description = description;
+            } else {
+                throw new EventDescriptionException("The description must be less than 100 characters.");
+            }
         }
     }
 
@@ -103,19 +105,23 @@ public class EventDSO {
     //----------------------------------------
 
     public boolean validate() {
-        return (id >= 1 && eventName != null);
+        return (userID != null && userID.length() > 0
+                && eventName != null && eventName.length() > 0);
     }
 
     public void appendDescription(String newDescription) throws EventDescriptionException {
-        if (description.length() + newDescription.length() < 100) {
-            description += newDescription;
-        } else {
-            throw new EventDescriptionException("The description must be less than 100 characters.");
+        if (description != null) {
+            if (description.length() + newDescription.length() < 100) {
+                description += newDescription;
+            } else {
+                throw new EventDescriptionException("The description must be less than 100 characters.");
+            }
         }
     }
 
     public void addLabel(EventLabelDSO eventLabelDSO) {
-        if (eventLabelDSO != null) {
+        // Don't allow duplicates
+        if (eventLabelDSO != null && !labels.contains(eventLabelDSO)) {
             labels.add(eventLabelDSO);
         }
     }
@@ -135,7 +141,8 @@ public class EventDSO {
     }
 
     public boolean equals(EventDSO other) {
-        return this.id == other.getID();
+        return (this.userID.equals(other.getUserID())
+                && this.eventName.equals(other.getName()));
     }
 
 }

@@ -10,18 +10,21 @@ import java.util.Calendar;
 
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
+import comp3350.timeSince.objects.UserDSO;
 
 public class EventsWithLabelsTest {
 
     private EventDSO event;
+    private UserDSO user;
     private EventLabelDSO label1, label2;
 
     @Before
     public void setUp() {
         Calendar date = Calendar.getInstance();
-        event = new EventDSO(1, date, "Water Plants");
-        label1 = new EventLabelDSO(1, "a");
-        label2 = new EventLabelDSO(2, "b");
+        user = new UserDSO("admin", date, "12345");
+        event = new EventDSO(user.getID(), "Water Plants", date);
+        label1 = new EventLabelDSO(user.getID(), "a");
+        label2 = new EventLabelDSO(user.getID(), "b");
     }
 
     @Test
