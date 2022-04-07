@@ -2,6 +2,7 @@ package comp3350.timeSince.tests.objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
@@ -65,11 +66,14 @@ public class EventLabelDSOTest {
 
     @Test
     public void testEquals() {
-        EventLabelDSO other = new EventLabelDSO(1, "Garage");
-        assertTrue("Event labels with the same ID should be equal",
-                eventLabelDSO.equals(other));
+        EventLabelDSO other = new EventLabelDSO(1, name);
+        assertEquals("Event labels with the same ID and name should be equal",
+                other, eventLabelDSO);
+        other = new EventLabelDSO(1, "Garage");
+        assertNotEquals("Event labels with the same ID but different name should not be equal",
+                other, eventLabelDSO);
         other = new EventLabelDSO(2, "Kitchen");
-        assertFalse("Event labels with different ID's should not be equal",
-                eventLabelDSO.equals(other));
+        assertNotEquals("Event labels with different ID's and names should not be equal",
+                other, eventLabelDSO);
     }
 }

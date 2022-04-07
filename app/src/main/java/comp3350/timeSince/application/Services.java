@@ -52,5 +52,12 @@ public class Services {
         return userPersistence;
     }
 
+    public static synchronized void clean() {
+        eventPersistence = null;
+        eventLabelPersistence = null;
+        userPersistence = null;
+    }
+
+
 }
 

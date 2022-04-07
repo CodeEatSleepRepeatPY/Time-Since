@@ -14,6 +14,7 @@ public class EventLabelDSO {
 
     private final int id; // not null, positive integer
     private String name; // not null - name of the Event Label
+    private String color;
 
     //----------------------------------------
     // constructors
@@ -22,6 +23,7 @@ public class EventLabelDSO {
     public EventLabelDSO(int id, String name) {
         this.id = id;
         this.name = name;
+        color = null;
     }
 
     //----------------------------------------
@@ -36,12 +38,20 @@ public class EventLabelDSO {
         return name;
     }
 
+    public String getColor() {
+        return color;
+    }
+
     //----------------------------------------
     // setters
     //----------------------------------------
 
     public void setName(String newName) {
         name = newName;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     //----------------------------------------
@@ -60,7 +70,14 @@ public class EventLabelDSO {
         return toReturn;
     }
 
-    public boolean equals(EventLabelDSO other) {
-        return this.id == other.getID();
+    @Override
+    public boolean equals(Object other) {
+        boolean toReturn = false;
+
+        if (other instanceof EventLabelDSO) {
+            toReturn = this.id == ((EventLabelDSO) other).getID()
+                    && this.name.equals(((EventLabelDSO) other).getName());
+        }
+        return toReturn;
     }
 }
