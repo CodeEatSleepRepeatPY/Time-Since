@@ -15,6 +15,9 @@ public class EventDSO {
     private String description;
 
     private Calendar targetFinishTime;
+    private int frequencyInYears;
+    private int frequencyInMonths;
+    private int frequencyInDays;
     private boolean isFavorite; // not null
     private boolean isDone;
     private final List<EventLabelDSO> labels;
@@ -29,6 +32,9 @@ public class EventDSO {
         DATE_CREATED = creationTime;
         description = "";
         targetFinishTime = null;
+        frequencyInYears = -1;
+        frequencyInMonths = -1;
+        frequencyInDays = -1;
         isFavorite = false;
         isDone = false;
         labels = new ArrayList<>();
@@ -56,6 +62,10 @@ public class EventDSO {
 
     public Calendar getTargetFinishTime() {
         return targetFinishTime;
+    }
+
+    public int[] getFrequency() {
+        return new int[] {frequencyInYears, frequencyInMonths, frequencyInDays};
     }
 
     public boolean isFavorite() {
@@ -90,6 +100,19 @@ public class EventDSO {
         targetFinishTime = target;
     }
 
+    // TODO: throw an exception???
+    public void setFrequency(int years, int months, int days) {
+        if (years >= 0) {
+            frequencyInYears = years;
+        }
+        if (months >= 0 && months <= 12) {
+            frequencyInMonths = months;
+        }
+        if (days >= 0 && days <= 31) {
+            frequencyInDays = days;
+        }
+    }
+
     public void setFavorite(boolean isFavorite) {
         this.isFavorite = isFavorite;
     }
@@ -115,7 +138,7 @@ public class EventDSO {
     }
 
     public void addLabel(EventLabelDSO eventLabelDSO) {
-        if (eventLabelDSO != null) {
+        if (eventLabelDSO != null && !labels.contains(eventLabelDSO)) {
             labels.add(eventLabelDSO);
         }
     }
@@ -134,8 +157,15 @@ public class EventDSO {
         return toReturn;
     }
 
-    public boolean equals(EventDSO other) {
-        return this.id == other.getID();
+    @Override
+    public boolean equals(Object other) {
+        boolean toReturn = false;
+
+        if (other instanceof EventDSO) {
+            toReturn = this.id == ((EventDSO) other).getID()
+                    && this.eventName.equals(((EventDSO) other).getName());
+        }
+        return toReturn;
     }
 
 }

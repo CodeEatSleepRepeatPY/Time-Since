@@ -2,6 +2,7 @@ package comp3350.timeSince.tests.objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -102,7 +103,7 @@ public class EventDSOTest {
     }
 
     @Test
-    public void setFavorite() {
+    public void testSetFavorite() {
         event.setFavorite(true);
         assertTrue("The event should be a favorite", event.isFavorite());
 
@@ -140,6 +141,43 @@ public class EventDSOTest {
     }
 
     @Test
+    public void testSetFrequency() {
+        int[] freq = event.getFrequency();
+        assertEquals("Frequency in years should be -1 on default",
+                -1, freq[0]);
+        assertEquals("Frequency in months should be -1 on default",
+                -1, freq[1]);
+        assertEquals("Frequency in days should be -1 on default",
+                -1, freq[2]);
+
+        event.setFrequency(1, 2, 3);
+        freq = event.getFrequency();
+        assertEquals("Frequency in years should now be 1",
+                1, freq[0]);
+        assertEquals("Frequency in months should now be 2",
+                2, freq[1]);
+        assertEquals("Frequency in days should now be 3",
+                3, freq[2]);
+    }
+
+    @Test
+    public void testSetFrequencyException() {
+        event.setFrequency(-3, -3, -3);
+        assertEquals("Negative year values should not cause any change",
+                -1, event.getFrequency()[0]);
+        assertEquals("Negative month values should not cause any change",
+                -1, event.getFrequency()[1]);
+        assertEquals("Negative day values should not cause any change",
+                -1, event.getFrequency()[2]);
+
+        event.setFrequency(0, 13, 40);
+        assertEquals("A month value greater than 12 should not cause any change",
+                -1, event.getFrequency()[1]);
+        assertEquals("A day value greater than 31 should not cause any change",
+                -1, event.getFrequency()[2]);
+    }
+
+    @Test
     public void testValidate() {
         assertTrue("An Event with valid ID and name should be valid.",
                 event.validate());
@@ -170,12 +208,15 @@ public class EventDSOTest {
 
     @Test
     public void testEquals() {
-        EventDSO other = new EventDSO(1, date, "Water Plants");
-        assertTrue("Events with the same ID should be equal",
-                event.equals(other));
-        other = new EventDSO(2, date, "Water Plants");
-        assertFalse("Events with different ID's should not be equal",
-                event.equals(other));
+        EventDSO other = new EventDSO(1, date, name);
+        assertEquals("Events with the same ID and name should be equal",
+                other, event);
+        other = new EventDSO(1, date, "Water Plants");
+        assertNotEquals("Events with the same ID but different names should not be equal",
+                other, event);
+        other = new EventDSO(2, date, "Clean Sink");
+        assertNotEquals("Events with different ID's and different names should not be equal",
+                other, event);
     }
 
 }

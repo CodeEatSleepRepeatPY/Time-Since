@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,11 +120,14 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
                     statement.setInt(1, id);
                     statement.setString(2, newEventLabel.getName());
                     statement.setString(3, newEventLabel.getColor());
-                    statement.executeUpdate();
+                    int result = statement.executeUpdate();
 
-                    toReturn = newEventLabel;
+                    if (result > 0) {
+                        toReturn = newEventLabel;
+                    } else {
+                        throw new DuplicateEventLabelException(exceptionMessage);
+                    }
                 }
-
             } catch (SQLException e) {
                 e.printStackTrace();
                 throw new DuplicateEventLabelException(exceptionMessage + e.getMessage());
@@ -179,6 +183,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
                 statement.setInt(1, eventLabel.getID());
                 int result = statement.executeUpdate();
+
                 if (result > 0) {
                     toReturn = eventLabel;
                 } else {

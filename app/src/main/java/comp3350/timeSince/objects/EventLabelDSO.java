@@ -62,6 +62,7 @@ public class EventLabelDSO {
         return (id >= 1 && name != null);
     }
 
+    @Override
     public String toString() {
         String toReturn = "#";
         if (name != null) {
