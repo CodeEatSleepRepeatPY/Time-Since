@@ -5,12 +5,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.DateUtils;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
@@ -24,22 +24,11 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     private final String dbPath;
     private final IEventLabelPersistence eventLabelPersistence;
-
     private int nextID;
-    private static final String ID = "eid"; // int
-    private static final String NAME = "event_name"; // 30 characters, not null
-    private static final String DATE_CREATED = "date_created"; // timestamp, not null
-    private static final String DESCRIPTION = "description"; // 100 characters
-    private static final String FINISH_TIME = "target_finish_time"; // timestamp
-    private static final String YEARS = "frequency_year"; // int
-    private static final String MONTHS = "frequency_month"; // int
-    private static final String DAYS = "frequency_day"; // int
-    private static final String FAVORITE = "is_favorite"; // boolean
-    private static final String LABEL_ID = "lid"; // int
 
-    public EventPersistenceHSQLDB(final String dbPath, IEventLabelPersistence eventLabelPersistence) {
+    public EventPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
-        this.eventLabelPersistence = eventLabelPersistence;
+        this.eventLabelPersistence = Services.getEventLabelPersistence(true);
         nextID = 1;
     }
 
@@ -55,11 +44,11 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
      */
     private EventDSO fromResultSet(final ResultSet rs) throws SQLException {
 
-        final int id = rs.getInt(ID);
-        final String eventName = rs.getString(NAME);
-        final Calendar dateCreated = DateUtils.timestampToCal(rs.getTimestamp(DATE_CREATED));
-        final String description = rs.getString(DESCRIPTION);
-        final Calendar targetFinish = DateUtils.timestampToCal(rs.getTimestamp(FINISH_TIME));
+        final int id = rs.getInt(TS.EVENT_ID);
+        final String eventName = rs.getString(TS.EVENT_NAME);
+        final Calendar dateCreated = DateUtils.timestampToCal(rs.getTimestamp(TS.EVENT_DATE_CREATED));
+        final String description = rs.getString(TS.EVENT_DESCRIPTION);
+        final Calendar targetFinish = DateUtils.timestampToCal(rs.getTimestamp(TS.FINISH_TIME));
 
         EventDSO newEvent = new EventDSO(id, dateCreated, eventName);
         newEvent.setDescription(description);
@@ -72,7 +61,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public List<EventDSO> getEventList() {
-        final String query = "SELECT * FROM events";
+        final String query = "SELECT * FROM " + TS.TABLE_EVENT;
         List<EventDSO> toReturn = null;
         final List<EventDSO> events = new ArrayList<>();
 
@@ -87,7 +76,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             toReturn = events;
 
         } catch (final SQLException e) {
-            System.out.println("The list of events could not be returned.\n" + e.getMessage() + "\n");
+            System.out.println("The list of events could not be returned.");
             e.printStackTrace();
             // will return null if unsuccessful.
         }
@@ -96,9 +85,9 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public EventDSO getEventByID(int eventID) throws EventNotFoundException {
-        final String query = "SELECT * FROM events WHERE " + ID + " = ?";
+        final String query = "SELECT * FROM " + TS.TABLE_EVENT + " WHERE " + TS.EVENT_ID + " = ?";
         EventDSO toReturn = null;
-        final String exceptionMessage = "The event: " + eventID + " could not be found.\n";
+        final String exceptionMessage = "The event: " + eventID + " could not be found.";
 
         try (final Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
@@ -113,7 +102,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
         } catch (final SQLException e) {
             e.printStackTrace();
-            throw new EventNotFoundException(exceptionMessage + e.getMessage());
+            throw new EventNotFoundException(exceptionMessage);
         }
 
         if (toReturn == null) {
@@ -124,12 +113,12 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public EventDSO insertEvent(EventDSO newEvent) throws DuplicateEventException {
-        final String query = "INSERT INTO events VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+        final String query = "INSERT INTO " + TS.TABLE_EVENT + " VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
         EventDSO toReturn = null;
 
         if (newEvent != null) {
             final String exceptionMessage = "The event: " + newEvent.getName()
-                    + " could not be added.\n";
+                    + " could not be added.";
 
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
@@ -152,7 +141,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
             } catch (SQLException e) {
                 e.printStackTrace();
-                throw new DuplicateEventException(exceptionMessage + e.getMessage());
+                throw new DuplicateEventException(exceptionMessage);
             }
 
             if (toReturn == null) {
@@ -166,14 +155,15 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public EventDSO updateEvent(EventDSO event) throws EventNotFoundException {
-        final String query = "UPDATE events SET " + NAME + " = ?, " + DESCRIPTION + " = ?, "
-                + FINISH_TIME + " = ?, " + YEARS + " = ?, " + MONTHS + " = ?, " + DAYS + " = ? "
-                + "WHERE " + ID + " = ?";
+        final String query = "UPDATE " + TS.TABLE_EVENT + " SET " + TS.EVENT_NAME + " = ?, "
+                + TS.EVENT_DESCRIPTION + " = ?, " + TS.FINISH_TIME + " = ?, "
+                + TS.YEARS + " = ?, " + TS.MONTHS + " = ?, " + TS.DAYS + " = ? "
+                + "WHERE " + TS.EVENT_ID + " = ?";
         EventDSO toReturn = null;
 
         if (event != null) {
             final String exceptionMessage = "The event: " + event.getName()
-                    + " could not be updated.\n";
+                    + " could not be updated.";
 
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
@@ -197,20 +187,47 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
             } catch (final SQLException e) {
                 e.printStackTrace();
-                throw new EventNotFoundException(exceptionMessage + e.getMessage());
+                throw new EventNotFoundException(exceptionMessage);
             }
         }
         return toReturn;
     }
 
     @Override
+    public EventDSO addLabel(EventDSO event, EventLabelDSO label) {
+        final String query = "INSERT INTO eventslabels VALUES(?, ?)";
+        EventDSO toReturn = null;
+
+        if (event != null && label != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, event.getID());
+                statement.setInt(2, label.getID());
+                int result = statement.executeUpdate();
+
+                if (result > 0) {
+                    event.addLabel(label);
+                    toReturn = event;
+                }
+
+            } catch (final SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("[LOG] eventPersistence.addLabel");
+        return toReturn;
+    }
+
+    @Override
     public EventDSO deleteEvent(EventDSO event) throws EventNotFoundException {
-        final String query = "DELETE FROM events WHERE " + ID + " = ?";
+        final String query = "DELETE FROM " + TS.TABLE_EVENT + " WHERE " + TS.EVENT_ID + " = ?";
         EventDSO toReturn = null;
 
         if (event != null) {
             String exceptionMessage = "The event: " + event.getName()
-                    + " could not be deleted.\n";
+                    + " could not be deleted.";
 
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
@@ -226,7 +243,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
             } catch (final SQLException e) {
                 e.printStackTrace();
-                throw new EventNotFoundException(exceptionMessage + e.getMessage());
+                throw new EventNotFoundException(exceptionMessage);
             }
         }
         return toReturn;
@@ -234,7 +251,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public int numEvents() {
-        final String query = "SELECT COUNT(*) AS numEvents FROM events";
+        final String query = "SELECT COUNT(*) AS numEvents FROM " + TS.TABLE_EVENT;
         int toReturn = -1;
 
         try (final Connection c = connection();
@@ -246,7 +263,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             }
 
         } catch (final SQLException e) {
-            System.out.println("The number of events could not be calculated.\n" + e.getMessage());
+            System.out.println("The number of events could not be calculated.");
             e.printStackTrace();
             // will return -1 if unsuccessful
         }
@@ -265,7 +282,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
      * @param eid    The unique (positive integer) ID of the Event associated with the labels.
      */
     private void addLabelsConnections(Connection c, List<EventLabelDSO> labels, int eid) {
-        final String queryInsert = "INSERT INTO eventslabels VALUES(?, ?)";
+        final String queryInsert = "INSERT INTO " + TS.TABLE_EVENT_LABELS + " VALUES(?, ?)";
 
         if (labels != null) {
             for (EventLabelDSO eventLabel : labels) {
@@ -273,7 +290,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
                     try {
                         eventLabelPersistence.insertEventLabel(eventLabel);
                     } catch (DuplicateEventLabelException e) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
                         break;
                     }
 
@@ -283,7 +300,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
                     statement.executeUpdate();
 
                 } catch (final SQLException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     break;
                 }
             }
@@ -291,7 +308,8 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
     }
 
     private void removeLabelsConnections(Connection c, List<EventLabelDSO> labels, int eid) {
-        final String searchQuery = "SELECT " + LABEL_ID + " FROM eventslabels WHERE " + ID + " = ?";
+        final String searchQuery = "SELECT " + TS.LABEL_ID + " FROM " + TS.TABLE_EVENT_LABELS
+                + " WHERE " + TS.EVENT_ID + " = ?";
         List<EventLabelDSO> result = new ArrayList<>();
 
         try {
@@ -322,7 +340,8 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
      * @param event The Event object to add event label's too.
      */
     private void connectEventsAndLabels(EventDSO event) throws SQLException {
-        final String query = "SELECT * FROM eventslabels WHERE " + ID + " = ?";
+        final String query = "SELECT * FROM " + TS.TABLE_EVENT_LABELS
+                + " WHERE " + TS.EVENT_ID + " = ?";
 
         try (Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
@@ -331,7 +350,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
             final ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                int labelID = resultSet.getInt(LABEL_ID);
+                int labelID = resultSet.getInt(TS.LABEL_ID);
                 for (EventLabelDSO label : eventLabelPersistence.getEventLabelList()) {
                     if (label.getID() == labelID) {
                         event.addLabel(label);
@@ -343,7 +362,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
         } catch (final SQLException e) {
             e.printStackTrace();
             throw new SQLException("Labels could not be added to the event "
-                    + event.getName() + ".", e.getMessage());
+                    + event.getName() + ".");
         }
     }
 

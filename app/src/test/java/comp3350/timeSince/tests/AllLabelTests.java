@@ -10,7 +10,7 @@ import comp3350.timeSince.tests.persistence.*;
 @Suite.SuiteClasses({
         EventLabelDSOTest.class,
         EventLabelPersistenceTest.class,
-        LabelPersistenceIntegrationTest.class
+        LabelPersistenceHSQLDBTest.class
 })
 
 public class AllLabelTests {

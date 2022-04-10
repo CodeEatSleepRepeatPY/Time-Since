@@ -22,7 +22,7 @@ public class UsersWithEventsTest {
     @Before
     public void setUp() {
         Calendar date = Calendar.getInstance();
-        user = new UserDSO("admin", date, "12345");
+        user = new UserDSO(1, "admin", date, "12345");
         event1 = new EventDSO(1, date, "Water Plants");
         event2 = new EventDSO(2, date, "New Toothbrush");
         event3 = new EventDSO(3, date, "Wash Sheets");

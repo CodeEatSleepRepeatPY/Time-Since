@@ -5,6 +5,7 @@ import java.util.List;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 
 public interface IEventPersistence {
 
@@ -33,6 +34,8 @@ public interface IEventPersistence {
      * @throws EventNotFoundException If the Event is not found in the database.
      */
     EventDSO updateEvent(EventDSO event) throws EventNotFoundException;
+
+    EventDSO addLabel(EventDSO event, EventLabelDSO label);
 
     /**
      * @param event The Event object to be deleted from the database.

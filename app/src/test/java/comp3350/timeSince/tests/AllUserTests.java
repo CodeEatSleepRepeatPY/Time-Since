@@ -8,11 +8,11 @@ import comp3350.timeSince.tests.persistence.*;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        EventDSOTest.class,
-        EventsWithLabelsTest.class,
-        EventPersistenceTest.class,
-        EventPersistenceHSQLDBTest.class
+        UserDSOTest.class,
+        UsersWithEventsTest.class,
+        UserPersistenceTest.class,
+        UserPersistenceHSQLDBTest.class
 })
 
-public class AllEventTests {
+public class AllUserTests {
 }

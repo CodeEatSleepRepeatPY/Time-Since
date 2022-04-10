@@ -45,7 +45,7 @@ public class UserManager {
         //first we need to check if this account is exist in the list
         boolean toReturn = false;
 
-        UserDSO user = userPersistence.getUserByID(typedUserName);
+        UserDSO user = userPersistence.getUserByEmail(typedUserName);
         if (user != null && hashPassword(typedPassword).equals(user.getPasswordHash())) {
             toReturn = true;
         }
@@ -68,7 +68,7 @@ public class UserManager {
         UserDSO toReturn = null;
 
         if (userID != null) {
-            toReturn = userPersistence.getUserByID(userID);
+            toReturn = userPersistence.getUserByEmail(userID);
         }
 
         return toReturn;
@@ -82,7 +82,7 @@ public class UserManager {
         boolean toReturn = false; // default is false if something goes wrong
         if (UserDSO.meetsNewPasswordReq(password) && password.equals(confirmPassword)) {
             String hashedPassword = hashPassword(password);
-            UserDSO newUser = new UserDSO(userID, Calendar.getInstance(), hashedPassword);
+            UserDSO newUser = new UserDSO(userPersistence.getNextID(), userID, Calendar.getInstance(), hashedPassword);
             if (newUser.validate()) {
                 newUser.setName(name);
                 if (userPersistence.insertUser(newUser) != null) { // may cause exception
@@ -97,7 +97,7 @@ public class UserManager {
     public boolean updateUserName(String userID, String newName) throws UserNotFoundException {
         boolean toReturn = false;
 
-        UserDSO user = userPersistence.getUserByID(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
             user.setName(newName);
             if (userPersistence.updateUser(user) != null) {
@@ -111,7 +111,7 @@ public class UserManager {
             throws NoSuchAlgorithmException, UserNotFoundException {
         boolean toReturn = false;
 
-        UserDSO user = userPersistence.getUserByID(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
             if (UserDSO.meetsNewPasswordReq(newPassword)) {
                 String oldHash = hashPassword(oldPassword);
@@ -128,7 +128,7 @@ public class UserManager {
     public boolean addUserEvent(String userID, EventDSO newEvent) throws UserNotFoundException {
         boolean toReturn = false;
 
-        UserDSO user = userPersistence.getUserByID(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate() && newEvent.validate()) {
             user.addEvent(newEvent);
             if (userPersistence.updateUser(user) != null) {
@@ -141,7 +141,7 @@ public class UserManager {
     public boolean addUserFavorite(String userID, EventDSO fav) throws UserNotFoundException {
         boolean toReturn = false;
 
-        UserDSO user = userPersistence.getUserByID(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate() && fav.validate()) {
             user.addFavorite(fav);
             if (userPersistence.updateUser(user) != null) {
@@ -155,7 +155,7 @@ public class UserManager {
         boolean toReturn = false;
 
         if (label != null) {
-            UserDSO user = userPersistence.getUserByID(userID);
+            UserDSO user = userPersistence.getUserByEmail(userID);
             if (user != null && user.validate() && label.validate()) {
                 user.addLabel(label);
                 if (userPersistence.updateUser(user) != null) {
@@ -169,7 +169,7 @@ public class UserManager {
     public boolean deleteUser(String userID) throws UserNotFoundException {
         boolean toReturn = false; // default is false if something goes wrong
 
-        UserDSO user = userPersistence.getUserByID(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
             if (userPersistence.deleteUser(user).equals(user)) {
                 toReturn = true;
@@ -182,7 +182,7 @@ public class UserManager {
     public List<EventDSO> getUserEvents(String userID) throws UserNotFoundException {
         List<EventDSO> toReturn = null;
 
-        UserDSO user = userPersistence.getUserByID(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
             toReturn = user.getUserEvents();
         }
@@ -193,7 +193,7 @@ public class UserManager {
     public List<EventDSO> getUserFavorites(String userID) {
         List<EventDSO> toReturn = null;
 
-        UserDSO user = userPersistence.getUserByID(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
             toReturn = user.getFavoritesList();
         }
@@ -204,7 +204,7 @@ public class UserManager {
     public List<EventLabelDSO> getUserLabels(String userID) {
         List<EventLabelDSO> toReturn = null;
 
-        UserDSO user = userPersistence.getUserByID(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
             toReturn = user.getUserLabels();
 
@@ -212,5 +212,7 @@ public class UserManager {
 
         return toReturn;
     }
+
+
 
 }

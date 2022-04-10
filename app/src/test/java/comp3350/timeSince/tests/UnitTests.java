@@ -13,7 +13,10 @@ import comp3350.timeSince.tests.persistence.*;
         UserPersistenceTest.class,
         EventDSOTest.class,
         EventLabelDSOTest.class,
-        UserDSOTest.class
+        UserDSOTest.class,
+        UserPersistenceHSQLDBTest.class,
+        LabelPersistenceHSQLDBTest.class,
+        EventPersistenceHSQLDBTest.class
 })
 
 public class UnitTests {

@@ -2,6 +2,7 @@ package comp3350.timeSince.tests.objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
@@ -9,8 +10,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
+import java.util.List;
 
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.UserDSO;
 
 public class UserDSOTest {
@@ -25,7 +28,7 @@ public class UserDSOTest {
         this.passwordHash = "p4ssw0rd";
         defaultDate = Calendar.getInstance();
 
-        this.userDSO = new UserDSO(id, defaultDate, passwordHash);
+        this.userDSO = new UserDSO(1, id, defaultDate, passwordHash);
     }
 
     @Test
@@ -41,7 +44,7 @@ public class UserDSOTest {
         String message = String.format("Initial uuid should be set to %s",
                 this.id);
 
-        Assert.assertEquals(message, this.id, this.userDSO.getID());
+        Assert.assertEquals(message, this.id, this.userDSO.getEmail());
     }
 
 
@@ -159,30 +162,59 @@ public class UserDSOTest {
     }
 
     @Test
+    public void testEvents() {
+        EventDSO event1 = new EventDSO(1, defaultDate, "Event1");
+        EventDSO event2 = new EventDSO(2, defaultDate, "Event2");
+
+        userDSO.addEvent(event1);
+        userDSO.addEvent(event2);
+        List<EventDSO> events = userDSO.getUserEvents();
+        assertEquals("The user should have 2 events", 2, events.size());
+        assertTrue("The user should contain event1", events.contains(event1));
+        assertTrue("The user should contain event2", events.contains(event2));
+
+        userDSO.removeEvent(event1);
+        events = userDSO.getUserEvents();
+        assertEquals("The user should now have 1 event", 1, events.size());
+        assertFalse("The user should not have the removed event", events.contains(event1));
+        assertTrue("The user should have event2", events.contains(event2));
+    }
+
+    @Test
+    public void testLabels() {
+        // TODO
+    }
+
+    @Test
+    public void testFavorites() {
+        // TODO
+    }
+
+    @Test
     public void testToString() {
         String expected = String.format("Name: %s, UserID: %s",
-                userDSO.getName(), userDSO.getID());
+                userDSO.getName(), userDSO.getEmail());
         String message = "The User should display as: 'Name: ?name?, UserID: ?id?'";
         assertEquals(message, expected, userDSO.toString());
 
         userDSO.setName(null);
-        expected = String.format("UserID: %s", userDSO.getID());
+        expected = String.format("UserID: %s", userDSO.getEmail());
         message = "The User should display as: 'UserID: ?id?' when no name is given.";
         assertEquals(message, expected, userDSO.toString());
 
-        UserDSO testUser = new UserDSO(null, defaultDate, passwordHash);
+        UserDSO testUser = new UserDSO(-1, null, defaultDate, passwordHash);
         assertEquals("Nothing should be displayed if no name or id.",
                 "", testUser.toString());
     }
 
     @Test
     public void testEquals() {
-        UserDSO other = new UserDSO("bobby_g@gmail.com", defaultDate, "12345");
-        assertTrue("Users with the same ID should be equal",
-                userDSO.equals(other));
-        other = new UserDSO("bobby2_g@gmail.com", defaultDate, "12345");
-        assertFalse("Users with different ID's should not be equal",
-                userDSO.equals(other));
+        UserDSO other = new UserDSO(1, "bobby_g@gmail.com", defaultDate, "12345");
+        assertEquals("Users with the same ID and email should be equal",
+                other, userDSO);
+        other = new UserDSO(2, "bobby2_g@gmail.com", defaultDate, "12345");
+        assertNotEquals("Users with different ID's should not be equal",
+                other, userDSO);
     }
 
 }

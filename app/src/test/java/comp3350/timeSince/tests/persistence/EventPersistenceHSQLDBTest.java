@@ -24,7 +24,7 @@ import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
-public class EventPersistenceIntegrationTest {
+public class EventPersistenceHSQLDBTest {
 
     private IEventPersistence eventDatabase;
     private EventDSO event1, event2, event3, event4;

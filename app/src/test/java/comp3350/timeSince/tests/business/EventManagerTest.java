@@ -169,15 +169,15 @@ public class EventManagerTest {
 
     @Test(expected = Exception.class)
     public void testInsertEvent() {
-        UserDSO user = new UserDSO("user1", currDate, "hash1");
+        UserDSO user = new UserDSO(2, "user1", currDate, "hash1");
         EventLabelDSO eventLabel = new EventLabelDSO(1, "eventLabel1");
         String eventName = "event1", tagName = "Sports", eventDesc = "desc";
 
         when(eventPersistence.getNextID()).thenReturn(1).thenReturn(2).thenReturn(3);
         when(eventLabelPersistence.getNextID()).thenReturn(1).thenReturn(2).thenReturn(3);
-        when(userPersistence.getUserByID("userNotFound"))
+        when(userPersistence.getUserByEmail("userNotFound"))
                 .thenThrow(UserNotFoundException.class);
-        when(userPersistence.getUserByID("user1"))
+        when(userPersistence.getUserByEmail("user1"))
                 .thenReturn(user);
         when(eventPersistence.insertEvent(any(EventDSO.class)))
                 .thenReturn(event1)
@@ -199,8 +199,8 @@ public class EventManagerTest {
         eventManager.insertEvent("user1", Calendar.getInstance(),
                 eventName, tagName, eventDesc, true); // should throw duplicateEventException
 
-        verify(userPersistence, times(2)).getUserByID("user1");
-        verify(userPersistence).getUserByID("userNotFound");
+        verify(userPersistence, times(2)).getUserByEmail("user1");
+        verify(userPersistence).getUserByEmail("userNotFound");
     }
 
     @Test

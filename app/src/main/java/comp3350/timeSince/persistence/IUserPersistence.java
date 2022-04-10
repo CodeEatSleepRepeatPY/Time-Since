@@ -18,7 +18,7 @@ public interface IUserPersistence {
      * @return The User object associated with the ID, null otherwise.
      * @throws UserNotFoundException If the User is not in the database.
      */
-    UserDSO getUserByID(String userID) throws UserNotFoundException;
+    UserDSO getUserByEmail(String userID) throws UserNotFoundException;
 
     /**
      * @param newUser The User object to be added to the database.
@@ -44,15 +44,20 @@ public interface IUserPersistence {
     /**
      * Check if there is already a User in the database with this ID.
      *
-     * @param user The possible identifier of the User.
+     * @param userID The possible identifier of the User.
      * @return true if there are no other users in the database with the same ID,
      *         false otherwise.
      */
-    boolean isUnique(String user);
+    boolean isUnique(String userID);
 
     /**
      * @return The number of users in the database, -1 otherwise.
      */
     int numUsers();
+
+    /**
+     * @return The next unique ID if successful, -1 otherwise.
+     */
+    int getNextID();
 
 }

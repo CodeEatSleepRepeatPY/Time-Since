@@ -54,6 +54,11 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
+    public EventDSO addLabel(EventDSO event, EventLabelDSO label) {
+        return null;
+    }
+
+    @Override
     public EventDSO deleteEvent(EventDSO event) throws EventNotFoundException {
         int index = eventList.indexOf(event);
         if (index >= 0) {

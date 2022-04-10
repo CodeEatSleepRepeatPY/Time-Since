@@ -19,7 +19,8 @@ public class UserDSO {
     // instance variables
     //----------------------------------------
 
-    private final String id; // could be email, or unique name, not null
+    private final int id;
+    private String email; // could be email, or unique name, not null
     private String name;
     private final Calendar DATE_REGISTERED; // generated when creating new object, not null
     private String passwordHash; // not null
@@ -31,9 +32,10 @@ public class UserDSO {
     // constructor
     //----------------------------------------
 
-    public UserDSO(String id, Calendar date, String passwordHash) {
+    public UserDSO(int id, String email, Calendar date, String passwordHash) {
         this.id = id;
-        this.name = id; // defaults to the id
+        this.email = email;
+        this.name = email; // defaults to the email
         this.DATE_REGISTERED = date;
         this.passwordHash = passwordHash;
 
@@ -47,8 +49,12 @@ public class UserDSO {
     // getters
     //----------------------------------------
 
-    public String getID() {
+    public int getID() {
         return id;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public String getName() {
@@ -79,6 +85,12 @@ public class UserDSO {
     // setters
     //----------------------------------------
 
+    public void setNewEmail(String oldEmail, String newEmail) {
+        if (oldEmail != null && oldEmail.equals(email)) {
+            email = newEmail;
+        }
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -100,7 +112,7 @@ public class UserDSO {
     //----------------------------------------
 
     public boolean validate() {
-        return (id != null && id.length() > 0
+        return (email != null && email.length() > 0
                 && passwordHash != null
                 && DATE_REGISTERED != null);
     }
@@ -127,6 +139,7 @@ public class UserDSO {
 
     public void addFavorite(EventDSO newFav) {
         if (newFav != null && !favoritesList.contains(newFav)) {
+            userEvents.add(newFav); // should also be in events
             favoritesList.add(newFav);
         }
     }
@@ -160,17 +173,24 @@ public class UserDSO {
 
     public String toString() {
         String toReturn = "";
-        if (name != null && id != null) {
-            toReturn = String.format("Name: %s, UserID: %s", name, id);
+        if (name != null && email != null) {
+            toReturn = String.format("Name: %s, UserID: %s", name, email);
         }
-        if (name == null && id != null) {
-            toReturn = String.format("UserID: %s", id);
+        if (name == null && email != null) {
+            toReturn = String.format("UserID: %s", email);
         }
         return toReturn;
     }
 
-    public boolean equals(UserDSO other) {
-        return this.id.equals(other.getID());
+    @Override
+    public boolean equals(Object other) {
+        boolean toReturn = false;
+
+        if (other instanceof UserDSO) {
+            toReturn = email.equals(((UserDSO) other).getEmail());
+        }
+
+        return toReturn;
     }
 
     // helper for meetsNewPasswordReq

@@ -12,9 +12,11 @@ import comp3350.timeSince.persistence.IUserPersistence;
 public class UserPersistence implements IUserPersistence {
 
     private final List<UserDSO> userList;
+    private static int nextID;
 
     public UserPersistence() {
         this.userList = new ArrayList<>();
+        nextID = 2;
     }
 
     @Override
@@ -23,9 +25,9 @@ public class UserPersistence implements IUserPersistence {
     }
 
     @Override
-    public UserDSO getUserByID(String uID) throws UserNotFoundException {
+    public UserDSO getUserByEmail(String uID) throws UserNotFoundException {
         for (int i = 0; i < userList.size(); i++) {
-            if (userList.get(i).getID().equals(uID)) {
+            if (userList.get(i).getEmail().equals(uID)) {
                 return userList.get(i);
             }
         }
@@ -37,6 +39,7 @@ public class UserPersistence implements IUserPersistence {
         int index = userList.indexOf(newUser);
         if (index < 0) {
             userList.add(newUser);
+            nextID++;
             return newUser;
         } // else: duplicate
         throw new DuplicateUserException("The user: " + newUser.getName() + " could not be added.");
@@ -66,7 +69,7 @@ public class UserPersistence implements IUserPersistence {
     public boolean isUnique(String userID) {
         boolean toReturn = true;
         for (int i = 0; i < userList.size() && toReturn; i++) {
-            if (userID.equals(userList.get(i).getID())) {
+            if (userID.equals(userList.get(i).getEmail())) {
                 toReturn = false;
             }
         }
@@ -76,6 +79,11 @@ public class UserPersistence implements IUserPersistence {
     @Override
     public int numUsers() {
         return userList.size();
+    }
+
+    @Override
+    public int getNextID() {
+        return nextID;
     }
 
 }

@@ -3,7 +3,6 @@ package comp3350.timeSince.business;
 import java.util.Calendar;
 import java.util.List;
 
-import comp3350.timeSince.application.Main;
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
@@ -14,7 +13,6 @@ import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
-import comp3350.timeSince.persistence.hsqldb.EventPersistenceHSQLDB;
 
 public class EventManager {
 
@@ -57,7 +55,7 @@ public class EventManager {
             throws UserNotFoundException, DuplicateEventException {
 
         EventDSO toReturn = null;
-        UserDSO databaseUser = userPersistence.getUserByID(userID); // may cause exception
+        UserDSO databaseUser = userPersistence.getUserByEmail(userID); // may cause exception
 
         if (databaseUser != null) {
             Calendar calendar = Calendar.getInstance();

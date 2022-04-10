@@ -22,7 +22,7 @@ import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
-public class LabelPersistenceIntegrationTest {
+public class LabelPersistenceHSQLDBTest {
 
     private IEventLabelPersistence labelDatabase;
     private EventLabelDSO label1, label2, label3, label4;

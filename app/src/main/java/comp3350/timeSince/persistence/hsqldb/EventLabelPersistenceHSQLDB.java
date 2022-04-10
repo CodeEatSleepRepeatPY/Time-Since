@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,15 +17,11 @@ import comp3350.timeSince.persistence.IEventLabelPersistence;
 public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     private final String dbPath;
-
     private int nextID;
-    private final String ID = "lid"; // int
-    private final String NAME = "label_name"; // 30 characters, not null
-    private final String COLOR = "color"; // 15 characters
 
     public EventLabelPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
-        nextID = 1;
+        nextID = 1; // number of values in the database at creation
     }
 
     private Connection connection() throws SQLException {
@@ -41,9 +36,9 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
      */
     private EventLabelDSO fromResultSet(final ResultSet rs) throws SQLException {
 
-        final int id = rs.getInt(ID);
-        final String labelName = rs.getString(NAME);
-        final String color = rs.getString(COLOR);
+        final int id = rs.getInt(TS.LABEL_ID);
+        final String labelName = rs.getString(TS.LABEL_NAME);
+        final String color = rs.getString(TS.COLOR);
 
         EventLabelDSO toReturn = new EventLabelDSO(id, labelName);
         toReturn.setColor(color);
@@ -53,7 +48,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public List<EventLabelDSO> getEventLabelList() {
-        final String query = "SELECT * FROM labels";
+        final String query = "SELECT * FROM " + TS.TABLE_LABEL;
         List<EventLabelDSO> toReturn = null;
         final List<EventLabelDSO> labels = new ArrayList<>();
 
@@ -68,7 +63,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
             toReturn = labels;
 
         } catch (final SQLException e) {
-            System.out.println("The list of event labels could not be returned.\n" + e.getMessage() + "\n");
+            System.out.println("The list of event labels could not be returned.");
             e.printStackTrace();
             // will return null if unsuccessful
         }
@@ -78,9 +73,9 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public EventLabelDSO getEventLabelByID(int labelID) throws EventLabelNotFoundException {
-        final String query = "SELECT * FROM labels WHERE " + ID + " = ?";
+        final String query = "SELECT * FROM " + TS.TABLE_LABEL + " WHERE " + TS.LABEL_ID + " = ?";
         EventLabelDSO toReturn = null;
-        final String exceptionMessage = "The event label: " + labelID + " could not be found.\n";
+        final String exceptionMessage = "The event label: " + labelID + " could not be found.";
 
         try (final Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
@@ -94,7 +89,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
         } catch (final SQLException e) {
             e.printStackTrace();
-            throw new EventLabelNotFoundException(exceptionMessage + e.getMessage());
+            throw new EventLabelNotFoundException(exceptionMessage);
         }
 
         if (toReturn == null) {
@@ -105,12 +100,12 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public EventLabelDSO insertEventLabel(EventLabelDSO newEventLabel) throws DuplicateEventLabelException {
-        final String query = "INSERT INTO labels VALUES(?, ?, ?)";
+        final String query = "INSERT INTO " + TS.TABLE_LABEL + " VALUES(?, ?, ?)";
         EventLabelDSO toReturn = null;
 
         if (newEventLabel != null) {
             final String exceptionMessage = "The event label: " + newEventLabel.getName()
-                    + " could not be added.\n";
+                    + " could not be added.";
 
             try (Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
@@ -130,7 +125,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                throw new DuplicateEventLabelException(exceptionMessage + e.getMessage());
+                throw new DuplicateEventLabelException(exceptionMessage);
             }
         }
 
@@ -140,12 +135,13 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public EventLabelDSO updateEventLabel(EventLabelDSO eventLabel) throws EventLabelNotFoundException {
-        final String query = "UPDATE labels SET " + NAME + " = ?, " + COLOR + " = ? WHERE " + ID + " = ?";
+        final String query = "UPDATE " + TS.TABLE_LABEL
+                + " SET " + TS.LABEL_NAME + " = ?, " + TS.COLOR + " = ? WHERE " + TS.LABEL_ID + " = ?";
         EventLabelDSO toReturn = null;
 
         if (eventLabel != null) {
             final String exceptionMessage = "The event label: " + eventLabel.getName()
-                    + " could not be updated.\n";
+                    + " could not be updated.";
 
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
@@ -163,7 +159,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
             } catch (final SQLException e) {
                 e.printStackTrace();
-                throw new EventLabelNotFoundException(exceptionMessage + e.getMessage());
+                throw new EventLabelNotFoundException(exceptionMessage);
             }
         }
         return toReturn;
@@ -171,12 +167,12 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public EventLabelDSO deleteEventLabel(EventLabelDSO eventLabel) throws EventLabelNotFoundException {
-        final String query = "DELETE FROM labels WHERE " + ID + " = ?";
+        final String query = "DELETE FROM " + TS.TABLE_LABEL + " WHERE " + TS.LABEL_ID + " = ?";
         EventLabelDSO toReturn = null;
 
         if (eventLabel != null) {
             String exceptionMessage = "The event label: " + eventLabel.getName()
-                    + " could not be deleted.\n";
+                    + " could not be deleted.";
 
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
@@ -192,7 +188,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
             } catch (final SQLException e) {
                 e.printStackTrace();
-                throw new EventLabelNotFoundException(exceptionMessage + e.getMessage());
+                throw new EventLabelNotFoundException(exceptionMessage);
             }
 
         }
@@ -202,7 +198,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public int numLabels() {
-        final String query = "SELECT COUNT(*) AS numLabels FROM labels";
+        final String query = "SELECT COUNT(*) AS numLabels FROM " + TS.TABLE_LABEL;
         int toReturn = -1;
 
         try (final Connection c = connection();
@@ -214,7 +210,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
             }
 
         } catch (final SQLException e) {
-            System.out.println("The number of event labels could not be calculated.\n" + e.getMessage());
+            System.out.println("The number of event labels could not be calculated.");
             e.printStackTrace();
             // will return -1 if unsuccessful
         }
