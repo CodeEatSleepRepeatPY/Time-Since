@@ -56,6 +56,21 @@ public class UserPersistence implements IUserPersistence {
     }
 
     @Override
+    public UserDSO updateUserName(UserDSO user) {
+        return null;
+    }
+
+    @Override
+    public UserDSO updateUserEmail(UserDSO user) {
+        return null;
+    }
+
+    @Override
+    public UserDSO updateUserPassword(UserDSO user) {
+        return null;
+    }
+
+    @Override
     public UserDSO deleteUser(UserDSO user) throws UserNotFoundException {
         int index = userList.indexOf(user);
         if (index >= 0) {

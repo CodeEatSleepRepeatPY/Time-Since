@@ -49,6 +49,9 @@ public class UserManager {
         if (user != null && hashPassword(typedPassword).equals(user.getPasswordHash())) {
             toReturn = true;
         }
+        if (user == null) {
+            System.out.println("[LOG] test");
+        }
         return toReturn;
     }
 

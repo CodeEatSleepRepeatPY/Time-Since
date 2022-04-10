@@ -7,7 +7,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UserManagerTest {
     private UserManager userManager;
     private File tempDB;
@@ -28,6 +31,7 @@ public class UserManagerTest {
         userManager = new UserManager(true);
     }
 
+    // TODO : caused an error once
     @Test
     public void accountCheckTest() throws NoSuchAlgorithmException {
         String testUserName1 = "admin";

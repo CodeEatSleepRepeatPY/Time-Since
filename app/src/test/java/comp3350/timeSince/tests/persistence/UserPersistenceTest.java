@@ -4,9 +4,11 @@ import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runners.MethodSorters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +21,7 @@ import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
 import comp3350.timeSince.persistence.fakes.UserPersistence;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UserPersistenceTest {
 
     private IUserPersistence userDatabase;

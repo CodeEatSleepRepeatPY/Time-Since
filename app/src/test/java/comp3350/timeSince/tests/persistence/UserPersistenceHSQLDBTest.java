@@ -7,9 +7,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,13 +26,14 @@ import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UserPersistenceHSQLDBTest {
 
     private IUserPersistence userDatabase;
     private UserDSO user1, user2, user3;
     private List<UserDSO> userList;
     private Calendar defaultDate;
-    private static final int initialUserCount = 1;
+    private static final int initialUserCount = 2;
 
     @Rule
     public ExpectedException exceptionRule;
@@ -117,7 +120,7 @@ public class UserPersistenceHSQLDBTest {
                 userDatabase.numUsers());
 
         user1.setName("hello");
-        userDatabase.updateUser(user1);
+        userDatabase.updateUserName(user1);
         assertEquals("New attributes should match", "hello",
                 userDatabase.getUserByEmail("uid1").getName());
     }

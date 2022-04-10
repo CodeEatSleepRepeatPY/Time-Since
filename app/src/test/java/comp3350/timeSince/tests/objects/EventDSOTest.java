@@ -7,13 +7,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.util.Calendar;
 
 import comp3350.timeSince.business.exceptions.EventDescriptionException;
 import comp3350.timeSince.objects.EventDSO;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class EventDSOTest {
 
     public static EventDSO event;

@@ -21,7 +21,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     public EventLabelPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
-        nextID = 1; // number of values in the database at creation
+        nextID = 6; // number of values in the database at creation
     }
 
     private Connection connection() throws SQLException {
@@ -220,7 +220,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public int getNextID() {
-        return nextID;
+        return nextID + 1;
     }
 
 } //EventLabelPersistenceHSQLDB

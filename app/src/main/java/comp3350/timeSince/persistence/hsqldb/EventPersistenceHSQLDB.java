@@ -29,7 +29,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
     public EventPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
         this.eventLabelPersistence = Services.getEventLabelPersistence(true);
-        nextID = 1;
+        nextID = 6;
     }
 
     private Connection connection() throws SQLException {
@@ -273,7 +273,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public int getNextID() {
-        return nextID;
+        return nextID + 1;
     }
 
     /**

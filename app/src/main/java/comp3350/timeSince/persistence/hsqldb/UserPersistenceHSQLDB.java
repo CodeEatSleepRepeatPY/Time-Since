@@ -140,11 +140,14 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                     } else {
                         throw new DuplicateUserException(exceptionMessage);
                     }
+                } else {
+                    throw new DuplicateUserException(exceptionMessage);
                 }
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new DuplicateUserException(exceptionMessage);
             }
+
         }
 
         nextID++;
@@ -184,6 +187,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         return toReturn;
     }
 
+    @Override
     public UserDSO updateUserName(UserDSO user) {
         final String query = "UPDATE " + TS.TABLE_USER
                 + " SET " + TS.USER_NAME + " = ? WHERE " + TS.USER_ID + " = ?";
@@ -215,6 +219,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         return toReturn;
     }
 
+    @Override
     public UserDSO updateUserEmail(UserDSO user) {
         final String query = "UPDATE " + TS.TABLE_USER
                 + " SET " + TS.EMAIL + " = ? WHERE " + TS.USER_ID + " = ?";
@@ -245,6 +250,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         return toReturn;
     }
 
+    @Override
     public UserDSO updateUserPassword(UserDSO user) {
         final String query = "UPDATE " + TS.TABLE_USER
                 + " SET " + TS.PASSWORD + " = ? WHERE " + TS.USER_ID + " = ?";
@@ -350,7 +356,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     public int getNextID() {
-        return nextID;
+        return nextID + 1;
     }
 
     /**

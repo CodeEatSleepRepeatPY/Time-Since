@@ -7,7 +7,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.util.Calendar;
 import java.util.List;
@@ -16,6 +18,7 @@ import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.UserDSO;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UserDSOTest {
     private UserDSO userDSO;
     private String id;

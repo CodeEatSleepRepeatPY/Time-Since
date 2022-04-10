@@ -34,6 +34,12 @@ public interface IUserPersistence {
      */
     UserDSO updateUser(UserDSO user) throws UserNotFoundException;
 
+    UserDSO updateUserName(UserDSO user);
+
+    UserDSO updateUserEmail(UserDSO user);
+
+    UserDSO updateUserPassword(UserDSO user);
+
     /**
      * @param user The User object to be deleted from the database.
      * @return The User object that was deleted, null otherwise.

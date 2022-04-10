@@ -444,15 +444,15 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
     public UserDSO addFavorite(UserDSO user, EventDSO event) {
         UserDSO toReturn = null;
         if (user != null && event != null) {
-            try {
-                userPersistence.insertUser(user);
-            } catch (DuplicateUserException e) {
-                System.out.println(e.getMessage());
-            } try {
-                eventPersistence.insertEvent(event);
-            } catch (DuplicateEventException e) {
-                System.out.println(e.getMessage());
-            }
+//            try {
+//                userPersistence.insertUser(user);
+//            } catch (DuplicateUserException e) {
+//                System.out.println(e.getMessage());
+//            } try {
+//                eventPersistence.insertEvent(event);
+//            } catch (DuplicateEventException e) {
+//                System.out.println(e.getMessage());
+//            }
             user = addUserEvent(user, event);
             toReturn = addFavoriteConnection(user, event);
         }
@@ -483,18 +483,18 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
     @Override
     public UserDSO removeFavorite(UserDSO user, EventDSO event) {
         UserDSO toReturn = null;
-        if (user != null && event != null) {
-            try {
-                userPersistence.insertUser(user);
-            } catch (DuplicateUserException e) {
-                System.out.println(e.getMessage());
-            } try {
-                eventPersistence.insertEvent(event);
-            } catch (DuplicateEventException e) {
-                System.out.println(e.getMessage());
-            }
+//        if (user != null && event != null) {
+//            try {
+//                userPersistence.insertUser(user);
+//            } catch (DuplicateUserException e) {
+//                System.out.println(e.getMessage());
+//            } try {
+//                eventPersistence.insertEvent(event);
+//            } catch (DuplicateEventException e) {
+//                System.out.println(e.getMessage());
+//            }
             toReturn = removeFavoriteConnection(user, event);
-        }
+        //}
         return toReturn;
     }
 
