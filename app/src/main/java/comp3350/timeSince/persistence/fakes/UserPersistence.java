@@ -7,6 +7,8 @@ import java.util.List;
 
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
+import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
 
@@ -127,6 +129,119 @@ public class UserPersistence implements IUserPersistence {
     @Override
     public int getNextID() {
         return nextID + 1;
+    }
+
+    @Override
+    public List<EventDSO> getAllEvents(UserDSO user) {
+        List<EventDSO> toReturn = new ArrayList<>();
+        if (user != null) {
+            int index = userList.indexOf(user);
+            if (index >= 0) {
+                toReturn = userList.get(index).getUserEvents();
+            } else {
+                throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
+    public List<EventLabelDSO> getAllLabels(UserDSO user) {
+        List<EventLabelDSO> toReturn = new ArrayList<>();
+        if (user != null) {
+            int index = userList.indexOf(user);
+            if (index >= 0) {
+                toReturn = userList.get(index).getUserLabels();
+            } else {
+                throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
+    public List<EventDSO> getFavorites(UserDSO user) {
+        List<EventDSO> toReturn = new ArrayList<>();
+        if (user != null) {
+            int index = userList.indexOf(user);
+            if (index >= 0) {
+                toReturn = userList.get(index).getUserFavorites();
+            } else {
+                throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
+    public UserDSO setEventStatus(UserDSO user, EventDSO event, boolean isComplete) {
+        return null;
+    }
+
+    @Override
+    public UserDSO addUserEvent(UserDSO user, EventDSO event) {
+        int index = userList.indexOf(user);
+        if (index >= 0) {
+            user.addEvent(event);
+            userList.set(index, user);
+            return user;
+        }
+        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
+    }
+
+    @Override
+    public UserDSO removeUserEvent(UserDSO user, EventDSO event) {
+        int index = userList.indexOf(user);
+        if (index >= 0) {
+            user.removeEvent(event);
+            userList.set(index, user);
+            return user;
+        }
+        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
+    }
+
+    @Override
+    public UserDSO addUserLabel(UserDSO user, EventLabelDSO label) {
+        int index = userList.indexOf(user);
+        if (index >= 0) {
+            user.addLabel(label);
+            userList.set(index, user);
+            return user;
+        }
+        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
+    }
+
+    @Override
+    public UserDSO removeUserLabel(UserDSO user, EventLabelDSO label) {
+        int index = userList.indexOf(user);
+        if (index >= 0) {
+            user.removeLabel(label);
+            userList.set(index, user);
+            return user;
+        }
+        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
+    }
+
+    @Override
+    public UserDSO addUserFavorite(UserDSO user, EventDSO event) {
+        int index = userList.indexOf(user);
+        if (index >= 0) {
+            user.addFavorite(event);
+            userList.set(index, user);
+            return user;
+        }
+        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
+    }
+
+    @Override
+    public UserDSO removeUserFavorite(UserDSO user, EventDSO event) {
+        int index = userList.indexOf(user);
+        if (index >= 0) {
+            user.removeFavorite(event);
+            userList.set(index, user);
+            return user;
+        }
+        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
     }
 
     private void setDefaults() {

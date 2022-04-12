@@ -16,11 +16,12 @@ import java.util.Calendar;
 import java.util.Objects;
 
 import comp3350.timeSince.R;
+import comp3350.timeSince.business.interfaces.IEventManager;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.business.EventManager;
 
 public class SingleEventActivity extends AppCompatActivity {
-    private EventManager eventManager;
+    private IEventManager IEventManager;
     private Button done_button;
     private Button tags_button;
     private Button favorite_button;
@@ -35,14 +36,14 @@ public class SingleEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_single_event);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        eventManager = new EventManager(true);
+        IEventManager = new EventManager(true);
         Calendar eventFinishTime;
         String dateText;
         Intent i = getIntent();
 
         // initialize event information
         eventID = i.getIntExtra("eventID", -1);
-        eventDSO = eventManager.getEventByID(eventID);
+        eventDSO = IEventManager.getEventByID(eventID);
 
         // Button fields
         done_button = findViewById(R.id.event_done_button);
@@ -78,7 +79,7 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     public void buttonEventDoneOnClick(View v) {
-        boolean isDone = eventManager.isDone(eventID);
+        boolean isDone = IEventManager.isDone(eventID);
 
         try{
             done_button.setOnClickListener(new View.OnClickListener() {
@@ -94,7 +95,7 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     private void setDoneColor(){
-        boolean isDone = eventManager.isDone(eventID);
+        boolean isDone = IEventManager.isDone(eventID);
 
         // toggle the colour
         if (isDone){
@@ -163,7 +164,7 @@ public class SingleEventActivity extends AppCompatActivity {
 
                     String displayDate = String.format("%d-%d-%d", year, month + 1, day);
                     dueDate.setText(displayDate);
-                    eventManager.updateEventFinishTime(calendar, eventID);
+                    IEventManager.updateEventFinishTime(calendar, eventID);
                     setDateColor(calendar);
                 }
             };
@@ -202,8 +203,8 @@ public class SingleEventActivity extends AppCompatActivity {
     // upon leaving, saves the name and description entered in the UI
     @Override
     public boolean onSupportNavigateUp(){
-        eventManager.updateEventName(name.getText().toString(), eventID);
-        eventManager.updateEventDescription(description.getText().toString(), eventID);
+        IEventManager.updateEventName(name.getText().toString(), eventID);
+        IEventManager.updateEventDescription(description.getText().toString(), eventID);
 
         finish();
         return true;

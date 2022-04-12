@@ -12,17 +12,25 @@ import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.DateUtils;
+import comp3350.timeSince.business.exceptions.DuplicateEventException;
+import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
+import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
+import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.IEventLabelPersistence;
+import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.IUserConnectionsPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserPersistenceHSQLDB implements IUserPersistence {
 
     private final String dbPath;
+    private final IEventPersistence eventPersistence;
+    private final IEventLabelPersistence eventLabelPersistence;
     private final IUserConnectionsPersistence userConnectionsPersistence;
     private int nextID;
 
@@ -35,6 +43,8 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     public UserPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
+        eventPersistence = Services.getEventPersistence(true);
+        eventLabelPersistence = Services.getEventLabelPersistence(true);
         this.userConnectionsPersistence = Services.getUserConnectionsPersistence();
         nextID = 2; // number of values in the database at creation
     }
@@ -69,7 +79,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public List<UserDSO> getUserList() {
-        final String query = "SELECT * FROM " + TABLE_USER;
+        final String query = "SELECT * FROM users";
         List<UserDSO> toReturn = null;
         final List<UserDSO> users = new ArrayList<>();
 
@@ -93,7 +103,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public UserDSO getUserByID(int userID) throws UserNotFoundException {
-        final String query = "SELECT * FROM " + TABLE_USER + " WHERE " + USER_ID + " = ?";
+        final String query = "SELECT * FROM users WHERE uid = ?";
         UserDSO toReturn = null;
         final String exceptionMessage = "The user: " + userID + " could not be found.";
 
@@ -353,6 +363,332 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     public int getNextID() {
         return nextID + 1;
+    }
+
+    @Override
+    public List<EventDSO> getAllEvents(UserDSO user) {
+        final String query = "SELECT eid FROM usersevents WHERE uid = ?";
+        List<EventDSO> toReturn = new ArrayList<>();
+
+        if (user != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, user.getID());
+                ResultSet resultSet = statement.executeQuery();
+
+                while (resultSet.next()) {
+                    try {
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt("eid"));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
+                    } catch (EventNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            } catch (final SQLException e) {
+                e.printStackTrace();
+                // will return an empty array list if unsuccessful
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
+    public List<EventLabelDSO> getAllLabels(UserDSO user) {
+        final String query = "SELECT lid FROM userslabels WHERE uid = ?";
+        List<EventLabelDSO> toReturn = new ArrayList<>();
+
+        if (user != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, user.getID());
+                ResultSet resultSet = statement.executeQuery();
+
+                while (resultSet.next()) {
+                    try {
+                        EventLabelDSO label = eventLabelPersistence.getEventLabelByID(
+                                resultSet.getInt("lid"));
+                        if (label != null) {
+                            toReturn.add(label);
+                        }
+                    } catch (EventLabelNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            } catch (final SQLException e) {
+                e.printStackTrace();
+                // will return empty arraylist if unsuccessful
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
+    public List<EventDSO> getFavorites(UserDSO user) {
+        final String query = "SELECT eid FROM usersevents WHERE uid = ? AND is_favorite = TRUE";
+        List<EventDSO> toReturn = new ArrayList<>();
+
+        if (user != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, user.getID());
+                ResultSet resultSet = statement.executeQuery();
+
+                while (resultSet.next()) {
+                    try {
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt("eid"));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
+                    } catch (EventNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+            } catch (final SQLException e) {
+                e.printStackTrace();
+                // will return an empty array list if unsuccessful
+            }
+        }
+        return toReturn;
+    }
+
+    //----------------------------------------
+    // setters
+    //----------------------------------------
+
+    @Override
+    public UserDSO setEventStatus(UserDSO user, EventDSO event, boolean isComplete) {
+        final String query = "UPDATE usersevents SET is_done = " + isComplete
+                + " WHERE uid = ? AND eid = ?";
+        UserDSO toReturn = null;
+
+        try (final Connection c = connection();
+             final PreparedStatement statement = c.prepareStatement(query)) {
+
+            statement.setInt(1, user.getID());
+            statement.setInt(2, event.getID());
+            int result = statement.executeUpdate();
+
+            if (result > 0) {
+                event.setIsDone(isComplete);
+                toReturn = user;
+            }
+        } catch (final SQLException e) {
+            e.printStackTrace();
+        }
+        return toReturn;
+    }
+
+    @Override
+    public UserDSO addUserEvent(UserDSO user, EventDSO event) {
+        UserDSO toReturn = null;
+        if (user != null && event != null) {
+            try {
+                eventPersistence.insertEvent(event);
+            } catch (DuplicateEventException e) {
+                System.out.println(e.getMessage());
+            }
+            user = addUserEventConnection(user, event);
+            user = addUserLabelConnections(user, event);
+            toReturn = user;
+        }
+        return toReturn;
+    }
+
+    private UserDSO addUserEventConnection(UserDSO user, EventDSO event) {
+        final String query = "INSERT INTO usersevents VALUES(?, ?, ?, ?)";
+
+        if (user != null && event != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, user.getID());
+                statement.setInt(2, event.getID());
+                statement.setBoolean(3, event.isFavorite());
+                statement.setBoolean(4, event.isDone());
+                int result = statement.executeUpdate();
+
+                if (result > 0) {
+                    user.addEvent(event);
+                    user = addUserEventLabelConnections(user, event);
+                }
+            } catch (final SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return user;
+    }
+
+    private UserDSO addUserEventLabelConnections(UserDSO user, EventDSO event) {
+        if (user != null && event != null && event.getEventLabels().size() > 0) {
+            List<EventLabelDSO> labels = event.getEventLabels();
+            for (EventLabelDSO label : labels) {
+                try {
+                    eventLabelPersistence.insertEventLabel(label);
+                } catch (DuplicateEventLabelException e) {
+                    System.out.println(e.getMessage());
+                }
+                eventPersistence.addLabel(event, label);
+                user = addUserLabel(user, label);
+                user.addLabel(label);
+            }
+        }
+        return user;
+    }
+
+    @Override
+    public UserDSO removeUserEvent(UserDSO user, EventDSO event) {
+        final String query = "DELETE FROM events WHERE eid = ?";
+
+        if (user != null && event != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, event.getID());
+                int result = statement.executeUpdate();
+
+                if (result > 0) {
+                    user.removeEvent(event);
+                }
+            } catch (final SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return user;
+    }
+
+    @Override
+    public UserDSO addUserLabel(UserDSO user, EventLabelDSO label) {
+        UserDSO toReturn = null;
+        if (user != null && label != null) {
+            try {
+                eventLabelPersistence.insertEventLabel(label);
+            } catch (DuplicateEventLabelException e) {
+                System.out.println(e.getMessage());
+            }
+            toReturn = addUserLabelConnection(user, label);
+        }
+        return toReturn;
+    }
+
+    private UserDSO addUserLabelConnection(UserDSO user, EventLabelDSO label) {
+        final String query = "INSERT INTO userslabels VALUES(?, ?)";
+
+        if (user != null && label != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, user.getID());
+                statement.setInt(2, label.getID());
+                int result = statement.executeUpdate();
+
+                if (result > 0) {
+                    user.addLabel(label);
+                }
+            } catch (final SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return user;
+    }
+
+    private UserDSO addUserLabelConnections(UserDSO user, EventDSO event) {
+        if (user != null && event != null) {
+            List<EventLabelDSO> labels = event.getEventLabels();
+            for (EventLabelDSO label : labels) {
+                user = addUserLabel(user, label);
+                eventPersistence.addLabel(event, label);
+            }
+        }
+        return user;
+    }
+
+    @Override
+    public UserDSO removeUserLabel(UserDSO user, EventLabelDSO label) {
+        final String query = "DELETE FROM labels WHERE lid = ?";
+
+        if (user != null && label != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, label.getID());
+                int result = statement.executeUpdate();
+
+                if (result > 0) {
+                    user.removeLabel(label);
+                }
+            } catch (final SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return user;
+    }
+
+    @Override
+    public UserDSO addUserFavorite(UserDSO user, EventDSO event) {
+        UserDSO toReturn = null;
+        if (user != null && event != null) {
+            try {
+                eventPersistence.insertEvent(event);
+            } catch (DuplicateEventException e) {
+                System.out.println(e.getMessage());
+            }
+            user = addUserEvent(user, event);
+            toReturn = addFavoriteConnection(user, event);
+        }
+        return toReturn;
+    }
+
+    private UserDSO addFavoriteConnection(UserDSO user, EventDSO event) {
+        final String query = "UPDATE usersevents SET is_favorite = TRUE WHERE uid = ? AND eid = ?";
+
+        try (final Connection c = connection();
+             final PreparedStatement statement = c.prepareStatement(query)) {
+
+            statement.setInt(1, user.getID());
+            statement.setInt(2, event.getID());
+            int result = statement.executeUpdate();
+
+            if (result > 0) {
+                user.addFavorite(event);
+            }
+        } catch (final SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return user;
+    }
+
+    @Override
+    public UserDSO removeUserFavorite(UserDSO user, EventDSO event) {
+        UserDSO toReturn = null;
+        if (user != null && event != null) {
+            toReturn = removeFavoriteConnection(user, event);
+        }
+        return toReturn;
+    }
+
+    private UserDSO removeFavoriteConnection(UserDSO user, EventDSO event) {
+        final String query = "UPDATE usersevents SET is_favorite = FALSE WHERE uid = ? AND eid = ?";
+
+        try (final Connection c = connection();
+             final PreparedStatement statement = c.prepareStatement(query)) {
+
+            statement.setInt(1, user.getID());
+            statement.setInt(2, event.getID());
+            int result = statement.executeUpdate();
+
+            if (result > 0) {
+                user.removeFavorite(event);
+            }
+        } catch (final SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return user;
     }
 
     /**

@@ -15,9 +15,10 @@ import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.business.exceptions.UserRegistrationFailedException;
+import comp3350.timeSince.business.interfaces.IUserManager;
 
 public class RegisterActivity extends AppCompatActivity {
-    private final UserManager userManager = new UserManager(true);
+    private final IUserManager IUserManager = new UserManager(true);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
         String strConfirmPassword = editConfirmPassword.getText().toString();
 
         try {
-            if (userManager.insertUser(strUsername, strPassword, strConfirmPassword, null) != null) {
+            if (IUserManager.insertUser(strUsername, strPassword, strConfirmPassword, null) != null) {
                 Toast.makeText(this, "Registration success!", Toast.LENGTH_LONG).show();
                 userIntent = new Intent(RegisterActivity.this, ViewEventActivity.class);
                 startActivity(userIntent);

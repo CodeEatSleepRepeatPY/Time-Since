@@ -8,20 +8,19 @@ import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventDescriptionException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
+import comp3350.timeSince.business.interfaces.IEventManager;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
-import comp3350.timeSince.persistence.IUserConnectionsPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
-public class EventManager {
+public class EventManager implements IEventManager {
 
     private final IEventLabelPersistence eventLabelPersistence;
     private final IEventPersistence eventPersistence;
     private final IUserPersistence userPersistence;
-    private final IUserConnectionsPersistence userConnectionsPersistence;
 
     /**
      * Used in production.
@@ -30,7 +29,6 @@ public class EventManager {
         userPersistence = Services.getUserPersistence(forProduction);
         eventPersistence = Services.getEventPersistence(forProduction);
         eventLabelPersistence = Services.getEventLabelPersistence(forProduction);
-        userConnectionsPersistence = Services.getUserConnectionsPersistence();
     }
 
     /**
@@ -44,9 +42,9 @@ public class EventManager {
         userPersistence = usersDB;
         eventPersistence = eventDB;
         eventLabelPersistence = eventLabelsDB;
-        userConnectionsPersistence = null;
     }
 
+    @Override
     public EventDSO getEventByID(int eventID) throws EventNotFoundException {
         EventDSO toReturn = null;
         if (eventID >= 1) {
@@ -55,12 +53,14 @@ public class EventManager {
         return toReturn;
     }
 
+    @Override
     public List<EventDSO> getEventList() {
         return eventPersistence.getEventList();
     }
 
+    @Override
     public EventDSO insertEvent(String userID, Calendar dueDate, String eventName,
-                                   String eventLabelName, String eventDesc, boolean favorite)
+                                String eventLabelName, String eventDesc, boolean favorite)
             throws UserNotFoundException, DuplicateEventException {
 
         EventDSO toReturn = null;
@@ -87,12 +87,12 @@ public class EventManager {
                 // insert the newly created event label into the database, may cause exception
                 eventLabel = eventLabelPersistence.insertEventLabel(eventLabel);
 
-                databaseUser = userConnectionsPersistence.addUserEvent(databaseUser, event);
-                databaseUser = userConnectionsPersistence.addUserLabel(databaseUser, eventLabel);
+                databaseUser = userPersistence.addUserEvent(databaseUser, event);
+                databaseUser = userPersistence.addUserLabel(databaseUser, eventLabel);
 
                 if (favorite) {
                     databaseUser.addFavorite(event);
-                    userConnectionsPersistence.addFavorite(databaseUser, event);
+                    userPersistence.addUserFavorite(databaseUser, event);
                 }
 
                 toReturn = event; // successful
@@ -101,6 +101,7 @@ public class EventManager {
         return toReturn;
     }
 
+    @Override
     public EventDSO updateEventName(String newName, int eventID) throws EventNotFoundException {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
@@ -112,6 +113,7 @@ public class EventManager {
         return updatedEvent;
     }
 
+    @Override
     public EventDSO updateEventDescription(String desc, int eventID) throws EventNotFoundException, EventDescriptionException {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
@@ -123,6 +125,7 @@ public class EventManager {
         return updatedEvent;
     }
 
+    @Override
     public EventDSO updateEventFinishTime(Calendar finishTime, int eventID) throws EventNotFoundException {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
@@ -134,21 +137,23 @@ public class EventManager {
         return updatedEvent;
     }
 
+    @Override
     public EventDSO updateEventFavorite(boolean fav, int eventID, String userID) throws EventNotFoundException {
         UserDSO user = initiateUser(userID);
         EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
 
         if (event != null) {
             if (fav) {
-                userConnectionsPersistence.addFavorite(user, event);
+                userPersistence.addUserFavorite(user, event);
             } else {
-                userConnectionsPersistence.removeFavorite(user, event);
+                userPersistence.removeUserFavorite(user, event);
             }
             event.setFavorite(fav);
         }
         return event;
     }
 
+    @Override
     public EventDSO deleteEvent(int eventID) throws EventNotFoundException {
         EventDSO toReturn = null;
         EventDSO eventToDelete = eventPersistence.getEventByID(eventID); // may cause exception
@@ -160,17 +165,19 @@ public class EventManager {
         return toReturn;
     }
 
+    @Override
     public EventDSO markEventAsDone(int userID, int eventID, boolean done) throws EventNotFoundException {
         UserDSO user = userPersistence.getUserByID(userID); // may cause exception
         EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
 
         if (user != null && event != null) {
             event.setIsDone(done);
-            userConnectionsPersistence.setStatus(user, event, done);
+            userPersistence.setEventStatus(user, event, done);
         }
         return event;
     }
 
+    @Override
     public boolean isDone(int eventID) throws EventNotFoundException {
         boolean toReturn = false;
         EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
@@ -181,6 +188,7 @@ public class EventManager {
         return toReturn;
     }
 
+    @Override
     public boolean isOverdue(int eventID) throws EventNotFoundException {
         boolean toReturn = false;
         EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
@@ -193,6 +201,7 @@ public class EventManager {
         return toReturn;
     }
 
+    @Override
     public int numEvents() {
         return eventPersistence.numEvents();
     }

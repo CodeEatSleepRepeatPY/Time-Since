@@ -4,6 +4,9 @@ import java.util.List;
 
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
+import comp3350.timeSince.business.interfaces.ISortAndFilterEvents;
+import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 
 public interface IUserPersistence {
@@ -78,5 +81,97 @@ public interface IUserPersistence {
      * @return The next unique ID if successful, -1 otherwise.
      */
     int getNextID();
+
+    /**
+     * Gets all the events for the user.
+     *
+     * @param user the user
+     * @return the list of events
+     */
+    List<EventDSO> getAllEvents(UserDSO user);
+
+    /**
+     * Gets all labels for the user.
+     *
+     * @param user the user
+     * @return the list of labels
+     */
+    List<EventLabelDSO> getAllLabels(UserDSO user);
+
+    /**
+     * Gets all event favorites for the user.
+     *
+     * @param user the user
+     * @return the list of favorite events
+     */
+    List<EventDSO> getFavorites(UserDSO user);
+
+    //----------------------------------------
+    // setters
+    //----------------------------------------
+
+    /**
+     * Sets status of the event for the user.
+     *
+     * @param user       the user
+     * @param event      the event
+     * @param isComplete mark it as complete (true) or incomplete (false)?
+     * @return the updated user
+     */
+    UserDSO setEventStatus(UserDSO user, EventDSO event, boolean isComplete);
+
+    /**
+     * Add an event to the user.
+     *
+     * @param user  the user
+     * @param event the event
+     * @return the updated user
+     */
+    UserDSO addUserEvent(UserDSO user, EventDSO event);
+
+    /**
+     * Remove an event from the user.
+     *
+     * @param user  the user
+     * @param event the event
+     * @return the updated user
+     */
+    UserDSO removeUserEvent(UserDSO user, EventDSO event);
+
+    /**
+     * Add a label to the user.
+     *
+     * @param user  the user
+     * @param label the label
+     * @return the updated user
+     */
+    UserDSO addUserLabel(UserDSO user, EventLabelDSO label);
+
+    /**
+     * Remove label from the user.
+     *
+     * @param user  the user
+     * @param label the label
+     * @return the updated user
+     */
+    UserDSO removeUserLabel(UserDSO user, EventLabelDSO label);
+
+    /**
+     * Add a favorite event to the user.
+     *
+     * @param user  the user
+     * @param event the event
+     * @return the updated user
+     */
+    UserDSO addUserFavorite(UserDSO user, EventDSO event);
+
+    /**
+     * Remove a favorite event from the user
+     *
+     * @param user  the user
+     * @param event the event
+     * @return the updated user
+     */
+    UserDSO removeUserFavorite(UserDSO user, EventDSO event);
 
 }

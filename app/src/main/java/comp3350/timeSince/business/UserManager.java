@@ -17,24 +17,24 @@ import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserConnectionsPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
-public class UserManager {
+public class UserManager implements comp3350.timeSince.business.interfaces.IUserManager {
 
     private final IUserPersistence userPersistence;
-    private final IUserConnectionsPersistence userConnectionsPersistence;
 
     public UserManager(boolean forProduction) {
         userPersistence = Services.getUserPersistence(forProduction);
-        userConnectionsPersistence = Services.getUserConnectionsPersistence();
     }
 
     //-----------------------------------------
     // User account Manager Registration
     //-----------------------------------------
 
+    @Override
     public boolean uniqueName(String userName) {
         return userPersistence.isUnique(userName);
     }
 
+    @Override
     public boolean passwordRequirements(String password) {
         return UserDSO.meetsNewPasswordReq(password);
     }
@@ -43,6 +43,7 @@ public class UserManager {
     //User account Manager login
     //-------------------------------------------------------
 
+    @Override
     public boolean accountCheck(String typedUserName, String typedPassword)
             throws NoSuchAlgorithmException, UserNotFoundException {
         //first we need to check if this account is exist in the list
@@ -58,6 +59,7 @@ public class UserManager {
         return toReturn;
     }
 
+    @Override
     public String hashPassword(String inputPassword) throws NoSuchAlgorithmException {
         String strHash = "";
 
@@ -70,6 +72,7 @@ public class UserManager {
         return strHash;
     }
 
+    @Override
     public UserDSO getUserByEmail(String userID) throws UserNotFoundException {
         UserDSO toReturn = null;
         if (userID != null) {
@@ -80,6 +83,7 @@ public class UserManager {
 
     //This method is called when the register button is hit
     //to show if the user create a new account successfully or not
+    @Override
     public UserDSO insertUser(String userID, String password, String confirmPassword, String name)
             throws NoSuchAlgorithmException, DuplicateUserException, PasswordErrorException {
 
@@ -95,6 +99,7 @@ public class UserManager {
         return toReturn;
     }
 
+    @Override
     public UserDSO updateUserName(String userID, String newName) throws UserNotFoundException {
         UserDSO toReturn = null;
 
@@ -106,6 +111,7 @@ public class UserManager {
     }
 
     // TODO: fix
+    @Override
     public UserDSO updateUserPassword(String userID, String newPassword)
             throws NoSuchAlgorithmException, UserNotFoundException {
         UserDSO toReturn = null;
@@ -122,33 +128,37 @@ public class UserManager {
         return toReturn;
     }
 
+    @Override
     public UserDSO addUserEvent(String userID, EventDSO newEvent) throws UserNotFoundException {
         UserDSO toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause exception
         if (user != null && user.validate() && newEvent != null && newEvent.validate()) {
-            toReturn = userConnectionsPersistence.addUserEvent(user, newEvent);
+            toReturn = userPersistence.addUserEvent(user, newEvent);
         }
         return toReturn;
     }
 
+    @Override
     public UserDSO addUserFavorite(String userID, EventDSO fav) throws UserNotFoundException {
         UserDSO toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause exception
         if (user != null && user.validate() && fav != null && fav.validate()) {
-            toReturn = userConnectionsPersistence.addFavorite(user, fav);
+            toReturn = userPersistence.addUserFavorite(user, fav);
         }
         return toReturn;
     }
 
+    @Override
     public UserDSO addUserLabel(String userID, EventLabelDSO label) throws UserNotFoundException {
         UserDSO toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause exception
         if (user != null && user.validate() && label != null && label.validate()) {
-            toReturn = userConnectionsPersistence.addUserLabel(user, label);
+            toReturn = userPersistence.addUserLabel(user, label);
         }
         return toReturn;
     }
 
+    @Override
     public boolean deleteUser(String userID) throws UserNotFoundException {
         boolean toReturn = false; // default is false if something goes wrong
         UserDSO user = userPersistence.getUserByEmail(userID);
@@ -160,29 +170,32 @@ public class UserManager {
         return toReturn;
     }
 
+    @Override
     public List<EventDSO> getUserEvents(String userID) throws UserNotFoundException {
         List<EventDSO> toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause an exception
         if (user != null && user.validate()) {
-            toReturn = userConnectionsPersistence.getAllEvents(user);
+            toReturn = userPersistence.getAllEvents(user);
         }
         return toReturn;
     }
 
+    @Override
     public List<EventDSO> getUserFavorites(String userID) throws UserNotFoundException {
         List<EventDSO> toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause an exception
         if (user != null && user.validate()) {
-            toReturn = userConnectionsPersistence.getFavorites(user);
+            toReturn = userPersistence.getFavorites(user);
         }
         return toReturn;
     }
 
+    @Override
     public List<EventLabelDSO> getUserLabels(String userID) {
         List<EventLabelDSO> toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
-            toReturn = userConnectionsPersistence.getAllLabels(user);
+            toReturn = userPersistence.getAllLabels(user);
 
         }
         return toReturn;

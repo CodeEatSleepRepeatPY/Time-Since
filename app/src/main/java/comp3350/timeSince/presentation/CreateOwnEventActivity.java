@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -24,12 +23,13 @@ import java.util.List;
 import java.util.Objects;
 
 import comp3350.timeSince.R;
+import comp3350.timeSince.business.interfaces.IEventManager;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
+import comp3350.timeSince.business.interfaces.IUserManager;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.persistence.IEventLabelPersistence;
 
 public class CreateOwnEventActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener,
@@ -49,8 +49,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private Button favoriteBtn;
     private Spinner selectEventLabel;
     private Calendar mCalendar;
-    private EventManager eventManager;
-    private UserManager userManager;
+    private IEventManager IEventManager;
+    private IUserManager IUserManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +69,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabels = new ArrayList<EventLabelDSO>();
         mCalendar = Calendar.getInstance();
         extras = getIntent().getExtras();
-        eventManager = new EventManager(true);
+        IEventManager = new EventManager(true);
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,8 +152,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
 
-        userManager = new UserManager(true);
-        List<EventLabelDSO> eventLabels = userManager.getUserLabels(extras.get("email").toString());
+        IUserManager = new UserManager(true);
+        List<EventLabelDSO> eventLabels = IUserManager.getUserLabels(extras.get("email").toString());
         if(eventLabels.size() == 0){
             Toast.makeText(this, "The EventLabel list for the user is empty.", Toast.LENGTH_SHORT).show();
         }
@@ -179,7 +179,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
             }else {
                 eventLabelName = eventLabels.get(eventLabels.size() - 1).getName();
             }
-            newEvent = eventManager.insertEvent(extras.get("email").toString(), mCalendar,
+            newEvent = IEventManager.insertEvent(extras.get("email").toString(), mCalendar,
                         eventName.getText().toString(), eventLabelName,
                         description.getText().toString(), favorite);
 

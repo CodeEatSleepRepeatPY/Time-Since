@@ -20,6 +20,7 @@ import org.junit.runners.MethodSorters;
 import java.util.Calendar;
 
 import comp3350.timeSince.business.EventManager;
+import comp3350.timeSince.business.interfaces.IEventManager;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
@@ -36,7 +37,7 @@ import comp3350.timeSince.persistence.hsqldb.UserPersistenceHSQLDB;
 @FixMethodOrder(MethodSorters.JVM)
 public class EventManagerTest {
 
-    private EventManager eventManager;
+    private IEventManager IEventManager;
     private IUserPersistence userPersistence;
     private IEventPersistence eventPersistence;
     private IEventLabelPersistence eventLabelPersistence;
@@ -48,7 +49,7 @@ public class EventManagerTest {
         userPersistence = mock(UserPersistenceHSQLDB.class);
         eventPersistence = mock(EventPersistenceHSQLDB.class);
         eventLabelPersistence = mock(EventLabelPersistenceHSQLDB.class);
-        eventManager = new EventManager(userPersistence, eventPersistence,
+        IEventManager = new EventManager(userPersistence, eventPersistence,
                 eventLabelPersistence);
 
         currDate = Calendar.getInstance();
@@ -65,18 +66,18 @@ public class EventManagerTest {
         when(eventPersistence.getEventByID(-1)).thenThrow(EventNotFoundException.class);
 
         assertEquals("eventManager.getEventByID(1) should return event1",
-                event1, eventManager.getEventByID(1));
+                event1, IEventManager.getEventByID(1));
         assertEquals("eventManager.getEventByID(2) should return event2",
-                event2, eventManager.getEventByID(2));
+                event2, IEventManager.getEventByID(2));
         assertEquals("eventManager.getEventByID(3) should return event3",
-                event3, eventManager.getEventByID(3));
+                event3, IEventManager.getEventByID(3));
 
         verify(eventPersistence).getEventByID(1);
         verify(eventPersistence).getEventByID(2);
         verify(eventPersistence).getEventByID(3);
 
         assertNull("eventManager.getEventByID(-1) should return null",
-                eventManager.getEventByID(-1));
+                IEventManager.getEventByID(-1));
     }
 
     @Ignore
@@ -90,16 +91,16 @@ public class EventManagerTest {
         //assertEquals("eventManager.updateEventName() should return event1",
         //        event1, eventManager.updateEventName("updatedEventName", 1));
         assertEquals("eventManager.updateEventDescription() should return event1",
-                event1, eventManager.updateEventDescription("updatedEventDesc", 1));
+                event1, IEventManager.updateEventDescription("updatedEventDesc", 1));
         assertEquals("eventManager.updateEventFinishTime() should return event1",
-                event1, eventManager.updateEventFinishTime(currDate, 1));
+                event1, IEventManager.updateEventFinishTime(currDate, 1));
 
         verify(eventPersistence, times(4))
                 .getEventByID(1);
 
         //eventManager.updateEventName("updateEventName", -1); // should throw exception
-        eventManager.updateEventDescription("updateEventDesc", -1); // should throw exception
-        eventManager.updateEventFinishTime(currDate, -1); // should throw exception
+        IEventManager.updateEventDescription("updateEventDesc", -1); // should throw exception
+        IEventManager.updateEventFinishTime(currDate, -1); // should throw exception
     }
 
     @Test(expected = EventNotFoundException.class)
@@ -113,17 +114,17 @@ public class EventManagerTest {
                 .thenReturn(event1).thenReturn(event2).thenReturn(event3);
 
         assertEquals("eventManager.deleteEvent(event1) should return event1",
-                event1, eventManager.deleteEvent(1));
+                event1, IEventManager.deleteEvent(1));
         assertEquals("eventManager.deleteEvent(event2) should return event2",
-                event2, eventManager.deleteEvent(2));
+                event2, IEventManager.deleteEvent(2));
         assertEquals("eventManager.deleteEvent(event3) should return event3",
-                event3, eventManager.deleteEvent(3));
+                event3, IEventManager.deleteEvent(3));
 
         verify(eventPersistence, times(3))
                 .deleteEvent(any(EventDSO.class));
 
         assertEquals("eventManager.deleteEvent() of none existent event should throw exception",
-                event3, eventManager.deleteEvent(-1));
+                event3, IEventManager.deleteEvent(-1));
     }
 
     @Ignore
@@ -132,15 +133,15 @@ public class EventManagerTest {
         when(eventPersistence.getEventByID(1)).thenReturn(event1);
         when(eventPersistence.getEventByID(-1)).thenThrow(EventNotFoundException.class);
 
-        eventManager.markEventAsDone(1, event1.getID(), true);
+        IEventManager.markEventAsDone(1, event1.getID(), true);
         assertTrue("event1 should be marked as done", event1.isDone());
 
-        event1 = eventManager.markEventAsDone(1, event1.getID(), false);
+        event1 = IEventManager.markEventAsDone(1, event1.getID(), false);
         assertFalse("event1 should be marked as not done", event1.isDone());
 
         verify(eventPersistence, times(2)).getEventByID(1);
 
-        eventManager.markEventAsDone(-1, event1.getID(), false); //should throw exception
+        IEventManager.markEventAsDone(-1, event1.getID(), false); //should throw exception
     }
 
     @Ignore
@@ -157,14 +158,14 @@ public class EventManagerTest {
         event2.setTargetFinishTime(futureDate);
 
         assertTrue("event with id 1 should be done",
-                eventManager.isDone(1));
+                IEventManager.isDone(1));
         assertFalse("event with id 2 should not be done",
-                eventManager.isDone(2));
+                IEventManager.isDone(2));
 
         verify(eventPersistence).getEventByID(1);
         verify(eventPersistence).getEventByID(2);
 
-        eventManager.isDone(-1); // should throw exception
+        IEventManager.isDone(-1); // should throw exception
     }
 
     @Test(expected = Exception.class)
@@ -187,16 +188,16 @@ public class EventManagerTest {
                 .thenReturn(eventLabel);
 
         Assert.assertNotNull("eventManager.insertEvent(event1) should return event1",
-                eventManager.insertEvent("user1", Calendar.getInstance(),
+                IEventManager.insertEvent("user1", Calendar.getInstance(),
                         eventName, tagName, eventDesc, true));
 
         verify(eventPersistence).insertEvent(any(EventDSO.class));
         verify(eventLabelPersistence).insertEventLabel(any(EventLabelDSO.class));
 
-        eventManager.insertEvent("userNotFound", Calendar.getInstance(),
+        IEventManager.insertEvent("userNotFound", Calendar.getInstance(),
                 eventName, tagName, eventDesc, true); //should throw UserNotFoundException
 
-        eventManager.insertEvent("user1", Calendar.getInstance(),
+        IEventManager.insertEvent("user1", Calendar.getInstance(),
                 eventName, tagName, eventDesc, true); // should throw duplicateEventException
 
         verify(userPersistence, times(2)).getUserByEmail("user1");
@@ -207,7 +208,7 @@ public class EventManagerTest {
     public void testNumEvents() {
         when(eventPersistence.numEvents()).thenReturn(5);
         assertEquals("eventManager.numEvents() should return 5",
-                5, eventManager.numEvents());
+                5, IEventManager.numEvents());
         verify(eventPersistence).numEvents();
     }
 }
