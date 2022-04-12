@@ -26,7 +26,7 @@ public class EventPersistenceTest {
     private EventDSO event1, event2, event3, event4;
     private final Calendar date = Calendar.getInstance();
     private List<EventDSO> eventList;
-    private final int initialCount = 6;
+    private final int initialCount = 8;
 
     @Before
     public void setUp() {
@@ -58,7 +58,7 @@ public class EventPersistenceTest {
     public void testGetEventList() {
         assertNotNull("Newly created database object should not be null",
                 eventDatabase);
-        assertEquals("Newly created database should have " + initialCount + " users",
+        assertEquals("Newly created database should have " + initialCount + " events",
                 initialCount, eventDatabase.numEvents());
 
         eventDatabase.insertEvent(event1);

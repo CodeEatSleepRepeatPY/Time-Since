@@ -35,8 +35,8 @@ public class EventPersistenceHSQLDBTest {
     private EventDSO event1, event2, event3, event4;
     private final Calendar date = Calendar.getInstance();
     private List<EventDSO> eventList;
-    private static final int initialCount = 6;
-    private static final int initialLabelCount = 6;
+    private static final int initialCount = 8;
+    private static final int initialLabelCount = 9;
 
     @Before
     public void setUp() throws IOException {

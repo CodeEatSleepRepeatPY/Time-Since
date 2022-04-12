@@ -140,6 +140,8 @@ public class EventPersistence implements IEventPersistence {
         EventDSO event4 = new EventDSO(4, initialDate, "Workout");
         EventDSO event5 = new EventDSO(5, initialDate, "Visit Doctor");
         EventDSO event6 = new EventDSO(6, initialDate, "Change Oil");
+        EventDSO event7 = new EventDSO(7, initialDate, "Water Plants");
+        EventDSO event8 = new EventDSO(8, initialDate, "Clean Floors");
 
         event1.setDescription("Change electric toothbrush head");
         event2.setDescription("Wash top and fitted sheets");
@@ -161,6 +163,8 @@ public class EventPersistence implements IEventPersistence {
         eventList.add(event4);
         eventList.add(event5);
         eventList.add(event6);
+        eventList.add(event7);
+        eventList.add(event8);
     }
 
 }

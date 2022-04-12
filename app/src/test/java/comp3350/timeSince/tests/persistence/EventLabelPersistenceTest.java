@@ -24,7 +24,7 @@ public class EventLabelPersistenceTest {
     private IEventLabelPersistence labelDatabase;
     private EventLabelDSO label1, label2, label3, label4;
     private List<EventLabelDSO> labelList;
-    private final int initialCount = 6;
+    private final int initialCount = 9;
 
     @Before
     public void setUp() {

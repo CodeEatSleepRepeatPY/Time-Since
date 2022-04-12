@@ -39,7 +39,6 @@ public class UserManagerTest {
         Services.clean();
     }
 
-    // TODO : caused an error once
     @Test
     public void accountCheckTest() throws NoSuchAlgorithmException {
         String testUserName1 = "admin";

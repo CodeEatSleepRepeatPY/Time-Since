@@ -38,8 +38,8 @@ public class UserConnectionsTest {
     private Calendar date1, date2, date3;
     private final String testEmail = "uid";
     private static final int initialUserCount = 2;
-    private static final int initialEventCount = 6;
-    private static final int initialLabelCount = 6;
+    private static final int initialEventCount = 8;
+    private static final int initialLabelCount = 9;
 
     @Rule
     public ExpectedException exceptionRule;

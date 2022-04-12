@@ -85,6 +85,9 @@ public class EventLabelPersistence implements IEventLabelPersistence {
         eventLabels.add(new EventLabelDSO(4, "Car"));
         eventLabels.add(new EventLabelDSO(5, "Fitness"));
         eventLabels.add(new EventLabelDSO(6, "Health"));
+        eventLabels.add(new EventLabelDSO(7, "Hygiene"));
+        eventLabels.add(new EventLabelDSO(8, "Addiction"));
+        eventLabels.add(new EventLabelDSO(9, "Laundry"));
     }
 
 }

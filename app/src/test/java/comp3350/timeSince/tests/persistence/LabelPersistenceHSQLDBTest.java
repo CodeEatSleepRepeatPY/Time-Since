@@ -30,7 +30,7 @@ public class LabelPersistenceHSQLDBTest {
     private IEventLabelPersistence labelDatabase;
     private EventLabelDSO label1, label2, label3, label4;
     private List<EventLabelDSO> labelList;
-    private static final int initialCount = 6;
+    private static final int initialCount = 9;
 
     @Before
     public void setUp() throws IOException {
