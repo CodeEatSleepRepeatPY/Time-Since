@@ -13,6 +13,8 @@ public interface IUserPersistence {
      */
     List<UserDSO> getUserList();
 
+    UserDSO getUserByID(int userID) throws UserNotFoundException;
+
     /**
      * @param userID The unique (String) ID of the Event.
      * @return The User object associated with the ID, null otherwise.
@@ -29,16 +31,27 @@ public interface IUserPersistence {
 
     /**
      * @param user The User object to be updated in the database.
+     * @param newName The new name of the user.
      * @return The User object that was modified, null otherwise.
      * @throws UserNotFoundException If the User is not found in the database.
      */
-    UserDSO updateUser(UserDSO user) throws UserNotFoundException;
+    UserDSO updateUserName(UserDSO user, String newName) throws UserNotFoundException;
 
-    UserDSO updateUserName(UserDSO user);
+    /**
+     * @param user The User object to be updated in the database.
+     * @param newEmail The new email of the user.
+     * @return The User object that was modified, null otherwise.
+     * @throws UserNotFoundException If the User is not found in the database.
+     */
+    UserDSO updateUserEmail(UserDSO user, String newEmail) throws UserNotFoundException;
 
-    UserDSO updateUserEmail(UserDSO user);
-
-    UserDSO updateUserPassword(UserDSO user);
+    /**
+     * @param user The User object to be updated in the database.
+     * @param newPassword The new password for the user.
+     * @return he User object that was modified, null otherwise.
+     * @throws UserNotFoundException If the User is not found in the database.
+     */
+    UserDSO updateUserPassword(UserDSO user, String newPassword) throws UserNotFoundException;
 
     /**
      * @param user The User object to be deleted from the database.

@@ -1,5 +1,5 @@
 package comp3350.timeSince.tests.persistence;
-
+// TODO: fix this
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -32,7 +32,6 @@ public class UserConnectionsTest {
 
     private IUserConnectionsPersistence connectionsPersistence;
     private IUserPersistence userPersistence;
-    private IEventPersistence eventPersistence;
     private UserDSO user;
     private EventDSO event1, event2, event3;
     private EventLabelDSO label1, label2, label3;
@@ -48,9 +47,8 @@ public class UserConnectionsTest {
     @Before
     public void setUp() throws IOException {
         TestUtils.copyDB();
-        connectionsPersistence = Services.getUserEventPersistence();
+        connectionsPersistence = Services.getUserConnectionsPersistence();
         userPersistence = Services.getUserPersistence(true);
-        eventPersistence = Services.getEventPersistence(true);
 
         date1 = Calendar.getInstance();
         date1.add(Calendar.DATE, 5);
@@ -70,7 +68,7 @@ public class UserConnectionsTest {
         label2 = new EventLabelDSO(initialLabelCount + 2, "label2");
         label3 = new EventLabelDSO(initialLabelCount + 3, "label3");
 
-        //userPersistence.insertUser(user);
+        userPersistence.insertUser(user);
     }
 
     @After
@@ -190,7 +188,6 @@ public class UserConnectionsTest {
         assertTrue("Label3 should return event2", result.contains(event2));
     }
 
-    @Ignore
     @Test
     public void testGetEventsByDateCreated() {
 
@@ -217,13 +214,11 @@ public class UserConnectionsTest {
         assertEquals("The third event should be event1", event1, result.get(2));
     }
 
-    @Ignore
     @Test
     public void testAddUserEvent() {
 
     }
 
-    @Ignore
     @Test
     public void testRemoveUserEvent() {
 
@@ -249,7 +244,6 @@ public class UserConnectionsTest {
         assertTrue(result.getUserLabels().contains(label2));
     }
 
-    @Ignore
     @Test
     public void testRemoveUserLabel() {
 

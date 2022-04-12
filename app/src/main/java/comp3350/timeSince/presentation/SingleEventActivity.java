@@ -84,7 +84,7 @@ public class SingleEventActivity extends AppCompatActivity {
             done_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    eventManager.markEventAsDone(eventID, !isDone);
+                    //eventManager.markEventAsDone(eventID, !isDone);
                     setDoneColor(); // change the button color
                 }
             });
@@ -131,7 +131,7 @@ public class SingleEventActivity extends AppCompatActivity {
             favorite_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    eventManager.updateEventFavorite(!isFavorite, eventID);
+                    //eventManager.updateEventFavorite(!isFavorite, eventID);
                     setFavoriteColor(); // change the button color
                 }
             });

@@ -119,15 +119,14 @@ public class UserPersistenceHSQLDBTest {
         assertEquals("Size of database should be " + (initialUserCount + 2), initialUserCount + 1,
                 userDatabase.numUsers());
 
-        user1.setName("hello");
-        userDatabase.updateUserName(user1);
+        user1 = userDatabase.updateUserName(user1, "hello");
         assertEquals("New attributes should match", "hello",
                 userDatabase.getUserByEmail("uid1").getName());
     }
 
     @Test (expected = UserNotFoundException.class)
     public void testUpdateUserException() {
-        userDatabase.updateUser(user1); // should not be able to update user not in db
+        userDatabase.updateUserName(user1, "not present"); // should not be able to update user not in db
     }
 
     @Test

@@ -8,6 +8,9 @@ import com.google.common.io.Files;
 import java.io.IOException;
 
 
+/**
+ * @author Taken (and modified slightly) from cook ebook 2 and team rocket 15
+ */
 public class TestUtils {
 
     private static final File DB_SRC = new File("src/main/assets/db/TS.script");

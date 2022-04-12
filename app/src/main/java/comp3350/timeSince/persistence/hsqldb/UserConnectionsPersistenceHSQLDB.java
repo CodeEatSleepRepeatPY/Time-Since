@@ -25,13 +25,22 @@ import comp3350.timeSince.persistence.IUserPersistence;
 public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersistence {
 
     private final String dbPath;
-    private final IUserPersistence userPersistence;
     private final IEventPersistence eventPersistence;
     private final IEventLabelPersistence eventLabelPersistence;
 
+    private static final String TABLE_EVENT = "events";
+    private static final String TABLE_LABEL = "labels"; // table name
+    private static final String TABLE_USER_EVENTS = "usersevents"; // table name
+    private static final String TABLE_USER_LABELS = "userslabels"; // table name
+    private static final String USER_ID = "uid"; // int
+    private static final String EVENT_ID = "eid"; // int
+    private static final String EVENT_DATE_CREATED = "date_created"; // timestamp, not null
+    private static final String LABEL_ID = "lid"; // int
+    private static final String FAVORITE = "is_favorite"; // boolean
+    private static final String COMPLETE = "is_done"; // boolean
+
     public UserConnectionsPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
-        this.userPersistence = Services.getUserPersistence(true);
         this.eventPersistence = Services.getEventPersistence(true);
         this.eventLabelPersistence = Services.getEventLabelPersistence(true);
     }
@@ -41,10 +50,14 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                 "SA", "");
     }
 
+    //----------------------------------------
+    // getters
+    //----------------------------------------
+
     @Override
     public List<EventDSO> getAllEvents(UserDSO user) {
-        final String query = "SELECT " + TS.EVENT_ID + " FROM " + TS.TABLE_USER_EVENTS
-                + " WHERE " + TS.USER_ID + " = ?";
+        final String query = "SELECT " + EVENT_ID + " FROM " + TABLE_USER_EVENTS
+                + " WHERE " + USER_ID + " = ?";
         List<EventDSO> toReturn = new ArrayList<>();
 
         if (user != null) {
@@ -56,12 +69,12 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
 
                 while (resultSet.next()) {
                     try {
-                        EventDSO event = eventPersistence.getEventByID(
-                                resultSet.getInt(TS.EVENT_ID));
-                        toReturn.add(event);
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt(EVENT_ID));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
                     } catch (EventNotFoundException e) {
-                        e.printStackTrace();
-                        break;
+                        System.out.println(e.getMessage());
                     }
                 }
             } catch (final SQLException e) {
@@ -74,8 +87,8 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
 
     @Override
     public List<EventLabelDSO> getAllLabels(UserDSO user) {
-        final String query = "SELECT " + TS.LABEL_ID + " FROM " + TS.TABLE_USER_LABELS
-                + " WHERE " + TS.USER_ID + " = ?";
+        final String query = "SELECT " + LABEL_ID + " FROM " + TABLE_USER_LABELS
+                + " WHERE " + USER_ID + " = ?";
         List<EventLabelDSO> toReturn = new ArrayList<>();
 
         if (user != null) {
@@ -88,11 +101,12 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                 while (resultSet.next()) {
                     try {
                         EventLabelDSO label = eventLabelPersistence.getEventLabelByID(
-                                resultSet.getInt(TS.LABEL_ID));
-                        toReturn.add(label);
+                                resultSet.getInt(LABEL_ID));
+                        if (label != null) {
+                            toReturn.add(label);
+                        }
                     } catch (EventLabelNotFoundException e) {
-                        e.printStackTrace();
-                        break;
+                        System.out.println(e.getMessage());
                     }
                 }
             } catch (final SQLException e) {
@@ -105,8 +119,8 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
 
     @Override
     public List<EventDSO> getFavorites(UserDSO user) {
-        final String query = "SELECT " + TS.EVENT_ID + " FROM " + TS.TABLE_USER_EVENTS + " WHERE "
-                + TS.USER_ID + " = ? AND " + TS.FAVORITE + " = TRUE";
+        final String query = "SELECT " + EVENT_ID + " FROM " + TABLE_USER_EVENTS + " WHERE "
+                + USER_ID + " = ? AND " + FAVORITE + " = TRUE";
         List<EventDSO> toReturn = new ArrayList<>();
 
         if (user != null) {
@@ -118,12 +132,12 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
 
                 while (resultSet.next()) {
                     try {
-                        EventDSO event = eventPersistence.getEventByID(
-                                resultSet.getInt(TS.EVENT_ID));
-                        toReturn.add(event);
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt(EVENT_ID));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
                     } catch (EventNotFoundException e) {
-                        e.printStackTrace();
-                        break;
+                        System.out.println(e.getMessage());
                     }
                 }
 
@@ -137,8 +151,8 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
 
     @Override
     public List<EventDSO> getEventsByStatus(UserDSO user, boolean complete) {
-        final String query = "SELECT " + TS.EVENT_ID + " FROM " + TS.TABLE_USER_EVENTS + " WHERE "
-                + TS.USER_ID + " = ? AND " + TS.COMPLETE + " = " + complete;
+        final String query = "SELECT " + EVENT_ID + " FROM " + TABLE_USER_EVENTS + " WHERE "
+                + USER_ID + " = ? AND " + COMPLETE + " = " + complete;
         List<EventDSO> toReturn = new ArrayList<>();
 
         if (user != null) {
@@ -150,12 +164,12 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
 
                 while (resultSet.next()) {
                     try {
-                        EventDSO event = eventPersistence.getEventByID(
-                                resultSet.getInt(TS.EVENT_ID));
-                        toReturn.add(event);
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt(EVENT_ID));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
                     } catch (EventNotFoundException e) {
-                        e.printStackTrace();
-                        break;
+                        System.out.println(e.getMessage());
                     }
                 }
             } catch (final SQLException e) {
@@ -182,12 +196,12 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
 
                 while (resultSet.next()) {
                     try {
-                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt(
-                                "eventslabels.eid"));
-                        toReturn.add(event);
-                    } catch (SQLException e) {
-                        //e.printStackTrace();
-                        break;
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt("eventslabels.eid"));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
+                    } catch (EventNotFoundException e) {
+                        System.out.println(e.getMessage());
                     }
                 }
             } catch (final SQLException e) {
@@ -204,8 +218,8 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
         if (newestToOldest) {
             order = "DESC";
         }
-        final String query = "SELECT * FROM " + TS.TABLE_USER_EVENTS + " WHERE "
-                + TS.USER_ID + " = ? ORDER BY " + TS.EVENT_DATE_CREATED + " " + order;
+        final String query = "SELECT * FROM " + TABLE_USER_EVENTS + " WHERE "
+                + USER_ID + " = ? ORDER BY " + EVENT_DATE_CREATED + " " + order;
         List<EventDSO> toReturn = new ArrayList<>();
 
         if (user != null) {
@@ -216,10 +230,13 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                 final ResultSet resultSet = statement.executeQuery();
 
                 while (resultSet.next()) {
-                    EventDSO event = eventPersistence.getEventByID(
-                            resultSet.getInt(TS.EVENT_ID));
-                    if (event != null) {
-                        toReturn.add(event);
+                    try {
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt(EVENT_ID));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
+                    } catch (EventNotFoundException e) {
+                        System.out.println(e.getMessage());
                     }
                 }
             } catch (final SQLException e) {
@@ -246,9 +263,13 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                 ResultSet resultSet = statement.executeQuery();
 
                 while (resultSet.next()) {
-                    EventDSO event = eventPersistence.getEventByID(resultSet.getInt(TS.EVENT_ID));
-                    if (event != null) {
-                        toReturn.add(event);
+                    try {
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt(EVENT_ID));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
+                    } catch (EventNotFoundException e) {
+                        System.out.println(e.getMessage());
                     }
                 }
             } catch (final SQLException e) {
@@ -260,10 +281,14 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
         return toReturn;
     }
 
+    //----------------------------------------
+    // setters
+    //----------------------------------------
+
     @Override
     public UserDSO setStatus(UserDSO user, EventDSO event, boolean isComplete) {
-        final String query = "UPDATE " + TS.TABLE_USER_EVENTS + " SET " + TS.COMPLETE + " = "
-                + isComplete + " WHERE " + TS.USER_ID + " = ? AND " + TS.EVENT_ID + " = ?";
+        final String query = "UPDATE " + TABLE_USER_EVENTS + " SET " + COMPLETE + " = "
+                + isComplete + " WHERE " + USER_ID + " = ? AND " + EVENT_ID + " = ?";
         UserDSO toReturn = null;
 
         try (final Connection c = connection();
@@ -288,10 +313,6 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
         UserDSO toReturn = null;
         if (user != null && event != null) {
             try {
-                userPersistence.insertUser(user);
-            } catch (DuplicateUserException e) {
-                System.out.println(e.getMessage());
-            } try {
                 eventPersistence.insertEvent(event);
             } catch (DuplicateEventException e) {
                 System.out.println(e.getMessage());
@@ -300,12 +321,11 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
             user = addUserLabelConnections(user, event);
             toReturn = user;
         }
-        System.out.println("[LOG] addUserEvent");
         return toReturn;
     }
 
     private UserDSO addUserEventConnection(UserDSO user, EventDSO event) {
-        final String query = "INSERT INTO " + TS.TABLE_USER_EVENTS + " VALUES(?, ?, ?, ?)";
+        final String query = "INSERT INTO " + TABLE_USER_EVENTS + " VALUES(?, ?, ?, ?)";
 
         if (user != null && event != null) {
             try (final Connection c = connection();
@@ -322,35 +342,32 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                     user = addUserEventLabelConnections(user, event);
                 }
             } catch (final SQLException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
-        System.out.println("[LOG] addUserEventConnection");
         return user;
     }
 
     private UserDSO addUserEventLabelConnections(UserDSO user, EventDSO event) {
-
         if (user != null && event != null && event.getEventLabels().size() > 0) {
             List<EventLabelDSO> labels = event.getEventLabels();
             for (EventLabelDSO label : labels) {
                 try {
                     eventLabelPersistence.insertEventLabel(label);
                 } catch (DuplicateEventLabelException e) {
-                    break;
+                    System.out.println(e.getMessage());
                 }
                 eventPersistence.addLabel(event, label);
                 user = addUserLabel(user, label);
                 user.addLabel(label);
             }
         }
-        System.out.println("[LOG] addUserEventLabelConnections");
         return user;
     }
 
     @Override
     public UserDSO removeUserEvent(UserDSO user, EventDSO event) {
-        final String query = "DELETE FROM " + TS.TABLE_EVENT + " WHERE " + TS.EVENT_ID + " = ?";
+        final String query = "DELETE FROM " + TABLE_EVENT + " WHERE " + EVENT_ID + " = ?";
 
         if (user != null && event != null) {
             try (final Connection c = connection();
@@ -363,7 +380,7 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                     user.removeEvent(event);
                 }
             } catch (final SQLException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
         return user;
@@ -374,10 +391,6 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
         UserDSO toReturn = null;
         if (user != null && label != null) {
             try {
-                userPersistence.insertUser(user);
-            } catch (DuplicateUserException e) {
-                System.out.println(e.getMessage());
-            } try {
                 eventLabelPersistence.insertEventLabel(label);
             } catch (DuplicateEventLabelException e) {
                 System.out.println(e.getMessage());
@@ -388,7 +401,7 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
     }
 
     private UserDSO addUserLabelConnection(UserDSO user, EventLabelDSO label) {
-        final String query = "INSERT INTO " + TS.TABLE_USER_LABELS + " VALUES(?, ?)";
+        final String query = "INSERT INTO " + TABLE_USER_LABELS + " VALUES(?, ?)";
 
         if (user != null && label != null) {
             try (final Connection c = connection();
@@ -402,7 +415,7 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                     user.addLabel(label);
                 }
             } catch (final SQLException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
         return user;
@@ -421,7 +434,7 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
 
     @Override
     public UserDSO removeUserLabel(UserDSO user, EventLabelDSO label) {
-        final String query = "DELETE FROM " + TS.TABLE_LABEL + " WHERE " + TS.LABEL_ID + " = ?";
+        final String query = "DELETE FROM " + TABLE_LABEL + " WHERE " + LABEL_ID + " = ?";
 
         if (user != null && label != null) {
             try (final Connection c = connection();
@@ -434,7 +447,7 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                     user.removeLabel(label);
                 }
             } catch (final SQLException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
         return user;
@@ -444,15 +457,11 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
     public UserDSO addFavorite(UserDSO user, EventDSO event) {
         UserDSO toReturn = null;
         if (user != null && event != null) {
-//            try {
-//                userPersistence.insertUser(user);
-//            } catch (DuplicateUserException e) {
-//                System.out.println(e.getMessage());
-//            } try {
-//                eventPersistence.insertEvent(event);
-//            } catch (DuplicateEventException e) {
-//                System.out.println(e.getMessage());
-//            }
+            try {
+                eventPersistence.insertEvent(event);
+            } catch (DuplicateEventException e) {
+                System.out.println(e.getMessage());
+            }
             user = addUserEvent(user, event);
             toReturn = addFavoriteConnection(user, event);
         }
@@ -460,9 +469,9 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
     }
 
     private UserDSO addFavoriteConnection(UserDSO user, EventDSO event) {
-        final String query = "UPDATE " + TS.TABLE_USER_EVENTS
-                + " SET " + TS.FAVORITE + " = TRUE WHERE "
-                + TS.USER_ID + " = ? AND " + TS.EVENT_ID + " = ?";
+        final String query = "UPDATE " + TABLE_USER_EVENTS
+                + " SET " + FAVORITE + " = TRUE WHERE "
+                + USER_ID + " = ? AND " + EVENT_ID + " = ?";
 
         try (final Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
@@ -475,7 +484,7 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                 user.addFavorite(event);
             }
         } catch (final SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return user;
     }
@@ -483,25 +492,16 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
     @Override
     public UserDSO removeFavorite(UserDSO user, EventDSO event) {
         UserDSO toReturn = null;
-//        if (user != null && event != null) {
-//            try {
-//                userPersistence.insertUser(user);
-//            } catch (DuplicateUserException e) {
-//                System.out.println(e.getMessage());
-//            } try {
-//                eventPersistence.insertEvent(event);
-//            } catch (DuplicateEventException e) {
-//                System.out.println(e.getMessage());
-//            }
+        if (user != null && event != null) {
             toReturn = removeFavoriteConnection(user, event);
-        //}
+        }
         return toReturn;
     }
 
     private UserDSO removeFavoriteConnection(UserDSO user, EventDSO event) {
-        final String query = "UPDATE " + TS.TABLE_USER_EVENTS
-                + " SET " + TS.FAVORITE + " = FALSE WHERE "
-                + TS.USER_ID + " = ? AND " + TS.EVENT_ID + " = ?";
+        final String query = "UPDATE " + TABLE_USER_EVENTS
+                + " SET " + FAVORITE + " = FALSE WHERE "
+                + USER_ID + " = ? AND " + EVENT_ID + " = ?";
 
         try (final Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
@@ -514,7 +514,7 @@ public class UserConnectionsPersistenceHSQLDB implements IUserConnectionsPersist
                 user.removeFavorite(event);
             }
         } catch (final SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return user;
     }

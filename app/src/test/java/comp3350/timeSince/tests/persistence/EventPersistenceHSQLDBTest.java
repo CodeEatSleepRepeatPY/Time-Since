@@ -126,19 +126,18 @@ public class EventPersistenceHSQLDBTest {
         eventPersistence.insertEvent(event1);
         assertEquals("Size of database should be " + (initialCount + 1), initialCount + 1,
                 eventPersistence.numEvents());
-        event1.setDescription("hello");
-        eventPersistence.updateEvent(event1);
+        event1 = eventPersistence.updateEventDescription(event1, "hello");
         assertEquals("New attributes should match", "hello",
                 eventPersistence.getEventByID(event1.getID()).getDescription());
 
-        event1.setName("good-bye");
+        event1 = eventPersistence.updateEventName(event1, "good-bye");
         assertEquals("Updated event should be returned", "good-bye",
-                eventPersistence.updateEvent(event1).getName());
+                event1.getName());
     }
 
     @Test(expected = EventNotFoundException.class)
     public void testUpdateEventException() {
-        eventPersistence.updateEvent(event1); // should not be able to update an event not in db
+        eventPersistence.updateEventName(event1, "not present"); // should not be able to update an event not in db
     }
 
     @Test
@@ -213,12 +212,8 @@ public class EventPersistenceHSQLDBTest {
         assertTrue("The event should contain label1", labels.contains(label1));
         assertTrue("The event should contain label2", labels.contains(label2));
 
-        event1.removeLabel(label1);
-        assertEquals("The event should now have 1 label", 1, event1.getEventLabels().size());
-        assertFalse("The event should not have the deleted label", event1.getEventLabels().contains(label1));
-        event1 = eventPersistence.updateEvent(event1);
+        event1 = eventPersistence.removeLabel(event1, label1);
         labels = event1.getEventLabels();
-
         assertEquals("The event should now have 1 label", 1, labels.size());
         assertTrue("The event should contain label2", labels.contains(label2));
         assertFalse("The event should not contain the deleted label1", labels.contains(label1));

@@ -103,7 +103,7 @@ public class UserDSOTest {
         int size = 0;
 
         Assert.assertEquals(message, size,
-                this.userDSO.getFavoritesList().size());
+                this.userDSO.getUserFavorites().size());
     }
 
     @Test

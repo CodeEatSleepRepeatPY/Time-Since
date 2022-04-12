@@ -144,43 +144,6 @@ public class EventDSOTest {
     }
 
     @Test
-    public void testSetFrequency() {
-        int[] freq = event.getFrequency();
-        assertEquals("Frequency in years should be -1 on default",
-                -1, freq[0]);
-        assertEquals("Frequency in months should be -1 on default",
-                -1, freq[1]);
-        assertEquals("Frequency in days should be -1 on default",
-                -1, freq[2]);
-
-        event.setFrequency(1, 2, 3);
-        freq = event.getFrequency();
-        assertEquals("Frequency in years should now be 1",
-                1, freq[0]);
-        assertEquals("Frequency in months should now be 2",
-                2, freq[1]);
-        assertEquals("Frequency in days should now be 3",
-                3, freq[2]);
-    }
-
-    @Test
-    public void testSetFrequencyException() {
-        event.setFrequency(-3, -3, -3);
-        assertEquals("Negative year values should not cause any change",
-                -1, event.getFrequency()[0]);
-        assertEquals("Negative month values should not cause any change",
-                -1, event.getFrequency()[1]);
-        assertEquals("Negative day values should not cause any change",
-                -1, event.getFrequency()[2]);
-
-        event.setFrequency(0, 13, 40);
-        assertEquals("A month value greater than 12 should not cause any change",
-                -1, event.getFrequency()[1]);
-        assertEquals("A day value greater than 31 should not cause any change",
-                -1, event.getFrequency()[2]);
-    }
-
-    @Test
     public void testValidate() {
         assertTrue("An Event with valid ID and name should be valid.",
                 event.validate());
@@ -204,9 +167,9 @@ public class EventDSOTest {
         String message = "The Event should display as: 'EventID: %d, Name: ?id?, ?eventName?'";
         assertEquals(message, expected, event.toString());
 
-        event.setName(null);
+        EventDSO newEvent = new EventDSO(1, date, null);
         assertEquals("The Event should display as: 'No Named Event' when no name is given.",
-                "No Named Event", event.toString());
+                "No Named Event", newEvent.toString());
     }
 
     @Test

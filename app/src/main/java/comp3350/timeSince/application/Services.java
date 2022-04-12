@@ -12,6 +12,12 @@ import comp3350.timeSince.persistence.hsqldb.EventPersistenceHSQLDB;
 import comp3350.timeSince.persistence.hsqldb.UserConnectionsPersistenceHSQLDB;
 import comp3350.timeSince.persistence.hsqldb.UserPersistenceHSQLDB;
 
+/**
+ * Access the persistence layer.
+ * <p>
+ * There are 4 different persistence files: events, event labels,
+ * users, and user connections.
+ */
 public class Services {
 
     private static IEventPersistence eventPersistence = null;
@@ -19,6 +25,12 @@ public class Services {
     private static IUserPersistence userPersistence = null;
     private static IUserConnectionsPersistence userEventPersistence = null;
 
+    /**
+     * Gets event persistence.
+     *
+     * @param forProduction if it should return the real or fake database instance
+     * @return the event persistence
+     */
     public static synchronized IEventPersistence getEventPersistence(boolean forProduction) {
         if (eventPersistence == null) {
             if (forProduction) {
@@ -30,6 +42,12 @@ public class Services {
         return eventPersistence;
     }
 
+    /**
+     * Gets event label persistence.
+     *
+     * @param forProduction if it should return the real or fake database instance
+     * @return the event label persistence
+     */
     public static synchronized IEventLabelPersistence getEventLabelPersistence(boolean forProduction) {
         if (eventLabelPersistence == null) {
             if (forProduction) {
@@ -41,6 +59,12 @@ public class Services {
         return eventLabelPersistence;
     }
 
+    /**
+     * Gets user persistence.
+     *
+     * @param forProduction if it should return the real or fake database instance
+     * @return the user persistence
+     */
     public static synchronized IUserPersistence getUserPersistence(boolean forProduction) {
         if (userPersistence == null) {
             if (forProduction) {
@@ -52,13 +76,24 @@ public class Services {
         return userPersistence;
     }
 
-    public static synchronized IUserConnectionsPersistence getUserEventPersistence() {
+    /**
+     * Gets user connections persistence.
+     * <p>
+     * There is no "fake" implementation for this, as it was unnecessary for our
+     * project, and was added later to make it easier to make specific queries.
+     *
+     * @return the user connections persistence
+     */
+    public static synchronized IUserConnectionsPersistence getUserConnectionsPersistence() {
         if (userEventPersistence == null) {
             userEventPersistence = new UserConnectionsPersistenceHSQLDB(Main.getDBPathName());
         }
         return userEventPersistence;
     }
 
+    /**
+     * Clean. Will set all tables to null. To be used VERY carefully.
+     */
     public static synchronized void clean() {
         eventPersistence = null;
         eventLabelPersistence = null;
@@ -66,6 +101,4 @@ public class Services {
         userEventPersistence = null;
     }
 
-
 }
-

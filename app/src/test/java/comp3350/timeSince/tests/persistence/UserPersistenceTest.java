@@ -28,6 +28,7 @@ public class UserPersistenceTest {
     private UserDSO user1, user2, user3;
     private List<UserDSO> userList;
     private Calendar defaultDate;
+    private final int initialCount = 2;
 
     @Rule
     public ExpectedException exceptionRule;
@@ -36,9 +37,9 @@ public class UserPersistenceTest {
     public void setUp() {
         userDatabase = new UserPersistence();
         defaultDate = Calendar.getInstance();
-        user1 = new UserDSO(1, "uid1", defaultDate, "hash1");
-        user2 = new UserDSO(2, "uid2", defaultDate, "hash2");
-        user3 = new UserDSO(3, "uid3", defaultDate, "hash3");
+        user1 = new UserDSO(initialCount + 1, "uid1", defaultDate, "hash1");
+        user2 = new UserDSO(initialCount + 2, "uid2", defaultDate, "hash2");
+        user3 = new UserDSO(initialCount + 3, "uid3", defaultDate, "hash3");
         userList = new ArrayList<>(Arrays.asList(user1, user2, user3));
     }
 
@@ -60,13 +61,13 @@ public class UserPersistenceTest {
     public void testGetUserList() {
         assertNotNull("Newly created database object should not be null",
                 userDatabase);
-        assertEquals("Newly created database should have no users",
-                0, userDatabase.numUsers());
+        assertEquals("Newly created database should have " + initialCount + " users",
+                initialCount, userDatabase.numUsers());
         userDatabase.insertUser(user1);
         userDatabase.insertUser(user2);
         userDatabase.insertUser(user3);
         List<UserDSO> actual = userDatabase.getUserList();
-        assertEquals("Size of database should be 3", 3, actual.size());
+        assertEquals("Size of database should be " + (initialCount + 3), initialCount + 3, actual.size());
         assertTrue("Database should contain user1", actual.contains(user1));
         assertTrue("Database should contain user2", actual.contains(user2));
         assertTrue("Database should contain user3", actual.contains(user3));
@@ -90,19 +91,19 @@ public class UserPersistenceTest {
 
     @Test
     public void testInsertUser() {
-        assertEquals("Size of database should be 0",
-                0, userDatabase.numUsers());
+        assertEquals("Size of database should be " + initialCount,
+                initialCount, userDatabase.numUsers());
         assertNotNull(userDatabase.insertUser(user1));
-        assertEquals("Size of database should be 1",
-                1, userDatabase.numUsers());
+        assertEquals("Size of database should be " + (initialCount + 1),
+                initialCount + 1, userDatabase.numUsers());
 
         userDatabase.insertUser(user2);
-        assertEquals("Size of database should be 2",
-                2, userDatabase.numUsers());
+        assertEquals("Size of database should be " + (initialCount + 2),
+                initialCount + 2, userDatabase.numUsers());
 
         userDatabase.insertUser(user3);
-        assertEquals("Size of database should be 3",
-                3, userDatabase.numUsers());
+        assertEquals("Size of database should be " + (initialCount + 3),
+                initialCount + 3, userDatabase.numUsers());
     }
 
     @Test(expected = DuplicateUserException.class)
@@ -110,24 +111,23 @@ public class UserPersistenceTest {
         userDatabase.insertUser(user1);
         userDatabase.insertUser(user1);
         assertEquals("Should not be able to insert a duplicate user",
-                1, userDatabase.numUsers());
+                initialCount + 1, userDatabase.numUsers());
     }
 
     @Test
     public void testUpdateUser() {
         userDatabase.insertUser(user1);
-        assertEquals("Size of database should be 1", 1,
+        assertEquals("Size of database should be " + (initialCount + 1), initialCount + 1,
                 userDatabase.numUsers());
 
-        user1.setName("hello");
-        userDatabase.updateUser(user1);
+        user1 = userDatabase.updateUserName(user1, "hello");
         assertEquals("New attributes should match", "hello",
                 userDatabase.getUserByEmail("uid1").getName());
     }
 
     @Test (expected = UserNotFoundException.class)
     public void testUpdateUserException() {
-        userDatabase.updateUser(user1); // should not be able to update user not in db
+        userDatabase.updateUserName(user1, "not present"); // should not be able to update user not in db
     }
 
     @Test
@@ -136,13 +136,13 @@ public class UserPersistenceTest {
         userDatabase.insertUser(user2);
         userDatabase.insertUser(user3);
 
-        assertEquals("Size of database should be 3", 3,
+        assertEquals("Size of database should be " + (initialCount + 3), initialCount + 3,
                 userDatabase.numUsers());
 
         assertEquals("If user exists, return the user that was deleted",
                 user1, userDatabase.deleteUser(user1));
 
-        assertEquals("Size of database should be 2", 2,
+        assertEquals("Size of database should be " + (initialCount + 2), initialCount + 2,
                 userDatabase.numUsers());
     }
 
@@ -151,8 +151,8 @@ public class UserPersistenceTest {
         userDatabase.insertUser(user1);
         userDatabase.insertUser(user2);
         userDatabase.insertUser(user3);
-        userDatabase.deleteUser(new UserDSO(4, "uid4", defaultDate, "password"));
-        assertEquals("Size of database should be 3", 3, userDatabase.numUsers());
+        userDatabase.deleteUser(new UserDSO(initialCount + 4, "uid4", defaultDate, "password"));
+        assertEquals("Size of database should be " + (initialCount + 3), initialCount + 3, userDatabase.numUsers());
     }
 
     @Test

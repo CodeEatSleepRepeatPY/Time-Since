@@ -26,14 +26,15 @@ public class EventPersistenceTest {
     private EventDSO event1, event2, event3, event4;
     private final Calendar date = Calendar.getInstance();
     private List<EventDSO> eventList;
+    private final int initialCount = 6;
 
     @Before
     public void setUp() {
         eventDatabase = new EventPersistence();
-        event1 = new EventDSO(1, date, "event1");
-        event2 = new EventDSO(2, date, "event2");
-        event3 = new EventDSO(3, date, "event3");
-        event4 = new EventDSO(2, date, "event4"); // for duplication checks
+        event1 = new EventDSO(initialCount + 1, date, "event1");
+        event2 = new EventDSO(initialCount + 2, date, "event2");
+        event3 = new EventDSO(initialCount + 3, date, "event3");
+        event4 = new EventDSO(initialCount + 2, date, "event4"); // for duplication checks
         eventList = new ArrayList<>(Arrays.asList(event1, event2, event3));
     }
 
@@ -57,8 +58,8 @@ public class EventPersistenceTest {
     public void testGetEventList() {
         assertNotNull("Newly created database object should not be null",
                 eventDatabase);
-        assertEquals("Newly created database should have no users",
-                0, eventDatabase.numEvents());
+        assertEquals("Newly created database should have " + initialCount + " users",
+                initialCount, eventDatabase.numEvents());
 
         eventDatabase.insertEvent(event1);
         eventDatabase.insertEvent(event2);
@@ -70,8 +71,6 @@ public class EventPersistenceTest {
         assertTrue("Database should contain event3", actual.contains(event3));
         assertTrue("Database should have all existing events",
                 actual.containsAll(eventList));
-        assertTrue("Database should have all existing events",
-                eventList.containsAll(actual));
         assertFalse("Database should not contain an event that does not exist",
                 actual.contains(event4));
     }
@@ -92,20 +91,20 @@ public class EventPersistenceTest {
 
     @Test
     public void testInsertEvent() {
-        assertEquals("Size of database should be 0", 0,
+        assertEquals("Size of database should be " + initialCount, initialCount,
                 eventDatabase.numEvents());
 
         eventDatabase.insertEvent(event1);
-        assertEquals("Size of database should be 1", 1,
+        assertEquals("Size of database should be " + (initialCount + 1), initialCount + 1,
                 eventDatabase.numEvents());
 
         assertEquals("Inserted event should return", event2,
                 eventDatabase.insertEvent(event2));
-        assertEquals("Size of database should be 2", 2,
+        assertEquals("Size of database should be " + (initialCount + 2), initialCount + 2,
                 eventDatabase.numEvents());
 
         eventDatabase.insertEvent(event3);
-        assertEquals("Size of database should be 3", 3,
+        assertEquals("Size of database should be " + (initialCount + 3), initialCount + 3,
                 eventDatabase.numEvents());
 
         assertEquals("Database should contain event2", event2,
@@ -117,27 +116,26 @@ public class EventPersistenceTest {
         eventDatabase.insertEvent(event1);
         eventDatabase.insertEvent(event2);
         eventDatabase.insertEvent(event1);
-        eventDatabase.insertEvent(new EventDSO(2, date, "event4"));
+        eventDatabase.insertEvent(new EventDSO(initialCount + 2, date, "event4"));
     }
 
     @Test
     public void testUpdateEvent() {
         eventDatabase.insertEvent(event1);
-        assertEquals("Size of database should be 1", 1,
+        assertEquals("Size of database should be " + (initialCount + 1), initialCount + 1,
                 eventDatabase.numEvents());
-        event1.setDescription("hello");
-        eventDatabase.updateEvent(event1);
+        event1 = eventDatabase.updateEventDescription(event1, "hello");
         assertEquals("New attributes should match", "hello",
                 eventDatabase.getEventByID(event1.getID()).getDescription());
 
-        event1.setName("good-bye");
+        event1 = eventDatabase.updateEventName(event1, "good-bye");
         assertEquals("Updated event should be returned", "good-bye",
-                eventDatabase.updateEvent(event1).getName());
+                event1.getName());
     }
 
     @Test(expected = EventNotFoundException.class)
     public void testUpdateEventException() {
-        eventDatabase.updateEvent(event1); // should not be able to update an event not in db
+        eventDatabase.updateEventName(event1, "not present"); // should not be able to update an event not in db
     }
 
     @Test
@@ -146,17 +144,17 @@ public class EventPersistenceTest {
         eventDatabase.insertEvent(event2);
         eventDatabase.insertEvent(event3);
 
-        assertEquals("Size of database should be 3", 3,
+        assertEquals("Size of database should be " + (initialCount + 3), initialCount + 3,
                 eventDatabase.numEvents());
         eventDatabase.deleteEvent(event2);
-        assertEquals("Size of database should be 2", 2,
+        assertEquals("Size of database should be " + (initialCount + 2), initialCount + 2,
                 eventDatabase.numEvents());
         assertEquals("If event exists, return the event that was deleted", event1,
                 eventDatabase.deleteEvent(event1));
-        assertEquals("Size of database should be 1", 1,
+        assertEquals("Size of database should be " + (initialCount + 1), initialCount + 1,
                 eventDatabase.numEvents());
         eventDatabase.deleteEvent(event3);
-        assertEquals("Size of database should be 0", 0,
+        assertEquals("Size of database should be " + initialCount, initialCount,
                 eventDatabase.numEvents());
     }
 
@@ -167,17 +165,17 @@ public class EventPersistenceTest {
 
     @Test
     public void testGetNextID() {
-        assertEquals("The first ID should be 1",
-                1, eventDatabase.getNextID());
+        assertEquals("The first ID should be " + (initialCount + 1),
+                initialCount + 1, eventDatabase.getNextID());
         eventDatabase.insertEvent(event1);
-        assertEquals("The ID of the first event inserted should be 1",
-                1, event1.getID());
+        assertEquals("The ID of the first event inserted should be " + (initialCount + 1),
+                initialCount + 1, event1.getID());
 
-        assertEquals("The second ID should be 2",
-                2, eventDatabase.getNextID());
+        assertEquals("The second ID should be " + (initialCount + 2),
+                initialCount + 2, eventDatabase.getNextID());
         eventDatabase.insertEvent(event2);
-        assertEquals("The ID of the second event inserted should be 2",
-                2, event2.getID());
+        assertEquals("The ID of the second event inserted should be " + (initialCount + 2),
+                initialCount + 2, event2.getID());
 
         eventDatabase.insertEvent(event3);
         try {
@@ -185,12 +183,12 @@ public class EventPersistenceTest {
         } catch (DuplicateEventException e) {
             System.out.println(e.getMessage());
         }
-        assertEquals("The next ID after three events, with one duplicate attempt should be 4.",
-                4, eventDatabase.getNextID());
+        assertEquals("The next ID after three events, with one duplicate attempt should be " + (initialCount + 4),
+                initialCount + 4, eventDatabase.getNextID());
 
         eventDatabase.deleteEvent(event2);
         assertNotEquals("The next ID after a deletion should not be the deleted ID.",
                 event2.getID(), eventDatabase.getNextID());
-        assertEquals("The next ID should be 4", 4, eventDatabase.getNextID());
+        assertEquals("The next ID should be " + (initialCount + 4), initialCount + 4, eventDatabase.getNextID());
     }
 }

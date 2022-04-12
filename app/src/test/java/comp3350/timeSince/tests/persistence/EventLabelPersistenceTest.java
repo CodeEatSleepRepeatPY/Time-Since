@@ -24,14 +24,15 @@ public class EventLabelPersistenceTest {
     private IEventLabelPersistence labelDatabase;
     private EventLabelDSO label1, label2, label3, label4;
     private List<EventLabelDSO> labelList;
+    private final int initialCount = 6;
 
     @Before
     public void setUp() {
         labelDatabase = new EventLabelPersistence();
-        label1 = new EventLabelDSO(1, "Kitchen");
-        label2 = new EventLabelDSO(2, "Bathroom");
-        label3 = new EventLabelDSO(3, "Bedroom");
-        label4 = new EventLabelDSO(2, "Garage"); // for duplicate checks
+        label1 = new EventLabelDSO(initialCount + 1, "Label1");
+        label2 = new EventLabelDSO(initialCount + 2, "Label2");
+        label3 = new EventLabelDSO(initialCount + 3, "Label3");
+        label4 = new EventLabelDSO(initialCount + 2, "Label4"); // for duplicate checks
         labelList = new ArrayList<>(Arrays.asList(label1, label2, label3));
     }
 
@@ -54,8 +55,8 @@ public class EventLabelPersistenceTest {
     public void testGetEventLabelList() {
         assertNotNull("Newly created database object should not be null",
                 labelDatabase);
-        assertEquals("Newly created database should have no users",
-                0, labelDatabase.numLabels());
+        assertEquals("Newly created database should have " + initialCount + " users",
+                initialCount, labelDatabase.numLabels());
 
         labelDatabase.insertEventLabel(label1);
         labelDatabase.insertEventLabel(label2);
@@ -67,10 +68,8 @@ public class EventLabelPersistenceTest {
         assertTrue("Database should contain label3", actual.contains(label3));
         assertTrue("Database should have all existing event labels",
                 actual.containsAll(labelList));
-        assertTrue("Database should have all existing event labels",
-                labelList.containsAll(actual));
         assertFalse("Database should not contain an event label that does not exist",
-                actual.contains(new EventLabelDSO(5, "Laundry")));
+                actual.contains(new EventLabelDSO(initialCount + 5, "Laundry")));
     }
 
     @Test
@@ -89,20 +88,20 @@ public class EventLabelPersistenceTest {
 
     @Test
     public void testInsertEventLabel() {
-        assertEquals("Size of database should be 0", 0,
+        assertEquals("Size of database should be " + initialCount, initialCount,
                 labelDatabase.numLabels());
 
         labelDatabase.insertEventLabel(label1);
-        assertEquals("Size of database should be 1", 1,
+        assertEquals("Size of database should be " + (initialCount + 1), initialCount +1,
                 labelDatabase.numLabels());
 
         assertEquals("Inserted event label should return", label2,
                 labelDatabase.insertEventLabel(label2));
-        assertEquals("Size of database should be 2", 2,
+        assertEquals("Size of database should be " + (initialCount + 2), initialCount + 2,
                 labelDatabase.numLabels());
 
         labelDatabase.insertEventLabel(label3);
-        assertEquals("Size of database should be 3", 3,
+        assertEquals("Size of database should be " + (initialCount + 3), initialCount + 3,
                 labelDatabase.numLabels());
 
         assertEquals("Database should contain label2", label2,
@@ -120,7 +119,7 @@ public class EventLabelPersistenceTest {
     @Test
     public void testUpdateEventLabel() {
         labelDatabase.insertEventLabel(label1);
-        assertEquals("Size of database should be 1", 1,
+        assertEquals("Size of database should be " + (initialCount + 1), initialCount + 1,
                 labelDatabase.numLabels());
         label1.setName("hello");
         labelDatabase.updateEventLabel(label1);
@@ -144,17 +143,17 @@ public class EventLabelPersistenceTest {
         labelDatabase.insertEventLabel(label2);
         labelDatabase.insertEventLabel(label3);
 
-        assertEquals("Size of database should be 3", 3,
+        assertEquals("Size of database should be " + (initialCount + 3), initialCount + 3,
                 labelDatabase.numLabels());
         labelDatabase.deleteEventLabel(label2);
-        assertEquals("Size of database should be 2", 2,
+        assertEquals("Size of database should be " + (initialCount + 2), initialCount + 2,
                 labelDatabase.numLabels());
         assertEquals("If event label exists, return the label that was deleted", label1,
                 labelDatabase.deleteEventLabel(label1));
-        assertEquals("Size of database should be 1", 1,
+        assertEquals("Size of database should be " + (initialCount + 1), initialCount + 1,
                 labelDatabase.numLabels());
         labelDatabase.deleteEventLabel(label3);
-        assertEquals("Size of database should be 0", 0,
+        assertEquals("Size of database should be " + initialCount, initialCount,
                 labelDatabase.numLabels());
     }
 
@@ -166,17 +165,17 @@ public class EventLabelPersistenceTest {
 
     @Test
     public void testGetNextID() {
-        assertEquals("The first ID should be 1",
-                1, labelDatabase.getNextID());
+        assertEquals("The first ID should be " + (initialCount + 1),
+                initialCount + 1, labelDatabase.getNextID());
         labelDatabase.insertEventLabel(label1);
-        assertEquals("The ID of the first label inserted should be 1",
-                1, label1.getID());
+        assertEquals("The ID of the first label inserted should be " + (initialCount + 1),
+                initialCount + 1, label1.getID());
 
-        assertEquals("The second ID should be 2",
-                2, labelDatabase.getNextID());
+        assertEquals("The second ID should be " + (initialCount + 2),
+                initialCount + 2, labelDatabase.getNextID());
         labelDatabase.insertEventLabel(label2);
-        assertEquals("The ID of the second label inserted should be 2",
-                2, label2.getID());
+        assertEquals("The ID of the second label inserted should be " + (initialCount + 2),
+                initialCount + 2, label2.getID());
 
         labelDatabase.insertEventLabel(label3);
         try {
@@ -184,13 +183,13 @@ public class EventLabelPersistenceTest {
         } catch (DuplicateEventLabelException e) {
             System.out.println(e.getMessage());
         }
-        assertEquals("The next ID after three labels, with one duplicate attempt should be 4.",
-                4, labelDatabase.getNextID());
+        assertEquals("The next ID after three labels, with one duplicate attempt should be " + (initialCount + 4),
+                initialCount + 4, labelDatabase.getNextID());
 
         labelDatabase.deleteEventLabel(label2);
         assertNotEquals("The next ID after a deletion should not be the deleted ID.",
                 label2.getID(), labelDatabase.getNextID());
-        assertEquals("The next ID should be 4", 4, labelDatabase.getNextID());
+        assertEquals("The next ID should be " + (initialCount + 4), initialCount + 4, labelDatabase.getNextID());
     }
 
 }

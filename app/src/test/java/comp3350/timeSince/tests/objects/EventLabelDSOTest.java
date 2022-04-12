@@ -10,17 +10,19 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class EventLabelDSOTest {
     private EventLabelDSO eventLabelDSO;
     private String name;
+    private final int initialCount = 6;
 
     @Before
     public void setUp() {
         name = "Super Secret Sauce";
-        eventLabelDSO = new EventLabelDSO(1, name);
+        eventLabelDSO = new EventLabelDSO(initialCount + 1, name);
     }
 
     @Test
@@ -51,7 +53,7 @@ public class EventLabelDSOTest {
         assertFalse("An Event Label with an invalid ID should not be valid.",
                 badLabel.validate());
 
-        badLabel = new EventLabelDSO(3,null);
+        badLabel = new EventLabelDSO(initialCount + 3,null);
         assertFalse("An Event Label with an invalid name should not be valid.",
                 badLabel.validate());
     }
@@ -62,20 +64,20 @@ public class EventLabelDSOTest {
         String message = "The Event Label should display as: '# ?labelName?'";
         assertEquals(message, expected, eventLabelDSO.toString());
 
-        eventLabelDSO.setName(null);
+        EventLabelDSO newLabel = new EventLabelDSO(initialCount + 1, null);
         assertEquals("If label name does not exist, should display as: '#'",
-                "#", eventLabelDSO.toString());
+                "#", newLabel.toString());
     }
 
     @Test
     public void testEquals() {
-        EventLabelDSO other = new EventLabelDSO(1, name);
+        EventLabelDSO other = new EventLabelDSO(initialCount + 1, name);
         assertEquals("Event labels with the same ID and name should be equal",
                 other, eventLabelDSO);
-        other = new EventLabelDSO(1, "Garage");
+        other = new EventLabelDSO(initialCount + 1, "Garage");
         assertNotEquals("Event labels with the same ID but different name should not be equal",
                 other, eventLabelDSO);
-        other = new EventLabelDSO(2, "Kitchen");
+        other = new EventLabelDSO(initialCount + 2, "Kitchen");
         assertNotEquals("Event labels with different ID's and names should not be equal",
                 other, eventLabelDSO);
     }

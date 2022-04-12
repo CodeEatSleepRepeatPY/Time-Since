@@ -12,9 +12,12 @@ import comp3350.timeSince.persistence.IEventLabelPersistence;
 public class EventLabelPersistence implements IEventLabelPersistence {
 
     private final List<EventLabelDSO> eventLabels;
+    private static int nextID;
 
     public EventLabelPersistence() {
         this.eventLabels = new ArrayList<>();
+        setDefaults();
+        nextID = eventLabels.size(); // number of values in the database at creation
     }
 
     @Override
@@ -36,6 +39,7 @@ public class EventLabelPersistence implements IEventLabelPersistence {
         int index = eventLabels.indexOf(newEventLabel);
         if (index < 0) {
             eventLabels.add(newEventLabel);
+            nextID++;
             return newEventLabel;
         } // else: duplicate
         throw new DuplicateEventLabelException("The event label: " + newEventLabel.getName()
@@ -71,14 +75,16 @@ public class EventLabelPersistence implements IEventLabelPersistence {
 
     @Override
     public int getNextID() {
-        int toReturn = 0;
+        return nextID + 1;
+    }
 
-        for (EventLabelDSO label : eventLabels) {
-            if (label.getID() > toReturn) {
-                toReturn = label.getID();
-            }
-        }
-        return toReturn + 1;
+    private void setDefaults() {
+        eventLabels.add(new EventLabelDSO(1, "Kitchen"));
+        eventLabels.add(new EventLabelDSO(2, "Bathroom"));
+        eventLabels.add(new EventLabelDSO(3, "Bedroom"));
+        eventLabels.add(new EventLabelDSO(4, "Car"));
+        eventLabels.add(new EventLabelDSO(5, "Fitness"));
+        eventLabels.add(new EventLabelDSO(6, "Health"));
     }
 
 }

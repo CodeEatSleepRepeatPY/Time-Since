@@ -3,7 +3,7 @@
  *
  * Remarks: Domain Specific Object for a User
  */
-
+// TODO: clean up
 package comp3350.timeSince.objects;
 
 import java.util.ArrayList;
@@ -19,30 +19,30 @@ public class UserDSO {
     // instance variables
     //----------------------------------------
 
-    private final int id;
+    private final int ID;
     private String email; // could be email, or unique name, not null
     private String name;
-    private final Calendar DATE_REGISTERED; // generated when creating new object, not null
+    private final Calendar DATE_REGISTERED;
     private String passwordHash; // not null
-    private final List<EventDSO> userEvents;
-    private final List<EventDSO> favoritesList; // favorite Events
-    private final List<EventLabelDSO> userLabels;
+    private final List<EventDSO> USER_EVENTS;
+    private final List<EventDSO> USER_FAVORITES;
+    private final List<EventLabelDSO> USER_LABELS;
 
     //----------------------------------------
     // constructor
     //----------------------------------------
 
     public UserDSO(int id, String email, Calendar date, String passwordHash) {
-        this.id = id;
+        this.ID = id;
         this.email = email;
         this.name = email; // defaults to the email
         this.DATE_REGISTERED = date;
         this.passwordHash = passwordHash;
 
         // initialize ArrayLists
-        this.userLabels = new ArrayList<>();
-        this.userEvents = new ArrayList<>();
-        this.favoritesList = new ArrayList<>();
+        this.USER_LABELS = new ArrayList<>();
+        this.USER_EVENTS = new ArrayList<>();
+        this.USER_FAVORITES = new ArrayList<>();
     }
 
     //----------------------------------------
@@ -50,7 +50,7 @@ public class UserDSO {
     //----------------------------------------
 
     public int getID() {
-        return id;
+        return ID;
     }
 
     public String getEmail() {
@@ -70,25 +70,28 @@ public class UserDSO {
     }
 
     public List<EventDSO> getUserEvents() {
-        return Collections.unmodifiableList(userEvents);
+        return Collections.unmodifiableList(USER_EVENTS);
     }
 
-    public List<EventDSO> getFavoritesList() {
-        return Collections.unmodifiableList(favoritesList);
+    public List<EventDSO> getUserFavorites() {
+        return Collections.unmodifiableList(USER_FAVORITES);
     }
 
     public List<EventLabelDSO> getUserLabels() {
-        return Collections.unmodifiableList(userLabels);
+        return Collections.unmodifiableList(USER_LABELS);
     }
 
     //----------------------------------------
     // setters
     //----------------------------------------
 
-    public void setNewEmail(String oldEmail, String newEmail) {
-        if (oldEmail != null && oldEmail.equals(email)) {
+    public boolean setNewEmail(String oldEmail, String newEmail) {
+        boolean success = false;
+        if (oldEmail != null && oldEmail.equals(email) && newEmail != null) {
             email = newEmail;
+            success = true;
         }
+        return success;
     }
 
     public void setName(String name) {
@@ -101,6 +104,7 @@ public class UserDSO {
 
         if (oldPasswordHash.equals(this.passwordHash)) {
             this.passwordHash = newPasswordHash;
+            System.out.println("user set new password, success");
             success = true;
         }
 
@@ -118,34 +122,34 @@ public class UserDSO {
     }
 
     public void addLabel(EventLabelDSO newLabel) {
-        if (newLabel != null && !userLabels.contains(newLabel)) {
-            userLabels.add(newLabel);
+        if (newLabel != null && !USER_LABELS.contains(newLabel)) {
+            USER_LABELS.add(newLabel);
         }
     }
 
     public void removeLabel(EventLabelDSO label) {
-        userLabels.remove(label);
+        USER_LABELS.remove(label);
     }
 
     public void addEvent(EventDSO newEvent) {
-        if (newEvent != null && !userEvents.contains(newEvent)) {
-            userEvents.add(newEvent);
+        if (newEvent != null && !USER_EVENTS.contains(newEvent)) {
+            USER_EVENTS.add(newEvent);
         }
     }
 
     public void removeEvent(EventDSO event) {
-        userEvents.remove(event);
+        USER_EVENTS.remove(event);
     }
 
     public void addFavorite(EventDSO newFav) {
-        if (newFav != null && !favoritesList.contains(newFav)) {
-            userEvents.add(newFav); // should also be in events
-            favoritesList.add(newFav);
+        if (newFav != null && !USER_FAVORITES.contains(newFav)) {
+            USER_EVENTS.add(newFav); // should also be in events
+            USER_FAVORITES.add(newFav);
         }
     }
 
     public void removeFavorite(EventDSO event) {
-        favoritesList.remove(event);
+        USER_FAVORITES.remove(event);
     }
 
     // when logging in, have entered the right password?

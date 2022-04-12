@@ -14,14 +14,17 @@ import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.IUserConnectionsPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserManager {
 
     private final IUserPersistence userPersistence;
+    private final IUserConnectionsPersistence userConnectionsPersistence;
 
     public UserManager(boolean forProduction) {
         userPersistence = Services.getUserPersistence(forProduction);
+        userConnectionsPersistence = Services.getUserConnectionsPersistence();
     }
 
     //-----------------------------------------
@@ -67,155 +70,122 @@ public class UserManager {
         return strHash;
     }
 
-    public UserDSO getUserByID(String userID) throws UserNotFoundException {
+    public UserDSO getUserByEmail(String userID) throws UserNotFoundException {
         UserDSO toReturn = null;
-
         if (userID != null) {
             toReturn = userPersistence.getUserByEmail(userID);
         }
-
         return toReturn;
     }
 
     //This method is called when the register button is hit
     //to show if the user create a new account successfully or not
-    public boolean insertUser(String userID, String password, String confirmPassword, String name)
+    public UserDSO insertUser(String userID, String password, String confirmPassword, String name)
             throws NoSuchAlgorithmException, DuplicateUserException, PasswordErrorException {
 
-        boolean toReturn = false; // default is false if something goes wrong
+        UserDSO toReturn = null; // default is null if something goes wrong
         if (UserDSO.meetsNewPasswordReq(password) && password.equals(confirmPassword)) {
             String hashedPassword = hashPassword(password);
             UserDSO newUser = new UserDSO(userPersistence.getNextID(), userID, Calendar.getInstance(), hashedPassword);
             if (newUser.validate()) {
                 newUser.setName(name);
-                if (userPersistence.insertUser(newUser) != null) { // may cause exception
-                    toReturn = true;
-                }
+                toReturn = userPersistence.insertUser(newUser); // may cause exception
             }
         }
-
         return toReturn;
     }
 
-    public boolean updateUserName(String userID, String newName) throws UserNotFoundException {
-        boolean toReturn = false;
+    public UserDSO updateUserName(String userID, String newName) throws UserNotFoundException {
+        UserDSO toReturn = null;
 
         UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
-            user.setName(newName);
-            if (userPersistence.updateUser(user) != null) {
-                toReturn = true;
-            }
+            toReturn = userPersistence.updateUserName(user, newName);
         }
         return toReturn;
     }
 
-    public boolean updateUserPassword(String userID, String oldPassword, String newPassword)
+    // TODO: fix
+    public UserDSO updateUserPassword(String userID, String newPassword)
             throws NoSuchAlgorithmException, UserNotFoundException {
-        boolean toReturn = false;
+        UserDSO toReturn = null;
 
         UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
+            System.out.println("inside initial if statement");
             if (UserDSO.meetsNewPasswordReq(newPassword)) {
-                String oldHash = hashPassword(oldPassword);
+                System.out.println("inside second if statement");
                 String newHash = hashPassword(newPassword);
-                user.setNewPassword(oldHash,newHash);
-                if (userPersistence.updateUser(user) != null) {
-                    toReturn = true;
-                }
+                toReturn = userPersistence.updateUserPassword(user, newHash);
             }
         }
         return toReturn;
     }
 
-    public boolean addUserEvent(String userID, EventDSO newEvent) throws UserNotFoundException {
-        boolean toReturn = false;
-
-        UserDSO user = userPersistence.getUserByEmail(userID);
-        if (user != null && user.validate() && newEvent.validate()) {
-            user.addEvent(newEvent);
-            if (userPersistence.updateUser(user) != null) {
-                toReturn = true;
-            }
+    public UserDSO addUserEvent(String userID, EventDSO newEvent) throws UserNotFoundException {
+        UserDSO toReturn = null;
+        UserDSO user = userPersistence.getUserByEmail(userID); // may cause exception
+        if (user != null && user.validate() && newEvent != null && newEvent.validate()) {
+            toReturn = userConnectionsPersistence.addUserEvent(user, newEvent);
         }
         return toReturn;
     }
 
-    public boolean addUserFavorite(String userID, EventDSO fav) throws UserNotFoundException {
-        boolean toReturn = false;
-
-        UserDSO user = userPersistence.getUserByEmail(userID);
-        if (user != null && user.validate() && fav.validate()) {
-            user.addFavorite(fav);
-            if (userPersistence.updateUser(user) != null) {
-                toReturn = true;
-            }
+    public UserDSO addUserFavorite(String userID, EventDSO fav) throws UserNotFoundException {
+        UserDSO toReturn = null;
+        UserDSO user = userPersistence.getUserByEmail(userID); // may cause exception
+        if (user != null && user.validate() && fav != null && fav.validate()) {
+            toReturn = userConnectionsPersistence.addFavorite(user, fav);
         }
         return toReturn;
     }
 
-    public boolean addUserLabel(String userID, EventLabelDSO label) throws UserNotFoundException {
-        boolean toReturn = false;
-
-        if (label != null) {
-            UserDSO user = userPersistence.getUserByEmail(userID);
-            if (user != null && user.validate() && label.validate()) {
-                user.addLabel(label);
-                if (userPersistence.updateUser(user) != null) {
-                    toReturn = true;
-                }
-            }
+    public UserDSO addUserLabel(String userID, EventLabelDSO label) throws UserNotFoundException {
+        UserDSO toReturn = null;
+        UserDSO user = userPersistence.getUserByEmail(userID); // may cause exception
+        if (user != null && user.validate() && label != null && label.validate()) {
+            toReturn = userConnectionsPersistence.addUserLabel(user, label);
         }
         return toReturn;
     }
 
     public boolean deleteUser(String userID) throws UserNotFoundException {
         boolean toReturn = false; // default is false if something goes wrong
-
         UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
             if (userPersistence.deleteUser(user).equals(user)) {
                 toReturn = true;
             }
         }
-
         return toReturn;
     }
 
     public List<EventDSO> getUserEvents(String userID) throws UserNotFoundException {
         List<EventDSO> toReturn = null;
-
-        UserDSO user = userPersistence.getUserByEmail(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID); // may cause an exception
         if (user != null && user.validate()) {
-            toReturn = user.getUserEvents();
+            toReturn = userConnectionsPersistence.getAllEvents(user);
         }
-
         return toReturn;
     }
 
-    public List<EventDSO> getUserFavorites(String userID) {
+    public List<EventDSO> getUserFavorites(String userID) throws UserNotFoundException {
         List<EventDSO> toReturn = null;
-
-        UserDSO user = userPersistence.getUserByEmail(userID);
+        UserDSO user = userPersistence.getUserByEmail(userID); // may cause an exception
         if (user != null && user.validate()) {
-            toReturn = user.getFavoritesList();
+            toReturn = userConnectionsPersistence.getFavorites(user);
         }
-
         return toReturn;
     }
 
     public List<EventLabelDSO> getUserLabels(String userID) {
         List<EventLabelDSO> toReturn = null;
-
         UserDSO user = userPersistence.getUserByEmail(userID);
         if (user != null && user.validate()) {
-            toReturn = user.getUserLabels();
+            toReturn = userConnectionsPersistence.getAllLabels(user);
 
         }
-
         return toReturn;
     }
-
-
 
 }

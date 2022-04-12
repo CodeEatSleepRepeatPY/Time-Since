@@ -10,6 +10,9 @@ import java.io.InputStreamReader;
 
 import comp3350.timeSince.application.Main;
 
+/**
+ * Taken (and slightly modified) from the sample project, cook-ebook 2, and team rocket 15
+ */
 public class DBHelper {
 
     public static void copyDatabaseToDevice(Context context, String path) {
@@ -62,6 +65,6 @@ public class DBHelper {
                 in.close();
             }
         }
-
     }
+
 }

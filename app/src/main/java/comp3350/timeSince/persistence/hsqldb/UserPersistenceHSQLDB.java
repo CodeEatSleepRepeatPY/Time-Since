@@ -17,22 +17,26 @@ import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
-import comp3350.timeSince.persistence.IEventLabelPersistence;
-import comp3350.timeSince.persistence.IEventPersistence;
+import comp3350.timeSince.persistence.IUserConnectionsPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserPersistenceHSQLDB implements IUserPersistence {
 
     private final String dbPath;
-    private final IEventPersistence eventPersistence;
-    private final IEventLabelPersistence eventLabelPersistence;
+    private final IUserConnectionsPersistence userConnectionsPersistence;
     private int nextID;
+
+    private static final String TABLE_USER = "users";
+    private static final String USER_ID = "uid"; // int
+    private static final String EMAIL = "email"; // 50 characters, unique, not null
+    private static final String USER_NAME = "user_name"; // 30 characters
+    private static final String DATE_REGISTERED = "date_registered"; // timestamp, not null
+    private static final String PASSWORD = "password_hash"; // 64 characters
 
     public UserPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
-        this.eventPersistence = Services.getEventPersistence(true);
-        this.eventLabelPersistence = Services.getEventLabelPersistence(true);
-        nextID = 2;
+        this.userConnectionsPersistence = Services.getUserConnectionsPersistence();
+        nextID = 2; // number of values in the database at creation
     }
 
     private Connection connection() throws SQLException {
@@ -47,25 +51,25 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
      */
     private UserDSO fromResultSet(final ResultSet rs) throws SQLException {
 
-        final int id = rs.getInt(TS.USER_ID);
-        final String email = rs.getString(TS.EMAIL);
-        final String userName = rs.getString(TS.USER_NAME);
-        final Calendar dateRegistered = DateUtils.timestampToCal(rs.getTimestamp(TS.DATE_REGISTERED));
-        final String passwordHash = rs.getString(TS.PASSWORD);
+        final int id = rs.getInt(USER_ID);
+        final String email = rs.getString(EMAIL);
+        final String userName = rs.getString(USER_NAME);
+        final Calendar dateRegistered = DateUtils.timestampToCal(rs.getTimestamp(DATE_REGISTERED));
+        final String passwordHash = rs.getString(PASSWORD);
 
         UserDSO newUser = new UserDSO(id, email, dateRegistered, passwordHash);
         newUser.setName(userName);
 
-        connectUsersAndEvents(newUser);
-        connectUsersAndFavorites(newUser);
-        connectUsersAndLabels(newUser);
+        newUser = connectUsersAndEvents(newUser);
+        newUser = connectUsersAndFavorites(newUser);
+        newUser = connectUsersAndLabels(newUser);
 
         return newUser;
     }
 
     @Override
     public List<UserDSO> getUserList() {
-        final String query = "SELECT * FROM " + TS.TABLE_USER;
+        final String query = "SELECT * FROM " + TABLE_USER;
         List<UserDSO> toReturn = null;
         final List<UserDSO> users = new ArrayList<>();
 
@@ -88,8 +92,35 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     @Override
+    public UserDSO getUserByID(int userID) throws UserNotFoundException {
+        final String query = "SELECT * FROM " + TABLE_USER + " WHERE " + USER_ID + " = ?";
+        UserDSO toReturn = null;
+        final String exceptionMessage = "The user: " + userID + " could not be found.";
+
+        try (final Connection c = connection();
+             final PreparedStatement statement = c.prepareStatement(query)) {
+
+            statement.setInt(1, userID);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                toReturn = fromResultSet(resultSet);
+            }
+
+        } catch (final SQLException e) {
+            e.printStackTrace();
+            throw new UserNotFoundException(exceptionMessage);
+        }
+
+        if (toReturn == null) {
+            throw new UserNotFoundException(exceptionMessage);
+        }
+        return toReturn;
+    }
+
+    @Override
     public UserDSO getUserByEmail(String email) throws UserNotFoundException {
-        final String query = "SELECT * FROM " + TS.TABLE_USER + " WHERE " + TS.EMAIL + " = ?";
+        final String query = "SELECT * FROM " + TABLE_USER + " WHERE " + EMAIL + " = ?";
         UserDSO toReturn = null;
         final String exceptionMessage = "The user: " + email + " could not be found.";
 
@@ -116,7 +147,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public UserDSO insertUser(UserDSO newUser) throws DuplicateUserException {
-        final String query = "INSERT INTO " + TS.TABLE_USER + " VALUES(?, ?, ?, ?, ?)";
+        final String query = "INSERT INTO " + TABLE_USER + " VALUES(?, ?, ?, ?, ?)";
         UserDSO toReturn = null;
 
         if (newUser != null) {
@@ -127,7 +158,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
                 int id = newUser.getID();
-                if (isUnique(newUser.getEmail())) {
+                if (id != -1 && isUnique(newUser.getEmail())) {
                     statement.setInt(1, id);
                     statement.setString(2, newUser.getEmail());
                     statement.setString(3, newUser.getName());
@@ -149,15 +180,14 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             }
 
         }
-
         nextID++;
         return toReturn;
     }
 
     @Override
-    public UserDSO updateUser(UserDSO user) throws UserNotFoundException {
-        final String query = "UPDATE " + TS.TABLE_USER + " SET " + TS.EMAIL + " = ?, " + TS.USER_NAME + " = ?, "
-                + TS.PASSWORD + " = ? WHERE " + TS.USER_ID + " = ?";
+    public UserDSO updateUserName(UserDSO user, String newName) {
+        final String query = "UPDATE " + TABLE_USER
+                + " SET " + USER_NAME + " = ? WHERE " + USER_ID + " = ?";
         UserDSO toReturn = null;
 
         if (user != null) {
@@ -167,62 +197,28 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
-                statement.setString(1, user.getEmail());
-                statement.setString(2, user.getName());
-                statement.setString(3, user.getPasswordHash());
-                statement.setInt(4, user.getID());
-                int result = statement.executeUpdate();
-
-                if (result > 0) {
-                    toReturn = user;
-                } else {
-                    throw new UserNotFoundException(exceptionMessage);
-                }
-
-            } catch (final SQLException e) {
-                e.printStackTrace();
-                throw new UserNotFoundException(exceptionMessage);
-            }
-        }
-        return toReturn;
-    }
-
-    @Override
-    public UserDSO updateUserName(UserDSO user) {
-        final String query = "UPDATE " + TS.TABLE_USER
-                + " SET " + TS.USER_NAME + " = ? WHERE " + TS.USER_ID + " = ?";
-        UserDSO toReturn = null;
-
-        if (user != null) {
-            final String exceptionMessage = "The user: " + user.getName() +
-                    " could not be updated.";
-
-            try (final Connection c = connection();
-                 final PreparedStatement statement = c.prepareStatement(query)) {
-
-                statement.setString(1, user.getName());
+                statement.setString(1, newName);
                 statement.setInt(2, user.getID());
                 int result = statement.executeUpdate();
 
                 if (result > 0) {
+                    user.setName(newName);
                     toReturn = user;
                 } else {
                     throw new UserNotFoundException(exceptionMessage);
                 }
-
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new UserNotFoundException(exceptionMessage);
             }
         }
-
         return toReturn;
     }
 
     @Override
-    public UserDSO updateUserEmail(UserDSO user) {
-        final String query = "UPDATE " + TS.TABLE_USER
-                + " SET " + TS.EMAIL + " = ? WHERE " + TS.USER_ID + " = ?";
+    public UserDSO updateUserEmail(UserDSO user, String newEmail) {
+        final String query = "UPDATE " + TABLE_USER
+                + " SET " + EMAIL + " = ? WHERE " + USER_ID + " = ?";
         UserDSO toReturn = null;
 
         if (user != null) {
@@ -236,7 +232,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 statement.setInt(2, user.getID());
                 int result = statement.executeUpdate();
 
-                if (result > 0) {
+                if (result > 0 && user.setNewEmail(user.getEmail(),newEmail)) {
                     toReturn = user;
                 } else {
                     throw new UserNotFoundException(exceptionMessage);
@@ -251,12 +247,12 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     @Override
-    public UserDSO updateUserPassword(UserDSO user) {
-        final String query = "UPDATE " + TS.TABLE_USER
-                + " SET " + TS.PASSWORD + " = ? WHERE " + TS.USER_ID + " = ?";
+    public UserDSO updateUserPassword(UserDSO user, String newPassword) {
+        final String query = "UPDATE " + TABLE_USER
+                + " SET " + PASSWORD + " = ? WHERE " + USER_ID + " = ?";
         UserDSO toReturn = null;
 
-        if (user != null) {
+        if (user != null && user.setNewPassword(user.getPasswordHash(), newPassword)) {
             final String exceptionMessage = "The user: " + user.getName() +
                     " could not be updated.";
 
@@ -283,7 +279,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public UserDSO deleteUser(UserDSO user) throws UserNotFoundException {
-        final String query = "DELETE FROM " + TS.TABLE_USER + " WHERE " + TS.USER_ID + " = ?";
+        final String query = "DELETE FROM " + TABLE_USER + " WHERE " + USER_ID + " = ?";
         UserDSO toReturn = null;
 
         if (user != null) {
@@ -312,7 +308,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public boolean isUnique(String email) {
-        final String query = "SELECT COUNT(*) AS numUsers FROM " + TS.TABLE_USER + " WHERE " + TS.EMAIL + " = ?";
+        final String query = "SELECT COUNT(*) AS numUsers FROM " + TABLE_USER + " WHERE " + EMAIL + " = ?";
         boolean toReturn = false;
 
         try (final Connection c = connection();
@@ -335,7 +331,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public int numUsers() {
-        final String query = "SELECT COUNT(*) AS numUsers FROM " + TS.TABLE_USER;
+        final String query = "SELECT COUNT(*) AS numUsers FROM " + TABLE_USER;
         int toReturn = -1;
 
         try (final Connection c = connection();
@@ -361,92 +357,46 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     /**
      * @param user The User object to add Events to.
+     * @return The updated user.
      */
-    private void connectUsersAndEvents(UserDSO user) throws SQLException {
-        final String query = "SELECT " + TS.EVENT_ID + " FROM usersevents WHERE " + TS.USER_ID + " = ?";
-
-        try (Connection c = connection();
-             final PreparedStatement statement = c.prepareStatement(query)) {
-
-            statement.setInt(1, user.getID());
-            final ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                int eventID = resultSet.getInt(TS.EVENT_ID);
-                for (EventDSO event : eventPersistence.getEventList()) {
-                    if (event.getID() == eventID) {
-                        user.addEvent(event);
-                        break;
-                    }
-                }
+    private UserDSO connectUsersAndEvents(UserDSO user) {
+        if (user != null) {
+            List<EventDSO> favorites = userConnectionsPersistence.getAllEvents(user);
+            for (EventDSO favorite : favorites) {
+                user.addEvent(favorite);
             }
-
-        } catch (final SQLException e) {
-            throw new SQLException("Events could not be added to user: "
-                    + user.getName() + ".");
         }
+        return user;
     }
 
     /**
      * @param user The User object to add Event Label's to.
+     * @return The updated user.
      */
-    private void connectUsersAndLabels(UserDSO user) throws SQLException {
-        final String query = "SELECT " + TS.LABEL_ID + " FROM userslabels WHERE " + TS.USER_ID + " = ?";
-        List<EventLabelDSO> labels = eventLabelPersistence.getEventLabelList();
-
-        try (Connection c = connection();
-             final PreparedStatement statement = c.prepareStatement(query)) {
-
-            statement.setInt(1, user.getID());
-            final ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                int labelID = resultSet.getInt(TS.LABEL_ID);
-                for (EventLabelDSO label : labels) {
-                    if (label.getID() == labelID) {
-                        user.addLabel(label);
-                        break;
-                    }
-                }
+    private UserDSO connectUsersAndLabels(UserDSO user) {
+        if (user != null) {
+            List<EventLabelDSO> labels = userConnectionsPersistence.getAllLabels(user);
+            for (EventLabelDSO label : labels) {
+                user.addLabel(label);
             }
-
-        } catch (final SQLException e) {
-            throw new SQLException("Labels could not be added to user: "
-                    + user.getEmail() + ".");
         }
+        return user;
     }
 
     /**
      * Set the favorites list (Event objects) in the User object.
      *
      * @param user The User object to add favourites to.
+     * @return The updated user.
      */
-    private void connectUsersAndFavorites(UserDSO user) throws SQLException {
-        final String query = "SELECT " + TS.EVENT_ID + " FROM usersevents "
-                + "WHERE " + TS.USER_ID + " = ? AND " + TS.FAVORITE + " = TRUE";
-        List<EventDSO> events = eventPersistence.getEventList();
-
-        try (Connection c = connection();
-             final PreparedStatement statement = c.prepareStatement(query)) {
-
-            statement.setInt(1, user.getID());
-            final ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                int eventID = resultSet.getInt(TS.EVENT_ID);
-
-                for (EventDSO event : events) {
-                    if (event.getID() == eventID) {
-                        user.addFavorite(event);
-                        break;
-                    }
-                }
+    private UserDSO connectUsersAndFavorites(UserDSO user) {
+        if (user != null) {
+            List<EventDSO> favorites = userConnectionsPersistence.getFavorites(user);
+            for (EventDSO favorite : favorites) {
+                user.addFavorite(favorite);
             }
-
-        } catch (final SQLException e) {
-            throw new SQLException("Favorites could not be added to user: "
-                    + user.getName() + ".");
         }
+        return user;
     }
 
 } //UserPersistenceHSQLDB
