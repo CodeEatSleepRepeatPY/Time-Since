@@ -25,7 +25,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     public EventLabelPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
-        nextID = 6; // number of values in the database at creation
+        nextID = 9; // number of values in the database at creation
     }
 
     private Connection connection() throws SQLException {

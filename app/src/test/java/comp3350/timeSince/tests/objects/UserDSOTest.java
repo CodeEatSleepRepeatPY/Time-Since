@@ -16,6 +16,7 @@ import java.util.List;
 
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -185,7 +186,21 @@ public class UserDSOTest {
 
     @Test
     public void testLabels() {
-        // TODO
+        EventLabelDSO label1 = new EventLabelDSO(1, "Label1");
+        EventLabelDSO label2 = new EventLabelDSO(1, "Label2");
+
+        userDSO.addLabel(label1);
+        userDSO.addLabel(label2);
+        List<EventLabelDSO> labels = userDSO.getUserLabels();
+        assertEquals("The user should have 2 labels", 2, labels.size());
+        assertTrue("The user should contain label1", labels.contains(label1));
+        assertTrue("The user should contain label2", labels.contains(label2));
+
+        userDSO.removeLabel(label1);
+        labels = userDSO.getUserLabels();
+        assertEquals("The user should now have 1 label", 1, labels.size());
+        assertFalse("The user should not have the removed label", labels.contains(label1));
+        assertTrue("The user should have label2", labels.contains(label2));
     }
 
     @Test
