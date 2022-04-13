@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 
 import comp3350.timeSince.R;
-import comp3350.timeSince.business.interfaces.IEventManager;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
@@ -49,8 +48,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private Button favoriteBtn;
     private Spinner selectEventLabel;
     private Calendar mCalendar;
-    private IEventManager IEventManager;
-    private IUserManager IUserManager;
+    private EventManager eventManager;
+    private UserManager userManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +68,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabels = new ArrayList<EventLabelDSO>();
         mCalendar = Calendar.getInstance();
         extras = getIntent().getExtras();
-        IEventManager = new EventManager(true);
+        eventManager = new EventManager(extras.get("email").toString(), true);
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,8 +151,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
 
-        IUserManager = new UserManager(true);
-        List<EventLabelDSO> eventLabels = IUserManager.getUserLabels(extras.get("email").toString());
+        userManager = new UserManager(true);
+        List<EventLabelDSO> eventLabels = userManager.getUserLabels(extras.get("email").toString());
         if(eventLabels.size() == 0){
             Toast.makeText(this, "The EventLabel list for the user is empty.", Toast.LENGTH_SHORT).show();
         }
@@ -179,9 +178,9 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
             }else {
                 eventLabelName = eventLabels.get(eventLabels.size() - 1).getName();
             }
-            newEvent = IEventManager.insertEvent(extras.get("email").toString(), mCalendar,
-                        eventName.getText().toString(), eventLabelName,
-                        description.getText().toString(), favorite);
+            newEvent = eventManager.createEvent(eventName.getText().toString(),
+                    description.getText().toString(), mCalendar, favorite);
+
 
              if(newEvent != null){
                  Toast.makeText(this, message, Toast.LENGTH_SHORT).show();

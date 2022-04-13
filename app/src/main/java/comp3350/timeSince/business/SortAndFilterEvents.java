@@ -20,11 +20,15 @@ public class SortAndFilterEvents implements ISortAndFilterEvents {
 
     private final IUserPersistence userPersistence;
     private Comparator<EventDSO> sorter;
-    private final UserDSO user;
+    private UserDSO user;
 
-    public SortAndFilterEvents(UserDSO user, boolean forProduction) {
+    public SortAndFilterEvents(boolean forProduction) {
         userPersistence = Services.getUserPersistence(forProduction);
         sorter = new NewestDateComparator();
+        this.user = new UserDSO(-1, null, null, null);
+    }
+
+    public void setUser(UserDSO user) {
         this.user = user;
     }
 

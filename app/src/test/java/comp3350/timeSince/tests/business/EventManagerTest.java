@@ -19,7 +19,6 @@ import org.junit.runners.MethodSorters;
 import java.util.Calendar;
 
 import comp3350.timeSince.business.EventManager;
-import comp3350.timeSince.business.interfaces.IEventManager;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
@@ -36,7 +35,7 @@ import comp3350.timeSince.persistence.hsqldb.UserPersistenceHSQLDB;
 @FixMethodOrder(MethodSorters.JVM)
 public class EventManagerTest {
 
-    private IEventManager eventManager;
+    private EventManager eventManager;
     private IUserPersistence userPersistence;
     private IEventPersistence eventPersistence;
     private IEventLabelPersistence eventLabelPersistence;
@@ -52,7 +51,7 @@ public class EventManagerTest {
         userPersistence = mock(UserPersistenceHSQLDB.class);
         eventPersistence = mock(EventPersistenceHSQLDB.class);
         eventLabelPersistence = mock(EventLabelPersistenceHSQLDB.class);
-        eventManager = new EventManager(userPersistence, eventPersistence,
+        eventManager = new EventManager("user1", userPersistence, eventPersistence,
                 eventLabelPersistence);
 
         currDate = Calendar.getInstance();
@@ -133,19 +132,23 @@ public class EventManagerTest {
 
     @Test(expected = EventNotFoundException.class)
     public void testMarkEventAsDone() {
-        when(eventPersistence.getEventByID(initialCount + 1)).thenReturn(event1);
+        EventDSO testEventC = new EventDSO(event1.getID(), currDate, "testComplete");
+        EventDSO testEventIC = new EventDSO(event1.getID(), currDate, "testIncomplete");
+        testEventC.setIsDone(true);
+        testEventIC.setIsDone(false);
+        when(eventPersistence.getEventByID(event1.getID())).thenReturn(testEventC).thenReturn(testEventIC);
         when(eventPersistence.getEventByID(-1)).thenThrow(EventNotFoundException.class);
-        when(userPersistence.getUserByID(initialUserCount + 1)).thenReturn(user);
+        when(userPersistence.getUserByID(user.getID())).thenReturn(user);
 
-        eventManager.markEventAsDone(initialUserCount + 1, event1.getID(), true);
+        event1 = eventManager.markEventAsDone(event1.getID(), true);
         assertTrue("event1 should be marked as done", event1.isDone());
 
-        eventManager.markEventAsDone(initialUserCount + 1, event1.getID(), false);
+        event1 = eventManager.markEventAsDone(event1.getID(), false);
         assertFalse("event1 should be marked as not done", event1.isDone());
 
         verify(eventPersistence, times(2)).getEventByID(initialCount + 1);
 
-        eventManager.markEventAsDone(initialUserCount + 1, -1, false); //should throw exception
+        eventManager.markEventAsDone(-1, false); //should throw exception
     }
 
     @Test(expected = EventNotFoundException.class)
@@ -169,7 +172,7 @@ public class EventManagerTest {
         eventManager.isDone(-1); // should throw exception
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testInsertEvent() {
         EventLabelDSO eventLabel = new EventLabelDSO(initialLabelCount + 1, "eventLabel1");
         String eventName = "event1", tagName = "Sports", eventDesc = "desc";
@@ -190,28 +193,24 @@ public class EventManagerTest {
                 .thenReturn(eventLabel);
 
         Assert.assertNotNull("eventManager.insertEvent(event1) should return event1",
-                eventManager.insertEvent("user1", Calendar.getInstance(),
-                        eventName, tagName, eventDesc, true));
+                eventManager.createEvent(eventName, eventDesc,
+                        Calendar.getInstance(), true));
 
         verify(eventPersistence).insertEvent(any(EventDSO.class));
-        verify(eventLabelPersistence).insertEventLabel(any(EventLabelDSO.class));
+        //verify(eventLabelPersistence).insertEventLabel(any(EventLabelDSO.class));
 
-        eventManager.insertEvent("userNotFound", Calendar.getInstance(),
-                eventName, tagName, eventDesc, true); //should throw UserNotFoundException
+        eventManager.createEvent( eventName, eventDesc,
+                Calendar.getInstance(), true); // should throw duplicateEventException
 
-        eventManager.insertEvent("user1", Calendar.getInstance(),
-                eventName, tagName, eventDesc, true); // should throw duplicateEventException
-
-        verify(userPersistence, times(2)).getUserByEmail("user1");
-        verify(userPersistence).getUserByEmail("userNotFound");
+        verify(userPersistence, times(1)).getUserByEmail("user1");
+        //verify(userPersistence).getUserByEmail("userNotFound");
     }
 
-    // TODO: what???
     @Test
     public void testNumEvents() {
-        when(eventPersistence.numEvents()).thenReturn(5);
-        assertEquals("eventManager.numEvents() should return 5",
-                5, eventManager.numEvents());
+        when(eventPersistence.numEvents()).thenReturn(initialCount);
+        assertEquals("eventManager.numEvents() should return " + initialCount,
+                initialCount, eventManager.numEvents());
         verify(eventPersistence).numEvents();
     }
 }

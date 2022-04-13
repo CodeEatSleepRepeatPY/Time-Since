@@ -1,14 +1,21 @@
 package comp3350.timeSince.business;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import comp3350.timeSince.application.Services;
+import comp3350.timeSince.business.comparators.AscendingNameComparator;
+import comp3350.timeSince.business.comparators.DescendingNameComparator;
+import comp3350.timeSince.business.comparators.NewestDateComparator;
+import comp3350.timeSince.business.comparators.OldestDateComparator;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.EventDescriptionException;
+import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
-import comp3350.timeSince.business.interfaces.IEventManager;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
@@ -16,19 +23,31 @@ import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
-public class EventManager implements IEventManager {
+public class EventManager {
+
+//---------------------------------------------------------------------------------------------
+//  Instance Variables
+//---------------------------------------------------------------------------------------------
 
     private final IEventLabelPersistence eventLabelPersistence;
     private final IEventPersistence eventPersistence;
     private final IUserPersistence userPersistence;
+    private Comparator<EventDSO> sorter;
+    private UserDSO user;
+
+//---------------------------------------------------------------------------------------------
+//  Constructors
+//---------------------------------------------------------------------------------------------
 
     /**
      * Used in production.
      */
-    public EventManager(boolean forProduction) {
+    public EventManager(String userEmail, boolean forProduction) throws UserNotFoundException {
         userPersistence = Services.getUserPersistence(forProduction);
         eventPersistence = Services.getEventPersistence(forProduction);
         eventLabelPersistence = Services.getEventLabelPersistence(forProduction);
+        sorter = new NewestDateComparator();
+        user = userPersistence.getUserByEmail(userEmail); // may cause exception;
     }
 
     /**
@@ -38,13 +57,77 @@ public class EventManager implements IEventManager {
      * @param eventDB Event database.
      * @param eventLabelsDB Event Label database.
      */
-    public EventManager(IUserPersistence usersDB, IEventPersistence eventDB, IEventLabelPersistence eventLabelsDB) {
+    public EventManager(String userEmail, IUserPersistence usersDB, IEventPersistence eventDB, IEventLabelPersistence eventLabelsDB) throws UserNotFoundException {
         userPersistence = usersDB;
         eventPersistence = eventDB;
         eventLabelPersistence = eventLabelsDB;
+        sorter = new NewestDateComparator();
+        user = userPersistence.getUserByEmail(userEmail); // may cause exception;
     }
 
-    @Override
+//---------------------------------------------------------------------------------------------
+//  Display
+//---------------------------------------------------------------------------------------------
+
+    public List<EventDSO> sortByName(boolean aToZ) {
+        List<EventDSO> allEvents = userPersistence.getAllEvents(user);
+        if (aToZ) {
+            sorter = new AscendingNameComparator();
+        } else {
+            sorter = new DescendingNameComparator();
+        }
+        Collections.sort(allEvents, sorter);
+        return allEvents;
+    }
+
+    public List<EventDSO> sortByDateCreated(boolean newestToOldest) {
+        List<EventDSO> allEvents = userPersistence.getAllEvents(user);
+        if (!newestToOldest) {
+            sorter = new OldestDateComparator();
+        }
+        Collections.sort(allEvents, sorter);
+        return allEvents;
+    }
+
+    public List<EventDSO> sortByFinishTime(boolean closestToFurthest) {
+        return null;
+    }
+
+    public List<EventDSO> filterByLabel(int labelID) throws EventLabelNotFoundException {
+        List<EventDSO> toReturn = new ArrayList<>();
+        List<EventDSO> allEvents = userPersistence.getAllEvents(user);
+        EventLabelDSO label = eventLabelPersistence.getEventLabelByID(labelID);
+        for (EventDSO event : allEvents) {
+            if (event.getEventLabels().contains(label)) {
+                toReturn.add(event);
+            }
+        }
+        return toReturn;
+    }
+
+    public List<EventDSO> filterByStatus(boolean complete) {
+        List<EventDSO> toReturn = new ArrayList<>();
+        List<EventDSO> allEvents = userPersistence.getAllEvents(user);
+        if (complete) {
+            for (EventDSO event : allEvents) {
+                if (event.isDone()) {
+                    toReturn.add(event);
+                }
+            }
+        } else {
+            for (EventDSO event : allEvents) {
+                if (!event.isDone()) {
+                    toReturn.add(event);
+                }
+            }
+        }
+        return toReturn;
+    }
+
+//---------------------------------------------------------------------------------------------
+//  Getters
+//---------------------------------------------------------------------------------------------
+
     public EventDSO getEventByID(int eventID) throws EventNotFoundException {
         EventDSO toReturn = null;
         if (eventID >= 1) {
@@ -53,55 +136,63 @@ public class EventManager implements IEventManager {
         return toReturn;
     }
 
-    @Override
-    public List<EventDSO> getEventList() {
-        return eventPersistence.getEventList();
+    public int numEvents() {
+        return eventPersistence.numEvents();
     }
 
-    @Override
-    public EventDSO insertEvent(String userID, Calendar dueDate, String eventName,
-                                String eventLabelName, String eventDesc, boolean favorite)
-            throws UserNotFoundException, DuplicateEventException {
+//---------------------------------------------------------------------------------------------
+//  Setters
+//---------------------------------------------------------------------------------------------
 
+    public UserDSO setUser(String userEmail) throws UserNotFoundException {
+        user = userPersistence.getUserByEmail(userEmail); // may cause exception;
+        return user;
+    }
+
+    // TODO: is this more of a create label? could it have a search user labels for the one with same name, and add connection, not just create new
+    public EventDSO addLabel(EventDSO event, String labelName) throws EventNotFoundException {
         EventDSO toReturn = null;
-        UserDSO databaseUser = initiateUser(userID);
+        EventLabelDSO label = new EventLabelDSO(eventLabelPersistence.getNextID(),
+                labelName); // create label object with specified name
+        if (event != null && event.validate() && label.validate()) {
+            label = eventLabelPersistence.insertEventLabel(label);
+            // add the connection between the event and label
+            event = eventPersistence.addLabel(event, label);
+            // add event label to user's event labels list
+            user = userPersistence.addUserLabel(user, label);
+            toReturn = event;
+        }
+        return toReturn;
+    }
 
-        if (databaseUser != null) {
-            Calendar calendar = Calendar.getInstance();
-            EventDSO event = new EventDSO(eventPersistence.getNextID(), calendar,
-                    eventName); // create event object with specified name
-            EventLabelDSO eventLabel = new EventLabelDSO(eventLabelPersistence.getNextID(),
-                    eventLabelName); // create label object with specified name
-
-            if (event.validate() && eventLabel.validate()) {
-                event.setTargetFinishTime(dueDate); // set event's due date
-                event.addLabel(eventLabel); // add label
-                event.setFavorite(favorite); // set if favorite or not
-                event.setDescription(eventDesc);
-
-                databaseUser.addEvent(event); // add event to user's events list
-                databaseUser.addLabel(eventLabel); // add event label to user's event labels list
-
-                // insert event into the database, may cause exception
-                event = eventPersistence.insertEvent(event);
-                // insert the newly created event label into the database, may cause exception
-                eventLabel = eventLabelPersistence.insertEventLabel(eventLabel);
-
-                databaseUser = userPersistence.addUserEvent(databaseUser, event);
-                databaseUser = userPersistence.addUserLabel(databaseUser, eventLabel);
-
-                if (favorite) {
-                    databaseUser.addFavorite(event);
-                    userPersistence.addUserFavorite(databaseUser, event);
-                }
-
-                toReturn = event; // successful
+    public EventDSO addLabels(EventDSO event, List<String> labelNames) throws EventNotFoundException {
+        EventDSO toReturn = null;
+        if (labelNames != null) {
+            for (String name : labelNames) {
+                toReturn = addLabel(event, name);
             }
         }
         return toReturn;
     }
 
-    @Override
+    public EventDSO removeLabel(EventDSO event, int labelID) throws EventNotFoundException, EventLabelNotFoundException {
+        EventDSO toReturn = null;
+        EventLabelDSO label = eventLabelPersistence.getEventLabelByID(labelID);
+        if (event.validate()) {
+            label = eventLabelPersistence.deleteEventLabel(label);
+            // remove the connection between the event and label
+            event = eventPersistence.removeLabel(event, label);
+            // remove event label from user's event labels list
+            user = userPersistence.removeUserLabel(user, label);
+            toReturn = event;
+        }
+        return toReturn;
+    }
+
+//---------------------------------------------------------------------------------------------
+//  Updates
+//---------------------------------------------------------------------------------------------
+
     public EventDSO updateEventName(String newName, int eventID) throws EventNotFoundException {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
@@ -113,7 +204,6 @@ public class EventManager implements IEventManager {
         return updatedEvent;
     }
 
-    @Override
     public EventDSO updateEventDescription(String desc, int eventID) throws EventNotFoundException, EventDescriptionException {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
@@ -125,7 +215,6 @@ public class EventManager implements IEventManager {
         return updatedEvent;
     }
 
-    @Override
     public EventDSO updateEventFinishTime(Calendar finishTime, int eventID) throws EventNotFoundException {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
@@ -137,9 +226,7 @@ public class EventManager implements IEventManager {
         return updatedEvent;
     }
 
-    @Override
-    public EventDSO updateEventFavorite(boolean fav, int eventID, String userID) throws EventNotFoundException {
-        UserDSO user = initiateUser(userID);
+    public EventDSO updateEventFavorite(boolean fav, int eventID) throws EventNotFoundException {
         EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
 
         if (event != null) {
@@ -153,7 +240,44 @@ public class EventManager implements IEventManager {
         return event;
     }
 
-    @Override
+    public EventDSO markEventAsDone(int eventID, boolean done) throws EventNotFoundException {
+        EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
+
+        if (user != null && event != null) {
+            event.setIsDone(done);
+            userPersistence.setEventStatus(user, event, done);
+        }
+        return event;
+    }
+
+//---------------------------------------------------------------------------------------------
+//  General
+//---------------------------------------------------------------------------------------------
+
+    public EventDSO createEvent(String eventName, String description,
+                                Calendar dueDate, boolean favorite)
+            throws DuplicateEventException, EventDescriptionException {
+
+        EventDSO toReturn = null;
+        EventDSO event = new EventDSO(eventPersistence.getNextID(),
+                Calendar.getInstance(), eventName); // create event object with specified name
+        event.setDescription(description); // may cause an exception
+
+        if (event.validate()) {
+            // insert event into the database, may cause exception
+            event = eventPersistence.insertEvent(event);
+            event.setFavorite(favorite); // set if favorite or not
+            event.setTargetFinishTime(dueDate); // set event's due date
+            // add connection between the user and the event (adds event to user's events list)
+            user = userPersistence.addUserEvent(user, event);
+            if (favorite) {
+                user = userPersistence.addUserFavorite(user, event);
+            }
+            toReturn = event; // successful
+        }
+        return toReturn;
+    }
+
     public EventDSO deleteEvent(int eventID) throws EventNotFoundException {
         EventDSO toReturn = null;
         EventDSO eventToDelete = eventPersistence.getEventByID(eventID); // may cause exception
@@ -165,30 +289,15 @@ public class EventManager implements IEventManager {
         return toReturn;
     }
 
-    @Override
-    public EventDSO markEventAsDone(int userID, int eventID, boolean done) throws EventNotFoundException {
-        UserDSO user = userPersistence.getUserByID(userID); // may cause exception
-        EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
-
-        if (user != null && event != null) {
-            event.setIsDone(done);
-            userPersistence.setEventStatus(user, event, done);
-        }
-        return event;
-    }
-
-    @Override
     public boolean isDone(int eventID) throws EventNotFoundException {
         boolean toReturn = false;
         EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
-
         if (event != null) {
             toReturn = event.isDone();
         }
         return toReturn;
     }
 
-    @Override
     public boolean isOverdue(int eventID) throws EventNotFoundException {
         boolean toReturn = false;
         EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
@@ -199,28 +308,6 @@ public class EventManager implements IEventManager {
             toReturn = currentDate.equals(eventDueDate) || currentDate.after(eventDueDate);
         }
         return toReturn;
-    }
-
-    @Override
-    public int numEvents() {
-        return eventPersistence.numEvents();
-    }
-
-    private UserDSO initiateUser(String userID) {
-        UserDSO user;
-        UserDSO databaseUser = null;
-        try {
-            databaseUser = userPersistence.getUserByEmail(userID); // may cause exception
-        } catch (UserNotFoundException e) {
-            System.out.println("CREATING A DEFAULT USER\n" + e.getMessage());
-        } finally {
-            if (databaseUser != null) {
-                user = databaseUser;
-            } else {
-                user = new UserDSO(-1, null, null, null);
-            }
-        }
-        return user;
     }
 
 }

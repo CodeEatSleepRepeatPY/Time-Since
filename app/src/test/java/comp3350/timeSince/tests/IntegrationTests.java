@@ -14,8 +14,7 @@ import comp3350.timeSince.tests.persistence.UserConnectionsTest;
         UsersWithEventsTest.class,
         EventsWithLabelsTest.class,
         UserManagerTest.class,
-        EventManagerTest.class,
-        UserConnectionsTest.class
+        EventManagerTest.class
 })
 public class IntegrationTests {
 }
