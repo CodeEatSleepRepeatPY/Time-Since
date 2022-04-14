@@ -12,11 +12,8 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.util.Calendar;
-import java.util.List;
 
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
-import comp3350.timeSince.objects.EventDSO;
-import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -81,33 +78,6 @@ public class UserDSOTest {
     }
 
     @Test
-    public void testGetUserLabels() {
-        String message = "Initial user labels should be empty";
-        int size = 0;
-
-        Assert.assertEquals(message, size,
-                this.userDSO.getUserLabels().size());
-    }
-
-    @Test
-    public void testGetUserEvents() {
-        String message = "Initial user events should be empty";
-        int size = 0;
-
-        Assert.assertEquals(message, size,
-                this.userDSO.getUserEvents().size());
-    }
-
-    @Test
-    public void testGetFavoritesList() {
-        String message = "Initial favorites list should be empty";
-        int size = 0;
-
-        Assert.assertEquals(message, size,
-                this.userDSO.getUserFavorites().size());
-    }
-
-    @Test
     public void testSetName() {
         String newName = "Gary";
         String message = String.format("The name should now be set to %s",
@@ -117,24 +87,40 @@ public class UserDSOTest {
         Assert.assertEquals(message, newName, this.userDSO.getName());
     }
 
-    @Test (expected = PasswordErrorException.class)
+    @Test
+    public void testSetNewEmail() {
+        String newEmail = "bobby2@gmail.com";
+        String message = String.format("The email should now be set to %s", newEmail);
+        userDSO.setNewEmail(id, newEmail);
+        assertEquals(message, newEmail, userDSO.getEmail());
+    }
+
+    @Test
     public void testMeetsNewPasswordReq() {
+        final int MIN_LENGTH = 8;
+        String newPassword = "Hunter12";
+
+        String message = String.format("%s should pass the minimum requirements of " +
+                        "having a capital letter, and being at least %d in length.",
+                newPassword, MIN_LENGTH);
+        assertTrue(message, UserDSO.meetsNewPasswordReq(newPassword));
+    }
+
+    @Test (expected = PasswordErrorException.class)
+    public void testMeetsNewPasswordReqExceptionA() {
         final int MIN_LENGTH = 8;
         String newPassword = "Hunter1";
         String message = String.format("Passwords should require a minimum " +
                 "length of at least %d", MIN_LENGTH);
+        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
+    }
 
+    @Test (expected = PasswordErrorException.class)
+    public void testMeetsNewPasswordReqExceptionB() {
+        String newPassword = "hunter12";
+        String message = "Passwords should require a capital.";
         assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
 
-        newPassword = "hunter12";
-        message = "Passwords should require a capital.";
-        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
-
-        newPassword = "Hunter12";
-        message = String.format("%s should pass the minimum requirements of " +
-                        "having a capital letter, and being at least %d in length.",
-                newPassword, MIN_LENGTH);
-        assertTrue(message, UserDSO.meetsNewPasswordReq(newPassword));
     }
 
     @Test
@@ -151,61 +137,18 @@ public class UserDSOTest {
         assertEquals(message, this.userDSO.getPasswordHash(), newPasswordHash);
     }
 
-    @Test (expected = PasswordErrorException.class)
+    @Test
     public void testMatchesExistingPassword() {
-        String otherPasswordHash = "Hunter12";
-        String message = "matchesExistingPassword should return false when " +
-                "given a different password hash.";
-
-        assertFalse(message, this.userDSO.matchesExistingPassword(otherPasswordHash));
-
-        message = "matchesExistingPassword should return true when given " +
+        String message = "matchesExistingPassword should return true when given " +
                 "the same password hash";
 
         assertTrue(message, this.userDSO.matchesExistingPassword(this.passwordHash));
     }
 
-    @Test
-    public void testEvents() {
-        EventDSO event1 = new EventDSO(1, defaultDate, "Event1");
-        EventDSO event2 = new EventDSO(2, defaultDate, "Event2");
-
-        userDSO.addEvent(event1);
-        userDSO.addEvent(event2);
-        List<EventDSO> events = userDSO.getUserEvents();
-        assertEquals("The user should have 2 events", 2, events.size());
-        assertTrue("The user should contain event1", events.contains(event1));
-        assertTrue("The user should contain event2", events.contains(event2));
-
-        userDSO.removeEvent(event1);
-        events = userDSO.getUserEvents();
-        assertEquals("The user should now have 1 event", 1, events.size());
-        assertFalse("The user should not have the removed event", events.contains(event1));
-        assertTrue("The user should have event2", events.contains(event2));
-    }
-
-    @Test
-    public void testLabels() {
-        EventLabelDSO label1 = new EventLabelDSO(1, "Label1");
-        EventLabelDSO label2 = new EventLabelDSO(1, "Label2");
-
-        userDSO.addLabel(label1);
-        userDSO.addLabel(label2);
-        List<EventLabelDSO> labels = userDSO.getUserLabels();
-        assertEquals("The user should have 2 labels", 2, labels.size());
-        assertTrue("The user should contain label1", labels.contains(label1));
-        assertTrue("The user should contain label2", labels.contains(label2));
-
-        userDSO.removeLabel(label1);
-        labels = userDSO.getUserLabels();
-        assertEquals("The user should now have 1 label", 1, labels.size());
-        assertFalse("The user should not have the removed label", labels.contains(label1));
-        assertTrue("The user should have label2", labels.contains(label2));
-    }
-
-    @Test
-    public void testFavorites() {
-        // TODO
+    @Test (expected = PasswordErrorException.class)
+    public void testMatchesExistingPasswordException() {
+        String otherPasswordHash = "Hunter12";
+        userDSO.matchesExistingPassword(otherPasswordHash);
     }
 
     @Test

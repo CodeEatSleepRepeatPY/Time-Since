@@ -11,8 +11,7 @@ import comp3350.timeSince.tests.persistence.*;
         UserDSOTest.class,
         UsersWithEventsTest.class,
         UserPersistenceTest.class,
-        UserPersistenceHSQLDBTest.class,
-        UserConnectionsTest.class
+        UserPersistenceHSQLDBTest.class
 })
 
 public class AllUserTests {

@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.util.Calendar;
+import java.util.List;
 
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
@@ -83,6 +84,11 @@ public class EventManagerTest {
                 eventManager.getEventByID(-1));
     }
 
+    @Test
+    public void testSetUser() {
+        // TODO
+    }
+
     @Test(expected = EventNotFoundException.class)
     public void testUpdateEvent() {
         when(eventPersistence.getEventByID(initialCount + 1)).thenReturn(event1);
@@ -104,6 +110,26 @@ public class EventManagerTest {
         eventManager.updateEventName("updateEventName", -1); // should throw exception
         eventManager.updateEventDescription("updateEventDesc", -1); // should throw exception
         eventManager.updateEventFinishTime(currDate, -1); // should throw exception
+    }
+
+    @Test
+    public void testAddLabel() {
+        // TODO
+    }
+
+    @Test
+    public void testAddLabels() {
+        // TODO
+    }
+
+    @Test
+    public void testRemoveLabel() {
+        // TODO
+    }
+
+    @Test
+    public void testUpdateFavorite() {
+        // TODO
     }
 
     @Test(expected = EventNotFoundException.class)
@@ -213,5 +239,6 @@ public class EventManagerTest {
                 initialCount, eventManager.numEvents());
         verify(eventPersistence).numEvents();
     }
+
 }
 

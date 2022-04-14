@@ -4,7 +4,6 @@ import java.util.List;
 
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
-import comp3350.timeSince.business.interfaces.ISortAndFilterEvents;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;

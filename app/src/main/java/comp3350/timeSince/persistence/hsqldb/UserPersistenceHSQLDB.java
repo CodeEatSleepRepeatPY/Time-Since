@@ -23,7 +23,6 @@ import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
-import comp3350.timeSince.persistence.IUserConnectionsPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserPersistenceHSQLDB implements IUserPersistence {
@@ -31,7 +30,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     private final String dbPath;
     private final IEventPersistence eventPersistence;
     private final IEventLabelPersistence eventLabelPersistence;
-    private final IUserConnectionsPersistence userConnectionsPersistence;
     private int nextID;
 
     private static final String TABLE_USER = "users";
@@ -45,7 +43,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         this.dbPath = dbPath;
         eventPersistence = Services.getEventPersistence(true);
         eventLabelPersistence = Services.getEventLabelPersistence(true);
-        this.userConnectionsPersistence = Services.getUserConnectionsPersistence();
         nextID = 2; // number of values in the database at creation
     }
 
@@ -367,7 +364,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public List<EventDSO> getAllEvents(UserDSO user) {
-        final String query = "SELECT eid FROM usersevents WHERE uid = ?";
+        final String query = "SELECT * FROM usersevents WHERE uid = ?";
         List<EventDSO> toReturn = new ArrayList<>();
 
         if (user != null) {
@@ -381,6 +378,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                     try {
                         EventDSO event = eventPersistence.getEventByID(resultSet.getInt("eid"));
                         if (event != null) {
+                            event.setIsDone(resultSet.getBoolean("is_done"));
                             toReturn.add(event);
                         }
                     } catch (EventNotFoundException e) {
@@ -633,11 +631,11 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     public UserDSO addUserFavorite(UserDSO user, EventDSO event) {
         UserDSO toReturn = null;
         if (user != null && event != null) {
-            try {
-                eventPersistence.insertEvent(event);
-            } catch (DuplicateEventException e) {
-                System.out.println(e.getMessage());
-            }
+//            try {
+//                eventPersistence.insertEvent(event);
+//            } catch (DuplicateEventException e) {
+//                System.out.println(e.getMessage());
+//            }
             user = addUserEvent(user, event);
             toReturn = addFavoriteConnection(user, event);
         }
@@ -697,7 +695,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
      */
     private UserDSO connectUsersAndEvents(UserDSO user) {
         if (user != null) {
-            List<EventDSO> favorites = userConnectionsPersistence.getAllEvents(user);
+            List<EventDSO> favorites = getAllEventsHelper(user);
             for (EventDSO favorite : favorites) {
                 user.addEvent(favorite);
             }
@@ -705,19 +703,80 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         return user;
     }
 
+    private List<EventDSO> getAllEventsHelper(UserDSO user) {
+        final String query = "SELECT eid FROM usersevents WHERE uid = ?";
+        List<EventDSO> toReturn = new ArrayList<>();
+
+        if (user != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, user.getID());
+                ResultSet resultSet = statement.executeQuery();
+
+                while (resultSet.next()) {
+                    try {
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt("eid"));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
+                    } catch (EventNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            } catch (final SQLException e) {
+                e.printStackTrace();
+                // will return an empty array list if unsuccessful
+            }
+        }
+        return toReturn;
+    }
+
+
     /**
      * @param user The User object to add Event Label's to.
      * @return The updated user.
      */
     private UserDSO connectUsersAndLabels(UserDSO user) {
         if (user != null) {
-            List<EventLabelDSO> labels = userConnectionsPersistence.getAllLabels(user);
+            List<EventLabelDSO> labels = getAllLabelsHelper(user);
             for (EventLabelDSO label : labels) {
                 user.addLabel(label);
             }
         }
         return user;
     }
+
+    private List<EventLabelDSO> getAllLabelsHelper(UserDSO user) {
+        final String query = "SELECT lid FROM userslabels WHERE uid = ?";
+        List<EventLabelDSO> toReturn = new ArrayList<>();
+
+        if (user != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, user.getID());
+                ResultSet resultSet = statement.executeQuery();
+
+                while (resultSet.next()) {
+                    try {
+                        EventLabelDSO label = eventLabelPersistence.getEventLabelByID(
+                                resultSet.getInt("lid"));
+                        if (label != null) {
+                            toReturn.add(label);
+                        }
+                    } catch (EventLabelNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            } catch (final SQLException e) {
+                e.printStackTrace();
+                // will return empty arraylist if unsuccessful
+            }
+        }
+        return toReturn;
+    }
+
 
     /**
      * Set the favorites list (Event objects) in the User object.
@@ -727,12 +786,43 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
      */
     private UserDSO connectUsersAndFavorites(UserDSO user) {
         if (user != null) {
-            List<EventDSO> favorites = userConnectionsPersistence.getFavorites(user);
+            List<EventDSO> favorites = getFavoritesHelper(user);
             for (EventDSO favorite : favorites) {
                 user.addFavorite(favorite);
             }
         }
         return user;
     }
+
+    private List<EventDSO> getFavoritesHelper(UserDSO user) {
+        final String query = "SELECT eid FROM usersevents WHERE uid = ? AND is_favorite = TRUE";
+        List<EventDSO> toReturn = new ArrayList<>();
+
+        if (user != null) {
+            try (final Connection c = connection();
+                 final PreparedStatement statement = c.prepareStatement(query)) {
+
+                statement.setInt(1, user.getID());
+                ResultSet resultSet = statement.executeQuery();
+
+                while (resultSet.next()) {
+                    try {
+                        EventDSO event = eventPersistence.getEventByID(resultSet.getInt("eid"));
+                        if (event != null) {
+                            toReturn.add(event);
+                        }
+                    } catch (EventNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+            } catch (final SQLException e) {
+                e.printStackTrace();
+                // will return an empty array list if unsuccessful
+            }
+        }
+        return toReturn;
+    }
+
 
 } //UserPersistenceHSQLDB

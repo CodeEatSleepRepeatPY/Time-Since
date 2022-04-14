@@ -250,6 +250,14 @@ public class EventManager {
         return event;
     }
 
+    public UserDSO setEventStatus(EventDSO event, boolean complete) {
+        UserDSO toReturn = null;
+        if (user != null && user.validate() && event != null && event.validate()) {
+            toReturn = userPersistence.setEventStatus(user, event, complete);
+        }
+        return toReturn;
+    }
+
 //---------------------------------------------------------------------------------------------
 //  General
 //---------------------------------------------------------------------------------------------

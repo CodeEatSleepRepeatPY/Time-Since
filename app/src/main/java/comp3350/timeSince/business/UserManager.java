@@ -14,10 +14,9 @@ import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
-import comp3350.timeSince.persistence.IUserConnectionsPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
-public class UserManager implements comp3350.timeSince.business.interfaces.IUserManager {
+public class UserManager {
 
     private final IUserPersistence userPersistence;
 
@@ -29,12 +28,10 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
     // User account Manager Registration
     //-----------------------------------------
 
-    @Override
     public boolean uniqueName(String userName) {
         return userPersistence.isUnique(userName);
     }
 
-    @Override
     public boolean passwordRequirements(String password) {
         return UserDSO.meetsNewPasswordReq(password);
     }
@@ -43,7 +40,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
     //User account Manager login
     //-------------------------------------------------------
 
-    @Override
     public boolean accountCheck(String typedUserName, String typedPassword)
             throws NoSuchAlgorithmException, UserNotFoundException {
         //first we need to check if this account is exist in the list
@@ -59,7 +55,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return toReturn;
     }
 
-    @Override
     public String hashPassword(String inputPassword) throws NoSuchAlgorithmException {
         String strHash = "";
 
@@ -72,7 +67,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return strHash;
     }
 
-    @Override
     public UserDSO getUserByEmail(String userID) throws UserNotFoundException {
         UserDSO toReturn = null;
         if (userID != null) {
@@ -83,7 +77,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
 
     //This method is called when the register button is hit
     //to show if the user create a new account successfully or not
-    @Override
     public UserDSO insertUser(String userID, String password, String confirmPassword, String name)
             throws NoSuchAlgorithmException, DuplicateUserException, PasswordErrorException {
 
@@ -99,7 +92,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return toReturn;
     }
 
-    @Override
     public UserDSO updateUserName(String userID, String newName) throws UserNotFoundException {
         UserDSO toReturn = null;
 
@@ -111,7 +103,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
     }
 
     // TODO: fix
-    @Override
     public UserDSO updateUserPassword(String userID, String newPassword)
             throws NoSuchAlgorithmException, UserNotFoundException {
         UserDSO toReturn = null;
@@ -128,7 +119,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return toReturn;
     }
 
-    @Override
     public UserDSO addUserEvent(String userID, EventDSO newEvent) throws UserNotFoundException {
         UserDSO toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause exception
@@ -138,7 +128,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return toReturn;
     }
 
-    @Override
     public UserDSO addUserFavorite(String userID, EventDSO fav) throws UserNotFoundException {
         UserDSO toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause exception
@@ -148,7 +137,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return toReturn;
     }
 
-    @Override
     public UserDSO addUserLabel(String userID, EventLabelDSO label) throws UserNotFoundException {
         UserDSO toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause exception
@@ -158,7 +146,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return toReturn;
     }
 
-    @Override
     public boolean deleteUser(String userID) throws UserNotFoundException {
         boolean toReturn = false; // default is false if something goes wrong
         UserDSO user = userPersistence.getUserByEmail(userID);
@@ -170,7 +157,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return toReturn;
     }
 
-    @Override
     public List<EventDSO> getUserEvents(String userID) throws UserNotFoundException {
         List<EventDSO> toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause an exception
@@ -180,7 +166,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return toReturn;
     }
 
-    @Override
     public List<EventDSO> getUserFavorites(String userID) throws UserNotFoundException {
         List<EventDSO> toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID); // may cause an exception
@@ -190,7 +175,6 @@ public class UserManager implements comp3350.timeSince.business.interfaces.IUser
         return toReturn;
     }
 
-    @Override
     public List<EventLabelDSO> getUserLabels(String userID) {
         List<EventLabelDSO> toReturn = null;
         UserDSO user = userPersistence.getUserByEmail(userID);

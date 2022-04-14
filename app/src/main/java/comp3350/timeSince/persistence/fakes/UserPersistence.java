@@ -5,20 +5,24 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 
 public class UserPersistence implements IUserPersistence {
 
     private final List<UserDSO> userList;
+    private final IEventPersistence eventPersistence;
     private static int nextID;
 
     public UserPersistence() {
         this.userList = new ArrayList<>();
+        eventPersistence = Services.getEventPersistence(false);
         setDefaults();
         nextID = userList.size(); // number of values in the database at creation
     }
@@ -175,7 +179,21 @@ public class UserPersistence implements IUserPersistence {
 
     @Override
     public UserDSO setEventStatus(UserDSO user, EventDSO event, boolean isComplete) {
-        return null;
+        UserDSO toReturn = null;
+        if (user != null && event != null) {
+            int index = userList.indexOf(user);
+            if (index >= 0) {
+                List<EventDSO> eventList = userList.get(index).getUserEvents();
+                int eventIndex = eventList.indexOf(event);
+                if (eventIndex >= 0) {
+                    eventList.get(eventIndex).setIsDone(isComplete);
+                    toReturn = user;
+                }
+            } else {
+                throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
+            }
+        }
+        return toReturn;
     }
 
     @Override
@@ -194,6 +212,7 @@ public class UserPersistence implements IUserPersistence {
         int index = userList.indexOf(user);
         if (index >= 0) {
             user.removeEvent(event);
+            user.removeFavorite(event); // event shouldn't be a fav if not in general list
             userList.set(index, user);
             return user;
         }

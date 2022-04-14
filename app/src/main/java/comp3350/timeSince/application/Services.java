@@ -2,14 +2,12 @@ package comp3350.timeSince.application;
 
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
-import comp3350.timeSince.persistence.IUserConnectionsPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
 import comp3350.timeSince.persistence.fakes.EventLabelPersistence;
 import comp3350.timeSince.persistence.fakes.EventPersistence;
 import comp3350.timeSince.persistence.fakes.UserPersistence;
 import comp3350.timeSince.persistence.hsqldb.EventLabelPersistenceHSQLDB;
 import comp3350.timeSince.persistence.hsqldb.EventPersistenceHSQLDB;
-import comp3350.timeSince.persistence.hsqldb.UserConnectionsPersistenceHSQLDB;
 import comp3350.timeSince.persistence.hsqldb.UserPersistenceHSQLDB;
 
 /**
@@ -23,8 +21,6 @@ public class Services {
     private static IEventPersistence eventPersistence = null;
     private static IEventLabelPersistence eventLabelPersistence = null;
     private static IUserPersistence userPersistence = null;
-    private static IUserConnectionsPersistence userEventPersistence = null;
-
     /**
      * Gets event persistence.
      *
@@ -77,28 +73,12 @@ public class Services {
     }
 
     /**
-     * Gets user connections persistence.
-     * <p>
-     * There is no "fake" implementation for this, as it was unnecessary for our
-     * project, and was added later to make it easier to make specific queries.
-     *
-     * @return the user connections persistence
-     */
-    public static synchronized IUserConnectionsPersistence getUserConnectionsPersistence() {
-        if (userEventPersistence == null) {
-            userEventPersistence = new UserConnectionsPersistenceHSQLDB(Main.getDBPathName());
-        }
-        return userEventPersistence;
-    }
-
-    /**
      * Clean. Will set all tables to null. To be used VERY carefully.
      */
     public static synchronized void clean() {
         eventPersistence = null;
         eventLabelPersistence = null;
         userPersistence = null;
-        userEventPersistence = null;
     }
 
 }

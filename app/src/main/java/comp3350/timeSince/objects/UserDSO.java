@@ -143,7 +143,7 @@ public class UserDSO {
 
     public void addFavorite(EventDSO newFav) {
         if (newFav != null && !USER_FAVORITES.contains(newFav)) {
-            USER_EVENTS.add(newFav); // should also be in events
+            addEvent(newFav); // should also be in events
             USER_FAVORITES.add(newFav);
         }
     }

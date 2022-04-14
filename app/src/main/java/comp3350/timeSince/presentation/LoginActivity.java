@@ -15,13 +15,12 @@ import comp3350.timeSince.R;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.UserLoginFailedException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
-import comp3350.timeSince.business.interfaces.IUserManager;
 
 public class LoginActivity extends AppCompatActivity {
     private Button login;
     private String email;
     private String password;
-    private final IUserManager IUserManager = new UserManager(true);
+    private final UserManager userManager = new UserManager(true);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         try {
             //Some pre-set user list in the fake database for reference:
             // email: admin   password: 12345
-            if (IUserManager.accountCheck(email, password)) {
+            if (userManager.accountCheck(email, password)) {
                 String message = "Welcome! " + email;
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                 nextIntent = new Intent(this, CreateOwnEventActivity.class);

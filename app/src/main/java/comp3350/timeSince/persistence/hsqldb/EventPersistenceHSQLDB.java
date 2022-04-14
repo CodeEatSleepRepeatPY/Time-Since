@@ -137,7 +137,7 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
                     statement.setString(4, newEvent.getDescription());
                     statement.setTimestamp(5, DateUtils.calToTimestamp(newEvent.getTargetFinishTime()));
                     statement.executeUpdate();
-
+                    // TODO: is this one where I compare numbers of rows???
                     toReturn = newEvent;
                 }
 

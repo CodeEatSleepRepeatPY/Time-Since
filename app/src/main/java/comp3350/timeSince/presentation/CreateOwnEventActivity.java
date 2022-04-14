@@ -26,7 +26,6 @@ import comp3350.timeSince.R;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
-import comp3350.timeSince.business.interfaces.IUserManager;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 

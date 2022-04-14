@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
@@ -111,6 +112,8 @@ public class EventPersistenceHSQLDBTest {
 
         assertEquals("Database should contain event2", event2,
                 eventPersistence.getEventByID(event2.getID()));
+
+        assertNull("Should return null if invalid event", eventPersistence.insertEvent(null));
     }
 
     @Test(expected = DuplicateEventException.class)
@@ -138,6 +141,16 @@ public class EventPersistenceHSQLDBTest {
     @Test(expected = EventNotFoundException.class)
     public void testUpdateEventException() {
         eventPersistence.updateEventName(event1, "not present"); // should not be able to update an event not in db
+    }
+
+    @Test
+    public void testUpdateEventFinishTime() {
+        eventPersistence.insertEvent(event1);
+        date.set(2023, 1, 1);
+        event1 = eventPersistence.updateEventFinishTime(event1, date);
+
+        assertEquals("New attributes should match", date,
+                eventPersistence.getEventByID(event1.getID()).getTargetFinishTime());
     }
 
     @Test
