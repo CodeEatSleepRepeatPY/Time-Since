@@ -58,9 +58,9 @@ public class EventDisplayTest {
         user = new UserDSO(initialUserCount + 1, testEmail,
                 Calendar.getInstance(), "hash1");
 
-        event1 = new EventDSO(initialEventCount + 1, date1, "Change bedding");
-        event2 = new EventDSO(initialEventCount + 2, date2, "New toothbrush");
-        event3 = new EventDSO(initialEventCount + 3, date3, "Take out garbage");
+        event1 = new EventDSO(initialEventCount + 1, date1, "event1");
+        event2 = new EventDSO(initialEventCount + 2, date2, "event2");
+        event3 = new EventDSO(initialEventCount + 3, date3, "event3");
 
         label1 = new EventLabelDSO(initialLabelCount + 1, "label1");
         label2 = new EventLabelDSO(initialLabelCount + 2, "label2");
@@ -136,7 +136,28 @@ public class EventDisplayTest {
 
     @Test
     public void testGetEventsByDateCreated() {
-        // TODO
+        System.out.println("Event1: " + event1.getDateCreated().getTime());
+        System.out.println("Event2: " + event2.getDateCreated().getTime());
+        System.out.println("Event3: " + event3.getDateCreated().getTime());
+
+        user = userPersistence.addUserEvent(user, event2);
+        user = userPersistence.addUserEvent(user, event3);
+        user = userPersistence.addUserEvent(user, event1);
+
+        List<EventDSO> result = eventManager.sortByDateCreated(true);
+        assertNotNull("The returned list should not be null", result);
+        assertEquals("There should be 3 events", 3, result.size());
+        assertEquals("The first event should be event1", event1, result.get(0));
+        assertEquals("The second event should be event3", event3, result.get(1));
+        assertEquals("The third event should be event2", event2, result.get(2));
+
+        result = eventManager.sortByDateCreated(false);
+        assertNotNull("The returned list should not be null", result);
+        assertEquals("There should be 3 events", 3, result.size());
+        assertEquals("The first event should be event2", event2, result.get(0));
+        assertEquals("The second event should be event3", event3, result.get(1));
+        assertEquals("The third event should be event1", event1, result.get(2));
+
     }
 
     @Test

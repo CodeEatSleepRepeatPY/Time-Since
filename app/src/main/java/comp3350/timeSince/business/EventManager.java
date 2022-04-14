@@ -80,10 +80,12 @@ public class EventManager {
         return allEvents;
     }
 
-    public List<EventDSO> sortByDateCreated(boolean newestToOldest) {
+    public List<EventDSO> sortByDateCreated(boolean recentToOldest) {
         List<EventDSO> allEvents = userPersistence.getAllEvents(user);
-        if (!newestToOldest) {
+        if (!recentToOldest) {
             sorter = new OldestDateComparator();
+        } else {
+            sorter = new NewestDateComparator();
         }
         Collections.sort(allEvents, sorter);
         return allEvents;

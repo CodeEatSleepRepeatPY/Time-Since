@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -17,6 +18,8 @@ import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
+import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
+import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
@@ -88,6 +91,11 @@ public class UserPersistenceTest {
                 user1, actual);
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testGetUserByIDException() {
+        userDatabase.getUserByID(-1);
+    }
+
     @Test
     public void testGetUserByEmail() {
         userDatabase.insertUser(user1);
@@ -98,7 +106,7 @@ public class UserPersistenceTest {
     }
 
     @Test (expected = UserNotFoundException.class)
-    public void testGetUserByIDException() {
+    public void testGetUserByEmailException() {
         userDatabase.getUserByEmail("uid4"); // should not be able to get user not in db
     }
 
@@ -267,6 +275,11 @@ public class UserPersistenceTest {
         assertFalse(result.contains(label3));
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testGetAllLabelsException() {
+        userDatabase.getAllLabels(user3);
+    }
+
     @Test
     public void testGetFavorites() {
         user1 = userDatabase.insertUser(user1);
@@ -306,6 +319,11 @@ public class UserPersistenceTest {
                 0, userDatabase.getFavorites(user1).size());
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testGetFavoritesException() {
+        userDatabase.getFavorites(user3);
+    }
+
     @Test
     public void testSetEventStatus() {
         user1 = userDatabase.insertUser(user1);
@@ -328,6 +346,18 @@ public class UserPersistenceTest {
         assertFalse("event2 should be set as not complete", event2.isDone());
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testSetEventStatusUserException() {
+        userDatabase.setEventStatus(user3, event1, true);
+    }
+
+    @Test (expected = EventNotFoundException.class)
+    public void testSetEventStatusEventException() {
+        user1 = userDatabase.insertUser(user1);
+        userDatabase.setEventStatus(user1, event1, true);
+    }
+
+
     @Test
     public void testAddUserEvent() {
         user1 = userDatabase.insertUser(user1);
@@ -340,6 +370,18 @@ public class UserPersistenceTest {
         assertEquals("User should 2 events", 2, user1.getUserEvents().size());
         assertTrue("User should have event1", user1.getUserEvents().contains(event1));
         assertTrue("User should have event2", user1.getUserEvents().contains(event2));
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testAddUserEventUserException() {
+        userDatabase.addUserEvent(user1, event1);
+    }
+
+    @Ignore
+    @Test (expected = EventNotFoundException.class)
+    public void testAddUserEventEventException() {
+        user1 = userDatabase.insertUser(user1);
+        userDatabase.addUserEvent(user1, event1);
     }
 
     @Test
@@ -417,5 +459,39 @@ public class UserPersistenceTest {
         assertTrue("User should have event2 as a favorite", user1.getUserFavorites().contains(event2));
         assertFalse("User should not have removed event1 as a favorite", user1.getUserFavorites().contains(event1));
     }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testUserNotFoundException() {
+        userDatabase.getUserByID(user1.getID());
+        userDatabase.getUserByEmail(user1.getEmail());
+        userDatabase.insertUser(user1);
+        userDatabase.updateUserName(user1, "badTest");
+        userDatabase.updateUserEmail(user1, "badTest");
+        userDatabase.updateUserPassword(user1, "badTest");
+        userDatabase.deleteUser(user1);
+        userDatabase.getAllEvents(user1);
+        userDatabase.getAllLabels(user1);
+        userDatabase.getFavorites(user1);
+        userDatabase.setEventStatus(user1, event1, true);
+        userDatabase.addUserEvent(user1, event1);
+        userDatabase.removeUserEvent(user1, event1);
+        userDatabase.addUserLabel(user1, label1);
+        userDatabase.removeUserLabel(user1, label1);
+        userDatabase.addUserFavorite(user1, event1);
+        userDatabase.removeUserFavorite(user1, event1);
+    }
+
+    @Ignore
+    @Test (expected = EventNotFoundException.class)
+    public void testEventNotFoundException() {
+        // TODO
+    }
+
+    @Ignore
+    @Test (expected = EventLabelNotFoundException.class)
+    public void testEventLabelNotFoundException() {
+        // TODO
+    }
+
 
 }

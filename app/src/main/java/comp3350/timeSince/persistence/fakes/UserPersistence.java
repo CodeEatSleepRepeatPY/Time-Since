@@ -7,6 +7,7 @@ import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
+import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
@@ -54,13 +55,18 @@ public class UserPersistence implements IUserPersistence {
 
     @Override
     public UserDSO insertUser(UserDSO newUser) throws DuplicateUserException {
+        UserDSO toReturn = null;
         int index = userList.indexOf(newUser);
-        if (index < 0) {
-            userList.add(newUser);
-            nextID++;
-            return newUser;
-        } // else: duplicate
-        throw new DuplicateUserException("The user: " + newUser.getName() + " could not be added.");
+        if (newUser != null) {
+            if (index < 0) {
+                userList.add(newUser);
+                nextID++;
+                toReturn = newUser;
+            } else {
+                throw new DuplicateUserException("The user: " + newUser.getName() + " could not be added.");
+            }
+        }
+        return toReturn;
     }
 
     @Override
@@ -68,7 +74,7 @@ public class UserPersistence implements IUserPersistence {
         UserDSO toReturn = null;
         if (user != null && user.validate()) {
             user.setName(newName);
-            toReturn = updateUser(user);
+            toReturn = updateUser(user); // may throw an exception
         }
         return toReturn;
     }
@@ -100,7 +106,7 @@ public class UserPersistence implements IUserPersistence {
         if (index >= 0) {
             userList.set(index, user);
             return user;
-        }
+        } // else: user is not in list
         throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
     }
 
@@ -152,13 +158,11 @@ public class UserPersistence implements IUserPersistence {
     @Override
     public List<EventLabelDSO> getAllLabels(UserDSO user) {
         List<EventLabelDSO> toReturn = new ArrayList<>();
-        if (user != null) {
-            int index = userList.indexOf(user);
-            if (index >= 0) {
-                toReturn = userList.get(index).getUserLabels();
-            } else {
-                throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
-            }
+        int index = userList.indexOf(user);
+        if (index >= 0) {
+            toReturn = userList.get(index).getUserLabels();
+        } else {
+            throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
         }
         return toReturn;
     }
@@ -166,13 +170,11 @@ public class UserPersistence implements IUserPersistence {
     @Override
     public List<EventDSO> getFavorites(UserDSO user) {
         List<EventDSO> toReturn = new ArrayList<>();
-        if (user != null) {
-            int index = userList.indexOf(user);
-            if (index >= 0) {
-                toReturn = userList.get(index).getUserFavorites();
-            } else {
-                throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
-            }
+        int index = userList.indexOf(user);
+        if (index >= 0) {
+            toReturn = userList.get(index).getUserFavorites();
+        } else {
+            throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
         }
         return toReturn;
     }
@@ -180,18 +182,18 @@ public class UserPersistence implements IUserPersistence {
     @Override
     public UserDSO setEventStatus(UserDSO user, EventDSO event, boolean isComplete) {
         UserDSO toReturn = null;
-        if (user != null && event != null) {
-            int index = userList.indexOf(user);
-            if (index >= 0) {
-                List<EventDSO> eventList = userList.get(index).getUserEvents();
-                int eventIndex = eventList.indexOf(event);
-                if (eventIndex >= 0) {
-                    eventList.get(eventIndex).setIsDone(isComplete);
-                    toReturn = user;
-                }
+        int index = userList.indexOf(user);
+        if (index >= 0) {
+            List<EventDSO> eventList = userList.get(index).getUserEvents();
+            int eventIndex = eventList.indexOf(event);
+            if (eventIndex >= 0) {
+                eventList.get(eventIndex).setIsDone(isComplete);
+                toReturn = user;
             } else {
-                throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
+                throw new EventNotFoundException("The event: " + event.getName() + " could not be found.");
             }
+        } else {
+            throw new UserNotFoundException("The user: " + user.getName() + " could not be found.");
         }
         return toReturn;
     }
@@ -200,11 +202,13 @@ public class UserPersistence implements IUserPersistence {
     public UserDSO addUserEvent(UserDSO user, EventDSO event) {
         int index = userList.indexOf(user);
         if (index >= 0) {
+
             user.addEvent(event);
             userList.set(index, user);
             return user;
+        } else {
+            throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
         }
-        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
     }
 
     @Override
@@ -215,8 +219,9 @@ public class UserPersistence implements IUserPersistence {
             user.removeFavorite(event); // event shouldn't be a fav if not in general list
             userList.set(index, user);
             return user;
+        } else {
+            throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
         }
-        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
     }
 
     @Override
@@ -226,8 +231,9 @@ public class UserPersistence implements IUserPersistence {
             user.addLabel(label);
             userList.set(index, user);
             return user;
+        } else {
+            throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
         }
-        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
     }
 
     @Override
@@ -237,8 +243,9 @@ public class UserPersistence implements IUserPersistence {
             user.removeLabel(label);
             userList.set(index, user);
             return user;
+        } else {
+            throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
         }
-        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
     }
 
     @Override
@@ -248,8 +255,9 @@ public class UserPersistence implements IUserPersistence {
             user.addFavorite(event);
             userList.set(index, user);
             return user;
+        } else {
+            throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
         }
-        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
     }
 
     @Override
@@ -259,8 +267,9 @@ public class UserPersistence implements IUserPersistence {
             user.removeFavorite(event);
             userList.set(index, user);
             return user;
+        } else {
+            throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
         }
-        throw new UserNotFoundException("The user: " + user.getName() + " could not be updated.");
     }
 
     private void setDefaults() {
