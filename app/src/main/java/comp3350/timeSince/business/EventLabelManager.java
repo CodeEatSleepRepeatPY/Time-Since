@@ -13,6 +13,18 @@ public class EventLabelManager {
         eventLabelPersistence = Services.getEventLabelPersistence(forProduction);
     }
 
+    public EventLabelManager(IEventLabelPersistence labelPersistence) {
+        eventLabelPersistence = labelPersistence;
+    }
+
+    public EventLabelDSO getLabelByID(int labelID) throws EventLabelNotFoundException {
+        EventLabelDSO toReturn = null;
+        if (labelID >= 1) {
+            toReturn = eventLabelPersistence.getEventLabelByID(labelID); // may cause exception
+        }
+        return toReturn;
+    }
+
     public EventLabelDSO createLabel(String labelName) {
         EventLabelDSO toReturn = null;
         EventLabelDSO label = new EventLabelDSO(eventLabelPersistence.getNextID(),
