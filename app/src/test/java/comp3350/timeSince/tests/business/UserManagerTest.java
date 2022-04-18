@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
@@ -20,6 +21,7 @@ import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
@@ -96,21 +98,33 @@ public class UserManagerTest {
         assertEquals("wow should now have the username 'admin'", "admin", userManager.getUserByEmail("admin").getName());
     }
 
-//    @Test
-//    public void testUpdateUserPassword() throws NoSuchAlgorithmException {
-//        UserDSO result = userManager.updateUserPassword("admin",  "A12345678");
-//        assertNotNull("admin's password should've been updated", result);
-//
-//        assertEquals("admin's password should now be the sha256 hash of 'A12345678'",
-//                "3b4e266a89805c9d020f9aca6638ad63e8701fc8c75c0ca1952d14054d1f10cf",
-//                userManager.getUserByEmail("admin").getPasswordHash());
-//    }
-
-    // TODO
-
     @Test
+    public void testUpdateUserPassword() throws NoSuchAlgorithmException {
+        UserDSO result = userManager.updateUserPassword("admin",  "A12345678");
+        assertNotNull("admin's password should've been updated", result);
+
+        assertEquals("admin's password should now be the sha256 hash of 'A12345678'",
+                "3b4e266a89805c9d020f9aca6638ad63e8701fc8c75c0ca1952d14054d1f10cf",
+                userManager.getUserByEmail("admin").getPasswordHash());
+    }
+
+    @Test (expected = UserNotFoundException.class)
     public void testDeleteUser() {
-        // TODO
+        String testEmail = "testEmail@outlook.com";
+        try {
+            UserDSO user = userManager.createUser(testEmail, "Password123",
+                    "Password123", "Test Name");
+
+            assertTrue(userManager.deleteUser(testEmail));
+            assertNotEquals(user,userManager.getUserByEmail(testEmail)); // should throw an exception
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testDeleteUserException() {
+        userManager.deleteUser("testUser"); // Trying to remove a user that doesn't exist
     }
 
 }

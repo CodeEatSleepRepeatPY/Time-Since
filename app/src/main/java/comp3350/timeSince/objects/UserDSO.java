@@ -187,7 +187,7 @@ public class UserDSO {
     public boolean setNewPassword(String oldPasswordHash, String newPasswordHash) {
         boolean success = false;
 
-        if (oldPasswordHash.equals(this.passwordHash) && meetsNewPasswordReq(newPasswordHash)) {
+        if (oldPasswordHash.equals(this.passwordHash)) {
             this.passwordHash = newPasswordHash;
             System.out.println("user set new password, success");
             success = true;
