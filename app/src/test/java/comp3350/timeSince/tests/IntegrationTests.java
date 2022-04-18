@@ -7,6 +7,7 @@ import comp3350.timeSince.business.EventLabelManager;
 import comp3350.timeSince.tests.business.EventDisplayTest;
 import comp3350.timeSince.tests.business.EventLabelManagerTest;
 import comp3350.timeSince.tests.business.EventManagerTest;
+import comp3350.timeSince.tests.business.UserEventManagerTest;
 import comp3350.timeSince.tests.business.UserManagerTest;
 import comp3350.timeSince.tests.objects.EventsWithLabelsTest;
 import comp3350.timeSince.tests.objects.UsersWithEventsTest;
@@ -18,6 +19,7 @@ import comp3350.timeSince.tests.objects.UsersWithEventsTest;
         UserManagerTest.class,
         EventManagerTest.class,
         EventLabelManagerTest.class,
+        UserEventManagerTest.class,
         EventDisplayTest.class
 })
 public class IntegrationTests {

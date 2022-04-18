@@ -7,7 +7,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -24,6 +26,7 @@ import comp3350.timeSince.persistence.IUserPersistence;
 import comp3350.timeSince.persistence.InitialDatabaseState;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UserEventManagerTest {
 
     private UserEventManager userEventManagerBad;

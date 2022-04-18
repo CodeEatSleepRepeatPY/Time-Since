@@ -2,6 +2,7 @@ package comp3350.timeSince.tests.business;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -9,15 +10,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import comp3350.timeSince.business.EventLabelManager;
+import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.InitialDatabaseState;
 import comp3350.timeSince.persistence.hsqldb.EventLabelPersistenceHSQLDB;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class EventLabelManagerTest {
 
     private EventLabelManager labelManager;
@@ -70,6 +75,28 @@ public class EventLabelManagerTest {
         verify(labelPersistence, times(3)).insertEventLabel(any(EventLabelDSO.class));
 
         assertNull("An invalid label should return null", labelManager.createLabel(null));
+    }
+
+    @Test
+    public void testInsertLabel() {
+        when(labelPersistence.insertEventLabel(any(EventLabelDSO.class)))
+                .thenReturn(label1).thenReturn(label2).thenReturn(null);
+
+        assertEquals("Label1 should be returned", label1, labelManager.insertLabel(label1));
+        assertEquals("Label2 should be returned", label2, labelManager.insertLabel(label2));
+        assertNull("An invalid label should return null", labelManager.insertLabel(null));
+
+        verify(labelPersistence, times(2)).insertEventLabel(any(EventLabelDSO.class));
+    }
+
+    @Test (expected = DuplicateEventLabelException.class)
+    public void testInsertLabelException() {
+        when(labelPersistence.insertEventLabel(label1)).thenReturn(label1);
+        assertEquals("Label1 should be returned", label1, labelManager.insertLabel(label1));
+        when(labelPersistence.insertEventLabel(label1)).thenThrow(DuplicateEventLabelException.class);
+
+        labelManager.insertLabel(label1);
+        verify(labelPersistence, times(2)).insertEventLabel(any(EventLabelDSO.class));
     }
 
     @Test

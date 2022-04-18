@@ -124,13 +124,13 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
                     if (result > 0) {
                         toReturn = newEventLabel;
-                    } else {
-                        throw new DuplicateEventLabelException(exceptionMessage);
                     }
                 }
             } catch (SQLException e) {
-                System.out.println("TEST");
                 e.printStackTrace();
+                throw new DuplicateEventLabelException(exceptionMessage);
+            }
+            if (toReturn == null) {
                 throw new DuplicateEventLabelException(exceptionMessage);
             }
         }

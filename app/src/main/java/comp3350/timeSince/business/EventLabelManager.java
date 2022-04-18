@@ -1,6 +1,7 @@
 package comp3350.timeSince.business;
 
 import comp3350.timeSince.application.Services;
+import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
@@ -31,6 +32,14 @@ public class EventLabelManager {
                 labelName); // create label object with specified name
         if (label.validate()) {
             toReturn = eventLabelPersistence.insertEventLabel(label);
+        }
+        return toReturn;
+    }
+
+    public EventLabelDSO insertLabel(EventLabelDSO label) throws DuplicateEventLabelException {
+        EventLabelDSO toReturn = null;
+        if (label != null && label.validate()) {
+            toReturn = eventLabelPersistence.insertEventLabel(label); // may throw an exception
         }
         return toReturn;
     }
