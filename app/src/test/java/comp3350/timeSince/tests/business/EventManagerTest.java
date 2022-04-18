@@ -112,22 +112,18 @@ public class EventManagerTest {
     }
 
     @Test
-    public void testAddLabel() {
+    public void testAddLabelToEvent() {
+        // TODO
+    }
+
+
+    @Test
+    public void testRemoveLabelFromEvent() {
         // TODO
     }
 
     @Test
-    public void testAddLabels() {
-        // TODO
-    }
-
-    @Test
-    public void testRemoveLabel() {
-        // TODO
-    }
-
-    @Test
-    public void testUpdateFavorite() {
+    public void testUpdateEventFavorite() {
         // TODO
     }
 

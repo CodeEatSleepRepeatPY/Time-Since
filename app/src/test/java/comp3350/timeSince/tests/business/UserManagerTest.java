@@ -97,7 +97,7 @@ public class UserManagerTest {
     }
 
 //    @Test
-//    public void updateUserPassword() throws NoSuchAlgorithmException {
+//    public void testUpdateUserPassword() throws NoSuchAlgorithmException {
 //        UserDSO result = userManager.updateUserPassword("admin",  "A12345678");
 //        assertNotNull("admin's password should've been updated", result);
 //
@@ -106,38 +106,10 @@ public class UserManagerTest {
 //                userManager.getUserByEmail("admin").getPasswordHash());
 //    }
 
-    @Test
-    public void testAddUserEvent() {
-        // TODO
-    }
-
-    @Test
-    public void testAddUserFavorite() {
-        // TODO
-    }
-
-    @Test
-    public void testAddUserLabel() {
-        // TODO
-    }
+    // TODO
 
     @Test
     public void testDeleteUser() {
-        // TODO
-    }
-
-    @Test
-    public void testGetUserEvents() {
-        // TODO
-    }
-
-    @Test
-    public void testGetUserLabels() {
-        // TODO
-    }
-
-    @Test
-    public void testGetUserFavorites() {
         // TODO
     }
 
