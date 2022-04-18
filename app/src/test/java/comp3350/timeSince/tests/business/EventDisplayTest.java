@@ -19,25 +19,26 @@ import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.EventManager;
+import comp3350.timeSince.business.UserEventManager;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
+import comp3350.timeSince.persistence.InitialDatabaseState;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class EventDisplayTest {
 
     private EventManager eventManager;
+    private UserEventManager userEventManager;
     private IUserPersistence userPersistence;
     private UserDSO user;
     private EventDSO event1, event2, event3;
     private EventLabelDSO label1, label2, label3;
-    private Calendar date1, date2, date3;
-    private final String testEmail = "uid";
-    private static final int initialUserCount = 2;
-    private static final int initialEventCount = 8;
-    private static final int initialLabelCount = 9;
+    private static final int initialUserCount = InitialDatabaseState.NUM_USERS;
+    private static final int initialEventCount = InitialDatabaseState.NUM_EVENTS;
+    private static final int initialLabelCount = InitialDatabaseState.NUM_LABELS;
 
     @Rule
     public ExpectedException exceptionRule;
@@ -48,6 +49,7 @@ public class EventDisplayTest {
 
         userPersistence = Services.getUserPersistence(true);
 
+        Calendar date1, date2, date3;
         date1 = Calendar.getInstance();
         date1.add(Calendar.DATE, 5);
         date2 = Calendar.getInstance();
@@ -55,7 +57,7 @@ public class EventDisplayTest {
         date3 = Calendar.getInstance();
         date3.add(Calendar.DATE, 3);
 
-        user = new UserDSO(initialUserCount + 1, testEmail,
+        user = new UserDSO(initialUserCount + 1, "testUser@gmail.com",
                 Calendar.getInstance(), "hash1");
 
         event1 = new EventDSO(initialEventCount + 1, date1, "event1");
@@ -66,13 +68,13 @@ public class EventDisplayTest {
         label2 = new EventLabelDSO(initialLabelCount + 2, "label2");
         label3 = new EventLabelDSO(initialLabelCount + 3, "label3");
 
-        userPersistence.insertUser(user);
-        eventManager = new EventManager(testEmail, true);
+        user = userPersistence.insertUser(user);
+        eventManager = new EventManager(true);
+        userEventManager = new UserEventManager(user.getEmail(), true);
     }
 
     @After
     public void tearDown() {
-        userPersistence.deleteUser(user);
         Services.clean();
     }
 
@@ -82,22 +84,22 @@ public class EventDisplayTest {
         user = userPersistence.addUserEvent(user, event2);
         user = userPersistence.addUserEvent(user, event3);
 
-        List<EventDSO> result = eventManager.filterByStatus(true);
+        List<EventDSO> result = userEventManager.filterByStatus(true);
         assertEquals("All events should be incomplete on default", 0, result.size());
-        result = eventManager.filterByStatus(false);
+        result = userEventManager.filterByStatus(false);
         assertEquals("All events should be incomplete on default", 3, result.size());
 
-        user = eventManager.setEventStatus(event1, true);
-        user = eventManager.setEventStatus(event2, false);
-        user = eventManager.setEventStatus(event3, true);
+        event1 = eventManager.markEventAsDone(event1.getID(), true);
+        event2 = eventManager.markEventAsDone(event2.getID(), false);
+        event3 = eventManager.markEventAsDone(event3.getID(), true);
 
-        result = eventManager.filterByStatus(true);
+        result = userEventManager.filterByStatus(true);
         assertEquals("The user should have 2 completed events", 2, result.size());
         assertTrue("The list should contain event1", result.contains(event1));
         assertFalse("The list should not contain event2", result.contains(event2));
         assertTrue("The list should contain event3", result.contains(event3));
 
-        result = eventManager.filterByStatus(false);
+        result = userEventManager.filterByStatus(false);
         assertEquals("The user should have 1 incomplete event", 1, result.size());
         assertFalse("The list should not contain event1", result.contains(event1));
         assertTrue("The list should contain event2", result.contains(event2));
@@ -118,18 +120,18 @@ public class EventDisplayTest {
         user = userPersistence.addUserEvent(user, event3);
         assertNotNull("The user should not be null after inserting all events", user);
 
-        List<EventDSO> result = eventManager.filterByLabel(label1.getID());
+        List<EventDSO> result = userEventManager.filterByLabel(label1.getID());
         assertTrue("Label1 should return event1", result.contains(event1));
         assertTrue("Label1 should return event3", result.contains(event3));
         assertEquals("The user has 2 events with label1", 2, result.size());
 
-        result = eventManager.filterByLabel(label2.getID());
+        result = userEventManager.filterByLabel(label2.getID());
         assertEquals("The user has 3 events with label2", 3, result.size());
         assertTrue("Label2 should return event1", result.contains(event1));
         assertTrue("Label2 should return event2", result.contains(event2));
         assertTrue("Label2 should return event3", result.contains(event3));
 
-        result = eventManager.filterByLabel(label3.getID());
+        result = userEventManager.filterByLabel(label3.getID());
         assertEquals("The user has 1 event with label3", 1, result.size());
         assertTrue("Label3 should return event2", result.contains(event2));
     }
@@ -144,14 +146,14 @@ public class EventDisplayTest {
         user = userPersistence.addUserEvent(user, event3);
         user = userPersistence.addUserEvent(user, event1);
 
-        List<EventDSO> result = eventManager.sortByDateCreated(true);
+        List<EventDSO> result = userEventManager.sortByDateCreated(true);
         assertNotNull("The returned list should not be null", result);
         assertEquals("There should be 3 events", 3, result.size());
         assertEquals("The first event should be event1", event1, result.get(0));
         assertEquals("The second event should be event3", event3, result.get(1));
         assertEquals("The third event should be event2", event2, result.get(2));
 
-        result = eventManager.sortByDateCreated(false);
+        result = userEventManager.sortByDateCreated(false);
         assertNotNull("The returned list should not be null", result);
         assertEquals("There should be 3 events", 3, result.size());
         assertEquals("The first event should be event2", event2, result.get(0));
@@ -171,14 +173,14 @@ public class EventDisplayTest {
         user = userPersistence.addUserEvent(user, event3);
         user = userPersistence.addUserEvent(user, event1);
 
-        List<EventDSO> result = eventManager.sortByName(true);
+        List<EventDSO> result = userEventManager.sortByName(true);
         assertNotNull("The returned list should not be null", result);
         assertEquals("There should be 3 events", 3, result.size());
         assertEquals("The first event should be event1", event1, result.get(0));
         assertEquals("The second event should be event2", event2, result.get(1));
         assertEquals("The third event should be event3", event3, result.get(2));
 
-        result = eventManager.sortByName(false);
+        result = userEventManager.sortByName(false);
         assertNotNull("The returned list should not be null", result);
         assertEquals("There should be 3 events", 3, result.size());
         assertEquals("The first event should be event3", event3, result.get(0));

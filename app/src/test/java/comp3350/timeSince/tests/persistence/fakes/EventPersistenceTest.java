@@ -1,4 +1,4 @@
-package comp3350.timeSince.tests.persistence;
+package comp3350.timeSince.tests.persistence.fakes;
 
 import static org.junit.Assert.*;
 
@@ -20,6 +20,7 @@ import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
+import comp3350.timeSince.persistence.InitialDatabaseState;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class EventPersistenceTest {
@@ -29,13 +30,14 @@ public class EventPersistenceTest {
     private EventDSO event1, event2, event3, event4;
     private final Calendar date = Calendar.getInstance();
     private List<EventDSO> eventList;
-    private static final int initialEventCount = 8;
-    private static final int initialLabelCount = 9;
+    private static final int initialEventCount = InitialDatabaseState.NUM_EVENTS;
+    private static final int initialLabelCount = InitialDatabaseState.NUM_LABELS;
 
     @Before
     public void setUp() {
         eventDatabase = Services.getEventPersistence(false);
         eventLabelDatabase = Services.getEventLabelPersistence(false);
+
         event1 = new EventDSO(initialEventCount + 1, date, "event1");
         event2 = new EventDSO(initialEventCount + 2, date, "event2");
         event3 = new EventDSO(initialEventCount + 3, date, "event3");
@@ -46,6 +48,15 @@ public class EventPersistenceTest {
     @After
     public void tearDown() {
         Services.clean();
+    }
+
+    @Test
+    public void testEventExists() {
+        assertFalse("Event should not exist by default", eventDatabase.eventExists(event1));
+        eventDatabase.insertEvent(event1);
+        assertTrue("The event should now exist", eventDatabase.eventExists(event1));
+        eventDatabase.deleteEvent(event1);
+        assertFalse("The event should no longer exist", eventDatabase.eventExists(event1));
     }
 
     @Test
@@ -165,6 +176,52 @@ public class EventPersistenceTest {
         assertEquals("The event should now have 1 label", 1, labels.size());
         assertTrue("The event should contain label2", labels.contains(label2));
         assertFalse("The event should not contain the deleted label1", labels.contains(label1));
+    }
+
+    @Test
+    public void testSetEventStatus() {
+        event1 = eventDatabase.insertEvent(event1);
+        event2 = eventDatabase.insertEvent(event2);
+
+        assertFalse("event1 should not be complete", event1.isDone());
+        assertFalse("event2 should not be complete", event2.isDone());
+
+        event1 = eventDatabase.updateEventStatus(event1, true);
+        assertTrue("event1 should now be complete", event1.isDone());
+        assertFalse("event2 should still not be complete", event2.isDone());
+
+        event1 = eventDatabase.updateEventStatus(event1, false);
+        event2 = eventDatabase.updateEventStatus(event2, false);
+        assertFalse("event1 should be back to not be complete", event1.isDone());
+        assertFalse("event2 should be set as not complete", event2.isDone());
+    }
+
+    @Test (expected = EventNotFoundException.class)
+    public void testSetEventStatusUserException() {
+        eventDatabase.updateEventStatus(event1, true);
+    }
+
+    @Test
+    public void testUpdateEventFavorite() {
+        event1 = eventDatabase.insertEvent(event1);
+        event2 = eventDatabase.insertEvent(event2);
+
+        assertFalse("event1 should not be a favorite", event1.isFavorite());
+        assertFalse("event2 should not be a favorite", event2.isFavorite());
+
+        event1 = eventDatabase.updateEventFavorite(event1, true);
+        assertTrue("event1 should now be a favorite", event1.isFavorite());
+        assertFalse("event2 should still not be a favorite", event2.isFavorite());
+
+        event1 = eventDatabase.updateEventFavorite(event1, false);
+        event2 = eventDatabase.updateEventFavorite(event2, false);
+        assertFalse("event1 should be back to not be a favorite", event1.isFavorite());
+        assertFalse("event2 should be set as not be a favorite", event2.isFavorite());
+    }
+
+    @Test (expected = EventNotFoundException.class)
+    public void testUpdateEventFavoriteException() {
+        eventDatabase.updateEventFavorite(event1, true);
     }
 
     @Test

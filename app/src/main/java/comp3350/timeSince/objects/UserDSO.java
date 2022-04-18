@@ -1,18 +1,23 @@
-/*
- * UserDSO
- *
- * Remarks: Domain Specific Object for a User
- */
-// TODO: clean up
 package comp3350.timeSince.objects;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.business.exceptions.UserRegistrationFailedException;
 
+/**
+ * UserDSO
+ * <p>
+ * Remarks: Domain Specific Object for a User
+ */
 public class UserDSO {
 
     //----------------------------------------
@@ -32,17 +37,27 @@ public class UserDSO {
     // constructor
     //----------------------------------------
 
-    public UserDSO(int id, String email, Calendar date, String passwordHash) {
-        this.ID = id;
-        this.email = email;
+    public UserDSO(int id, String email, Calendar dateRegistered, String passwordHash) {
+        this.ID = id >= 1 ? id : -1;
+        setEmailHelper(email);
         this.name = email; // defaults to the email
-        this.DATE_REGISTERED = date;
+        this.DATE_REGISTERED = dateRegistered;
         this.passwordHash = passwordHash;
 
         // initialize ArrayLists
         this.USER_LABELS = new ArrayList<>();
         this.USER_EVENTS = new ArrayList<>();
         this.USER_FAVORITES = new ArrayList<>();
+    }
+
+    private void setEmailHelper(String email) {
+        if (email != null) {
+            if (emailVerification(email) || email.equals("admin")) {
+                this.email = email;
+            }
+        } else {
+            this.email = null;
+        }
     }
 
     //----------------------------------------
@@ -85,55 +100,16 @@ public class UserDSO {
     // setters
     //----------------------------------------
 
-    public boolean setNewEmail(String oldEmail, String newEmail) {
-        boolean success = false;
-        if (oldEmail != null && oldEmail.equals(email) && newEmail != null) {
-            email = newEmail;
-            success = true;
-        }
-        return success;
-    }
-
     public void setName(String name) {
         this.name = name;
-    }
-
-    // confirm the old password before changing to the new password
-    public boolean setNewPassword(String oldPasswordHash, String newPasswordHash) {
-        boolean success = false;
-
-        if (oldPasswordHash.equals(this.passwordHash)) {
-            this.passwordHash = newPasswordHash;
-            System.out.println("user set new password, success");
-            success = true;
-        }
-
-        return success;
-    }
-
-    //----------------------------------------
-    // general
-    //----------------------------------------
-
-    public boolean validate() {
-        return (email != null && email.length() > 0
-                && passwordHash != null
-                && DATE_REGISTERED != null);
-    }
-
-    public void addLabel(EventLabelDSO newLabel) {
-        if (newLabel != null && !USER_LABELS.contains(newLabel)) {
-            USER_LABELS.add(newLabel);
-        }
-    }
-
-    public void removeLabel(EventLabelDSO label) {
-        USER_LABELS.remove(label);
     }
 
     public void addEvent(EventDSO newEvent) {
         if (newEvent != null && !USER_EVENTS.contains(newEvent)) {
             USER_EVENTS.add(newEvent);
+            if (newEvent.isFavorite()) {
+                addFavorite(newEvent);
+            }
         }
     }
 
@@ -152,6 +128,74 @@ public class UserDSO {
         USER_FAVORITES.remove(event);
     }
 
+    public void addLabel(EventLabelDSO newLabel) {
+        if (newLabel != null && !USER_LABELS.contains(newLabel)) {
+            USER_LABELS.add(newLabel);
+        }
+    }
+
+    public void removeLabel(EventLabelDSO label) {
+        USER_LABELS.remove(label);
+    }
+
+    //----------------------------------------
+    // email
+    //----------------------------------------
+
+    public boolean setNewEmail(String oldEmail, String newEmail) throws UserRegistrationFailedException {
+        boolean success = false;
+        if (oldEmail != null && newEmail != null && oldEmail.equals(email)) {
+            if (emailVerification(newEmail)) {
+                email = newEmail;
+                success = true;
+            }
+            else {
+                throw new UserRegistrationFailedException("Not a valid email. " +
+                        "Should be of the form local@domain (ex. username@domain.com)");
+            }
+        }
+        return success;
+    }
+
+    /**
+     * @param email the email address to verify
+     * @return true if of the form: local@domain
+     * @author taken from: <a href="https://www.baeldung.com/java-email-validation-regex">Baeldung</a>
+     */
+    public static boolean emailVerification(String email) {
+        String regexPattern = "^(.+)@(\\S+)$";
+        return Pattern.compile(regexPattern).matcher(email).matches();
+    }
+
+    //----------------------------------------
+    // passwords
+    //----------------------------------------
+
+    public static String hashPassword(String inputPassword) throws NoSuchAlgorithmException {
+        String strHash = "";
+
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(inputPassword.getBytes(StandardCharsets.UTF_8));
+
+        BigInteger notHash = new BigInteger(1, hash);
+        strHash = notHash.toString(16);
+
+        return strHash;
+    }
+
+    // confirm the old password before changing to the new password
+    public boolean setNewPassword(String oldPasswordHash, String newPasswordHash) {
+        boolean success = false;
+
+        if (oldPasswordHash.equals(this.passwordHash) && meetsNewPasswordReq(newPasswordHash)) {
+            this.passwordHash = newPasswordHash;
+            System.out.println("user set new password, success");
+            success = true;
+        }
+
+        return success;
+    }
+
     // when logging in, have entered the right password?
     public boolean matchesExistingPassword(String password) throws PasswordErrorException {
         if (!passwordHash.equals(password)) {
@@ -166,58 +210,61 @@ public class UserDSO {
     public static boolean meetsNewPasswordReq(String password) throws PasswordErrorException {
         boolean minLength = hasMinLength(password);
         boolean hasCapital = hasCapital(password);
-        if (!minLength) {
-            throw new PasswordErrorException("The length of your password should more than 8 characters.");
-        }
-        if (!hasCapital) {
-            throw new PasswordErrorException("Your password should contains at least one capital letter!");
-        }
-        return true;
+        return (minLength && hasCapital);
     }
 
-    public String toString() {
-        String toReturn = "";
-        if (name != null && email != null) {
-            toReturn = String.format("Name: %s, UserID: %s", name, email);
+    // helper for meetsNewPasswordReq
+    private static boolean hasMinLength(String password) throws PasswordErrorException {
+        final int MIN_LENGTH = 8;
+        if (password.length() >= MIN_LENGTH) {
+            return true;
+        } else {
+            throw new PasswordErrorException("The length of your password should more than 8 characters.");
         }
-        if (name == null && email != null) {
-            toReturn = String.format("UserID: %s", email);
+    }
+
+    // helper for meetsNewPasswordReq
+    private static boolean hasCapital(String password) throws PasswordErrorException {
+        char letter;
+        // checking that the password has a capital letter
+        for (int i = 0; i < password.length(); i++) {
+            letter = password.charAt(i);
+            if (Character.isUpperCase(letter)) {
+                return true;
+            }
         }
-        return toReturn;
+        throw new PasswordErrorException("Your password should contains at least one capital letter!");
+    }
+
+    //----------------------------------------
+    // general
+    //----------------------------------------
+
+    public boolean validate() {
+        return (email != null
+                && passwordHash != null
+                && DATE_REGISTERED != null);
     }
 
     @Override
     public boolean equals(Object other) {
         boolean toReturn = false;
-
         if (other instanceof UserDSO) {
-            toReturn = email.equals(((UserDSO) other).getEmail());
+            toReturn = ID == ((UserDSO) other).getID()
+                    && email.equals(((UserDSO) other).getEmail());
         }
-
         return toReturn;
     }
 
-    // helper for meetsNewPasswordReq
-    private static boolean hasMinLength(String password) {
-        final int MIN_LENGTH = 8;
-
-        return password.length() >= MIN_LENGTH;
-    }
-
-    // helper for meetsNewPasswordReq
-    private static boolean hasCapital(String password) {
-        boolean hasCapital = false;
-        char letter;
-
-        // checking that the password has a capital letter
-        for (int i = 0; i < password.length() && !hasCapital; i++) {
-            letter = password.charAt(i);
-            if (Character.isUpperCase(letter)) {
-                hasCapital = true;
-            }
+    public String toString() {
+        String toReturn = "";
+        if (name != null && name.length() > 0 && email != null) {
+            toReturn = String.format("Name: %s, Email: %s", name, email);
         }
-
-        return hasCapital;
+        if ((name == null || name.length() == 0) && email != null) {
+            toReturn = String.format("Email: %s", email);
+        }
+        return toReturn;
     }
 
 }

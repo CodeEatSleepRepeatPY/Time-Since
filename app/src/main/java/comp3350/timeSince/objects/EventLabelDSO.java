@@ -19,11 +19,7 @@ public class EventLabelDSO {
     //----------------------------------------
 
     public EventLabelDSO(int id, String name) {
-        if (id >= 1) {
-            this.ID = id;
-        } else {
-            this.ID = -1;
-        }
+        this.ID = id >= 1 ? id : -1;
         this.name = name;
     }
 
@@ -43,6 +39,9 @@ public class EventLabelDSO {
     // setters
     //----------------------------------------
 
+    /**
+     * @param newName NonNull
+     */
     public void setName(String newName) {
         if (newName != null) {
             name = newName;
@@ -54,10 +53,10 @@ public class EventLabelDSO {
     //----------------------------------------
 
     /**
-     * @return true if id >= 1 and the name is not null; false otherwise
+     * @return true if id >= 1 and the name is at least one character long; false otherwise
      */
     public boolean validate() {
-        return (ID >= 1 && name != null);
+        return (ID >= 1 && name != null && name.length() >= 1);
     }
 
     @Override

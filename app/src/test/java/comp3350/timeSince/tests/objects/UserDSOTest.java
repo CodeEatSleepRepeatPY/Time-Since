@@ -14,6 +14,7 @@ import org.junit.runners.MethodSorters;
 import java.util.Calendar;
 
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.business.exceptions.UserRegistrationFailedException;
 import comp3350.timeSince.objects.UserDSO;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -95,6 +96,11 @@ public class UserDSOTest {
         assertEquals(message, newEmail, userDSO.getEmail());
     }
 
+    @Test (expected = UserRegistrationFailedException.class)
+    public void testSetNewEmailException() {
+        userDSO.setNewEmail(id, "badEmail");
+    }
+
     @Test
     public void testMeetsNewPasswordReq() {
         final int MIN_LENGTH = 8;
@@ -125,7 +131,7 @@ public class UserDSOTest {
 
     @Test
     public void testSetNewPassword() {
-        String newPasswordHash = "11111";
+        String newPasswordHash = "Password1234";
         String message = "setNewPassword should return true when passing in" +
                 "the correct old password hash";
 
@@ -153,14 +159,14 @@ public class UserDSOTest {
 
     @Test
     public void testToString() {
-        String expected = String.format("Name: %s, UserID: %s",
+        String expected = String.format("Name: %s, Email: %s",
                 userDSO.getName(), userDSO.getEmail());
-        String message = "The User should display as: 'Name: ?name?, UserID: ?id?'";
+        String message = "The User should display as: 'Name: ?name?, Email: ?id?'";
         assertEquals(message, expected, userDSO.toString());
 
         userDSO.setName(null);
-        expected = String.format("UserID: %s", userDSO.getEmail());
-        message = "The User should display as: 'UserID: ?id?' when no name is given.";
+        expected = String.format("Email: %s", userDSO.getEmail());
+        message = "The User should display as: 'Email: ?id?' when no name is given.";
         assertEquals(message, expected, userDSO.toString());
 
         UserDSO testUser = new UserDSO(-1, null, defaultDate, passwordHash);

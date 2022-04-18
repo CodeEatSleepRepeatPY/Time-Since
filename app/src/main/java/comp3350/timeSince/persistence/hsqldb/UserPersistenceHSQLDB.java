@@ -12,8 +12,6 @@ import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.DateUtils;
-import comp3350.timeSince.business.exceptions.DuplicateEventException;
-import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
@@ -24,6 +22,7 @@ import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
+import comp3350.timeSince.persistence.InitialDatabaseState;
 
 public class UserPersistenceHSQLDB implements IUserPersistence {
 
@@ -32,18 +31,11 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     private final IEventLabelPersistence eventLabelPersistence;
     private int nextID;
 
-    private static final String TABLE_USER = "users";
-    private static final String USER_ID = "uid"; // int
-    private static final String EMAIL = "email"; // 50 characters, unique, not null
-    private static final String USER_NAME = "user_name"; // 30 characters
-    private static final String DATE_REGISTERED = "date_registered"; // timestamp, not null
-    private static final String PASSWORD = "password_hash"; // 64 characters
-
     public UserPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
         eventPersistence = Services.getEventPersistence(true);
         eventLabelPersistence = Services.getEventLabelPersistence(true);
-        nextID = 2; // number of values in the database at creation
+        nextID = InitialDatabaseState.NUM_USERS; // number of values in the database at creation
     }
 
     private Connection connection() throws SQLException {
@@ -58,11 +50,11 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
      */
     private UserDSO fromResultSet(final ResultSet rs) throws SQLException {
 
-        final int id = rs.getInt(USER_ID);
-        final String email = rs.getString(EMAIL);
-        final String userName = rs.getString(USER_NAME);
-        final Calendar dateRegistered = DateUtils.timestampToCal(rs.getTimestamp(DATE_REGISTERED));
-        final String passwordHash = rs.getString(PASSWORD);
+        final int id = rs.getInt("uid");
+        final String email = rs.getString("email");
+        final String userName = rs.getString("user_name");
+        final Calendar dateRegistered = DateUtils.timestampToCal(rs.getTimestamp("date_registered"));
+        final String passwordHash = rs.getString("password_hash");
 
         UserDSO newUser = new UserDSO(id, email, dateRegistered, passwordHash);
         newUser.setName(userName);
@@ -72,6 +64,15 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         newUser = connectUsersAndLabels(newUser);
 
         return newUser;
+    }
+
+    @Override
+    public boolean userExists(UserDSO user) {
+        try {
+            return getUserByID(user.getID()).equals(user);
+        } catch (UserNotFoundException e) {
+            return false;
+        }
     }
 
     @Override
@@ -113,7 +114,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             if (resultSet.next()) {
                 toReturn = fromResultSet(resultSet);
             }
-
         } catch (final SQLException e) {
             e.printStackTrace();
             throw new UserNotFoundException(exceptionMessage);
@@ -127,7 +127,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public UserDSO getUserByEmail(String email) throws UserNotFoundException {
-        final String query = "SELECT * FROM " + TABLE_USER + " WHERE " + EMAIL + " = ?";
+        final String query = "SELECT * FROM users WHERE email = ?";
         UserDSO toReturn = null;
         final String exceptionMessage = "The user: " + email + " could not be found.";
 
@@ -154,7 +154,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public UserDSO insertUser(UserDSO newUser) throws DuplicateUserException {
-        final String query = "INSERT INTO " + TABLE_USER + " VALUES(?, ?, ?, ?, ?)";
+        final String query = "INSERT INTO users VALUES(?, ?, ?, ?, ?)";
         UserDSO toReturn = null;
 
         if (newUser != null) {
@@ -175,17 +175,15 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
                     if (result > 0) {
                         toReturn = newUser;
-                    } else {
-                        throw new DuplicateUserException(exceptionMessage);
                     }
-                } else {
-                    throw new DuplicateUserException(exceptionMessage);
                 }
             } catch (final SQLException e) {
                 e.printStackTrace();
                 throw new DuplicateUserException(exceptionMessage);
             }
-
+            if (toReturn == null) {
+                throw new DuplicateUserException(exceptionMessage);
+            }
         }
         nextID++;
         return toReturn;
@@ -193,8 +191,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public UserDSO updateUserName(UserDSO user, String newName) {
-        final String query = "UPDATE " + TABLE_USER
-                + " SET " + USER_NAME + " = ? WHERE " + USER_ID + " = ?";
+        final String query = "UPDATE users SET user_name = ? WHERE uid = ?";
         UserDSO toReturn = null;
 
         if (user != null) {
@@ -224,8 +221,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public UserDSO updateUserEmail(UserDSO user, String newEmail) {
-        final String query = "UPDATE " + TABLE_USER
-                + " SET " + EMAIL + " = ? WHERE " + USER_ID + " = ?";
+        final String query = "UPDATE users SET email = ? WHERE uid = ?";
         UserDSO toReturn = null;
 
         if (user != null) {
@@ -241,12 +237,12 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
                 if (result > 0 && user.setNewEmail(user.getEmail(),newEmail)) {
                     toReturn = user;
-                } else {
-                    throw new UserNotFoundException(exceptionMessage);
                 }
-
             } catch (final SQLException e) {
                 e.printStackTrace();
+                throw new UserNotFoundException(exceptionMessage);
+            }
+            if (toReturn == null) {
                 throw new UserNotFoundException(exceptionMessage);
             }
         }
@@ -255,29 +251,29 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public UserDSO updateUserPassword(UserDSO user, String newPassword) {
-        final String query = "UPDATE " + TABLE_USER
-                + " SET " + PASSWORD + " = ? WHERE " + USER_ID + " = ?";
+        final String query = "UPDATE users SET password_hash = ? WHERE uid = ?";
         UserDSO toReturn = null;
 
-        if (user != null && user.setNewPassword(user.getPasswordHash(), newPassword)) {
+        if (user != null) {
             final String exceptionMessage = "The user: " + user.getName() +
                     " could not be updated.";
 
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
-                statement.setString(1, user.getPasswordHash());
+                statement.setString(1, newPassword);
                 statement.setInt(2, user.getID());
                 int result = statement.executeUpdate();
 
                 if (result > 0) {
+                    user.setNewPassword(user.getPasswordHash(), newPassword);
                     toReturn = user;
-                } else {
-                    throw new UserNotFoundException(exceptionMessage);
                 }
-
             } catch (final SQLException e) {
                 e.printStackTrace();
+                throw new UserNotFoundException(exceptionMessage);
+            }
+            if (toReturn == null) {
                 throw new UserNotFoundException(exceptionMessage);
             }
         }
@@ -286,7 +282,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public UserDSO deleteUser(UserDSO user) throws UserNotFoundException {
-        final String query = "DELETE FROM " + TABLE_USER + " WHERE " + USER_ID + " = ?";
+        final String query = "DELETE FROM users WHERE uid = ?";
         UserDSO toReturn = null;
 
         if (user != null) {
@@ -315,7 +311,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public boolean isUnique(String email) {
-        final String query = "SELECT COUNT(*) AS numUsers FROM " + TABLE_USER + " WHERE " + EMAIL + " = ?";
+        final String query = "SELECT COUNT(*) AS numUsers FROM users WHERE email = ?";
         boolean toReturn = false;
 
         try (final Connection c = connection();
@@ -338,7 +334,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public int numUsers() {
-        final String query = "SELECT COUNT(*) AS numUsers FROM " + TABLE_USER;
+        final String query = "SELECT COUNT(*) AS numUsers FROM users";
         int toReturn = -1;
 
         try (final Connection c = connection();
@@ -358,16 +354,17 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         return toReturn;
     }
 
+    @Override
     public int getNextID() {
         return nextID + 1;
     }
 
     @Override
-    public List<EventDSO> getAllEvents(UserDSO user) {
+    public List<EventDSO> getAllEvents(UserDSO user) throws UserNotFoundException {
         final String query = "SELECT * FROM usersevents WHERE uid = ?";
         List<EventDSO> toReturn = new ArrayList<>();
 
-        if (user != null) {
+        if (user != null && userExists(user)) { // may throw an exception
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
@@ -378,7 +375,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                     try {
                         EventDSO event = eventPersistence.getEventByID(resultSet.getInt("eid"));
                         if (event != null) {
-                            event.setIsDone(resultSet.getBoolean("is_done"));
                             toReturn.add(event);
                         }
                     } catch (EventNotFoundException e) {
@@ -389,16 +385,18 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 e.printStackTrace();
                 // will return an empty array list if unsuccessful
             }
+        } else {
+            throw new UserNotFoundException("The user is not in the database");
         }
         return toReturn;
     }
 
     @Override
-    public List<EventLabelDSO> getAllLabels(UserDSO user) {
+    public List<EventLabelDSO> getAllLabels(UserDSO user) throws UserNotFoundException {
         final String query = "SELECT lid FROM userslabels WHERE uid = ?";
         List<EventLabelDSO> toReturn = new ArrayList<>();
 
-        if (user != null) {
+        if (user != null && userExists(user)) { // may throw an exception
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
@@ -420,16 +418,18 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 e.printStackTrace();
                 // will return empty arraylist if unsuccessful
             }
+        } else {
+            throw new UserNotFoundException("The user is not in the database");
         }
         return toReturn;
     }
 
     @Override
-    public List<EventDSO> getFavorites(UserDSO user) {
-        final String query = "SELECT eid FROM usersevents WHERE uid = ? AND is_favorite = TRUE";
+    public List<EventDSO> getFavorites(UserDSO user) throws UserNotFoundException {
+        final String query = "SELECT eid FROM usersevents WHERE uid = ?";
         List<EventDSO> toReturn = new ArrayList<>();
 
-        if (user != null) {
+        if (user != null && userExists(user)) { // may throw an exception
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
@@ -439,7 +439,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 while (resultSet.next()) {
                     try {
                         EventDSO event = eventPersistence.getEventByID(resultSet.getInt("eid"));
-                        if (event != null) {
+                        if (event != null && event.isFavorite()) {
                             toReturn.add(event);
                         }
                     } catch (EventNotFoundException e) {
@@ -451,55 +451,30 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 e.printStackTrace();
                 // will return an empty array list if unsuccessful
             }
-        }
-        return toReturn;
-    }
-
-    //----------------------------------------
-    // setters
-    //----------------------------------------
-
-    @Override
-    public UserDSO setEventStatus(UserDSO user, EventDSO event, boolean isComplete) {
-        final String query = "UPDATE usersevents SET is_done = " + isComplete
-                + " WHERE uid = ? AND eid = ?";
-        UserDSO toReturn = null;
-
-        try (final Connection c = connection();
-             final PreparedStatement statement = c.prepareStatement(query)) {
-
-            statement.setInt(1, user.getID());
-            statement.setInt(2, event.getID());
-            int result = statement.executeUpdate();
-
-            if (result > 0) {
-                event.setIsDone(isComplete);
-                toReturn = user;
-            }
-        } catch (final SQLException e) {
-            e.printStackTrace();
+        } else {
+            throw new UserNotFoundException("The user is not in the database");
         }
         return toReturn;
     }
 
     @Override
-    public UserDSO addUserEvent(UserDSO user, EventDSO event) {
+    public UserDSO addUserEvent(UserDSO user, EventDSO event) throws UserNotFoundException {
         UserDSO toReturn = null;
         if (user != null && event != null) {
-            try {
-                eventPersistence.insertEvent(event);
-            } catch (DuplicateEventException e) {
-                System.out.println(e.getMessage());
+            if (!userExists(user)) {
+                throw new UserNotFoundException("User is not in the database");
+            }
+            if (!eventPersistence.eventExists(event)) {
+                event = eventPersistence.insertEvent(event);
             }
             user = addUserEventConnection(user, event);
-            user = addUserLabelConnections(user, event);
             toReturn = user;
         }
         return toReturn;
     }
 
     private UserDSO addUserEventConnection(UserDSO user, EventDSO event) {
-        final String query = "INSERT INTO usersevents VALUES(?, ?, ?, ?)";
+        final String query = "INSERT INTO usersevents VALUES(?, ?)";
 
         if (user != null && event != null) {
             try (final Connection c = connection();
@@ -507,13 +482,10 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
                 statement.setInt(1, user.getID());
                 statement.setInt(2, event.getID());
-                statement.setBoolean(3, event.isFavorite());
-                statement.setBoolean(4, event.isDone());
                 int result = statement.executeUpdate();
 
                 if (result > 0) {
                     user.addEvent(event);
-                    user = addUserEventLabelConnections(user, event);
                 }
             } catch (final SQLException e) {
                 System.out.println(e.getMessage());
@@ -522,52 +494,40 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         return user;
     }
 
-    private UserDSO addUserEventLabelConnections(UserDSO user, EventDSO event) {
-        if (user != null && event != null && event.getEventLabels().size() > 0) {
-            List<EventLabelDSO> labels = event.getEventLabels();
-            for (EventLabelDSO label : labels) {
-                try {
-                    eventLabelPersistence.insertEventLabel(label);
-                } catch (DuplicateEventLabelException e) {
-                    System.out.println(e.getMessage());
-                }
-                eventPersistence.addLabel(event, label);
-                user = addUserLabel(user, label);
-                user.addLabel(label);
-            }
-        }
-        return user;
-    }
-
     @Override
-    public UserDSO removeUserEvent(UserDSO user, EventDSO event) {
+    public UserDSO removeUserEvent(UserDSO user, EventDSO event) throws UserNotFoundException {
         final String query = "DELETE FROM events WHERE eid = ?";
 
         if (user != null && event != null) {
-            try (final Connection c = connection();
-                 final PreparedStatement statement = c.prepareStatement(query)) {
+            if (userExists(user)) { // may throw an exception
+                try (final Connection c = connection();
+                     final PreparedStatement statement = c.prepareStatement(query)) {
 
-                statement.setInt(1, event.getID());
-                int result = statement.executeUpdate();
+                    statement.setInt(1, event.getID());
+                    int result = statement.executeUpdate();
 
-                if (result > 0) {
-                    user.removeEvent(event);
+                    if (result > 0) {
+                        user.removeEvent(event);
+                    }
+                } catch (final SQLException e) {
+                    System.out.println(e.getMessage());
                 }
-            } catch (final SQLException e) {
-                System.out.println(e.getMessage());
+            } else {
+                throw new UserNotFoundException("The user is not in the database");
             }
         }
         return user;
     }
 
     @Override
-    public UserDSO addUserLabel(UserDSO user, EventLabelDSO label) {
+    public UserDSO addUserLabel(UserDSO user, EventLabelDSO label) throws UserNotFoundException, EventLabelNotFoundException {
         UserDSO toReturn = null;
         if (user != null && label != null) {
-            try {
-                eventLabelPersistence.insertEventLabel(label);
-            } catch (DuplicateEventLabelException e) {
-                System.out.println(e.getMessage());
+            if (!userExists(user)) {
+                throw new UserNotFoundException("User is not in the database");
+            }
+            if (!eventLabelPersistence.labelExists(label)) {
+                label = eventLabelPersistence.insertEventLabel(label);
             }
             toReturn = addUserLabelConnection(user, label);
         }
@@ -595,22 +555,11 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         return user;
     }
 
-    private UserDSO addUserLabelConnections(UserDSO user, EventDSO event) {
-        if (user != null && event != null) {
-            List<EventLabelDSO> labels = event.getEventLabels();
-            for (EventLabelDSO label : labels) {
-                user = addUserLabel(user, label);
-                eventPersistence.addLabel(event, label);
-            }
-        }
-        return user;
-    }
-
     @Override
-    public UserDSO removeUserLabel(UserDSO user, EventLabelDSO label) {
+    public UserDSO removeUserLabel(UserDSO user, EventLabelDSO label) throws UserNotFoundException {
         final String query = "DELETE FROM labels WHERE lid = ?";
 
-        if (user != null && label != null) {
+        if (user != null && label != null && userExists(user)) {
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
@@ -623,19 +572,22 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
             } catch (final SQLException e) {
                 System.out.println(e.getMessage());
             }
+        } else {
+            throw new UserNotFoundException("The user is not in the database");
         }
         return user;
     }
 
     @Override
-    public UserDSO addUserFavorite(UserDSO user, EventDSO event) {
+    public UserDSO addUserFavorite(UserDSO user, EventDSO event) throws UserNotFoundException, EventNotFoundException {
         UserDSO toReturn = null;
         if (user != null && event != null) {
-//            try {
-//                eventPersistence.insertEvent(event);
-//            } catch (DuplicateEventException e) {
-//                System.out.println(e.getMessage());
-//            }
+            if (!userExists(user)) {
+                throw new UserNotFoundException("User is not in the database");
+            }
+            if (!eventPersistence.eventExists(event)) {
+                event = eventPersistence.insertEvent(event);
+            }
             user = addUserEvent(user, event);
             toReturn = addFavoriteConnection(user, event);
         }
@@ -643,13 +595,12 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     private UserDSO addFavoriteConnection(UserDSO user, EventDSO event) {
-        final String query = "UPDATE usersevents SET is_favorite = TRUE WHERE uid = ? AND eid = ?";
+        final String query = "UPDATE events SET is_favorite = TRUE WHERE eid = ?";
 
         try (final Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
 
-            statement.setInt(1, user.getID());
-            statement.setInt(2, event.getID());
+            statement.setInt(1, event.getID());
             int result = statement.executeUpdate();
 
             if (result > 0) {
@@ -662,22 +613,25 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     @Override
-    public UserDSO removeUserFavorite(UserDSO user, EventDSO event) {
+    public UserDSO removeUserFavorite(UserDSO user, EventDSO event) throws UserNotFoundException {
         UserDSO toReturn = null;
         if (user != null && event != null) {
-            toReturn = removeFavoriteConnection(user, event);
+            if (userExists(user)) {
+                toReturn = removeFavoriteConnection(user, event);
+            } else {
+                throw new UserNotFoundException("The user is not in the database");
+            }
         }
         return toReturn;
     }
 
     private UserDSO removeFavoriteConnection(UserDSO user, EventDSO event) {
-        final String query = "UPDATE usersevents SET is_favorite = FALSE WHERE uid = ? AND eid = ?";
+        final String query = "UPDATE events SET is_favorite = FALSE WHERE eid = ?";
 
         try (final Connection c = connection();
              final PreparedStatement statement = c.prepareStatement(query)) {
 
-            statement.setInt(1, user.getID());
-            statement.setInt(2, event.getID());
+            statement.setInt(1, event.getID());
             int result = statement.executeUpdate();
 
             if (result > 0) {
@@ -732,7 +686,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         return toReturn;
     }
 
-
     /**
      * @param user The User object to add Event Label's to.
      * @return The updated user.
@@ -777,7 +730,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         return toReturn;
     }
 
-
     /**
      * Set the favorites list (Event objects) in the User object.
      *
@@ -795,7 +747,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
     }
 
     private List<EventDSO> getFavoritesHelper(UserDSO user) {
-        final String query = "SELECT eid FROM usersevents WHERE uid = ? AND is_favorite = TRUE";
+        final String query = "SELECT eid FROM usersevents WHERE uid = ?";
         List<EventDSO> toReturn = new ArrayList<>();
 
         if (user != null) {
@@ -808,7 +760,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 while (resultSet.next()) {
                     try {
                         EventDSO event = eventPersistence.getEventByID(resultSet.getInt("eid"));
-                        if (event != null) {
+                        if (event != null && event.isFavorite()) {
                             toReturn.add(event);
                         }
                     } catch (EventNotFoundException e) {
@@ -823,6 +775,5 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         }
         return toReturn;
     }
-
 
 } //UserPersistenceHSQLDB

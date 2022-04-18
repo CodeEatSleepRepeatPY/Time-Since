@@ -7,7 +7,6 @@ public class DateUtils {
 
     public static Timestamp calToTimestamp(Calendar calendar) {
         Timestamp toReturn = null;
-
         if (calendar != null) {
             toReturn = new Timestamp(calendar.getTimeInMillis());
         }
@@ -15,14 +14,11 @@ public class DateUtils {
     }
 
     public static Calendar timestampToCal(Timestamp timestamp) {
-
         Calendar toReturn = null;
-
         if (timestamp != null) {
             toReturn = Calendar.getInstance();
             toReturn.setTimeInMillis(timestamp.getTime());
         }
-
         return toReturn;
     }
 

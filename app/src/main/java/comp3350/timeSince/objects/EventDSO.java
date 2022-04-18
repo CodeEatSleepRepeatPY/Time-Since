@@ -23,11 +23,7 @@ public class EventDSO {
     //----------------------------------------
 
     public EventDSO(int id, Calendar creationTime, String name) {
-        if (id >= 1) {
-            this.ID = id;
-        } else {
-            this.ID = -1;
-        }
+        this.ID = id >= 1 ? id : -1;
         eventName = name;
         DATE_CREATED = creationTime;
         description = "";
@@ -77,6 +73,9 @@ public class EventDSO {
     // setters
     //----------------------------------------
 
+    /**
+     * @param newName NonNull
+     */
     public void setName(String newName) {
         if (newName != null) {
             this.eventName = newName;
@@ -114,10 +113,10 @@ public class EventDSO {
     //----------------------------------------
 
     /**
-     * @return true if id >= 1 and the event name is not null; false otherwise
+     * @return true if id >= 1 and the event name is at least one character long; false otherwise
      */
     public boolean validate() {
-        return (ID >= 1 && eventName != null);
+        return (ID >= 1 && eventName != null && eventName.length() >= 1);
     }
 
     /**
@@ -149,7 +148,7 @@ public class EventDSO {
 
     @Override
     public String toString() {
-        String toReturn = "No Named Event";
+        String toReturn = "Invalid Event";
         if (eventName != null) {
             toReturn = String.format("Event Name: %s", eventName);
         }
@@ -165,7 +164,6 @@ public class EventDSO {
     @Override
     public boolean equals(Object other) {
         boolean toReturn = false;
-
         if (other instanceof EventDSO) {
             toReturn = this.ID == ((EventDSO) other).getID()
                     && this.eventName.equals(((EventDSO) other).getName());

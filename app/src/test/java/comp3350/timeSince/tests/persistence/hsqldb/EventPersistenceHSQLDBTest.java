@@ -1,4 +1,4 @@
-package comp3350.timeSince.tests.persistence;
+package comp3350.timeSince.tests.persistence.hsqldb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -26,6 +26,7 @@ import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
+import comp3350.timeSince.persistence.InitialDatabaseState;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -37,7 +38,7 @@ public class EventPersistenceHSQLDBTest {
     private final Calendar date = Calendar.getInstance();
     private List<EventDSO> eventList;
     private static final int initialCount = 8;
-    private static final int initialLabelCount = 9;
+    private static final int initialLabelCount = InitialDatabaseState.NUM_LABELS;
 
     @Before
     public void setUp() throws IOException {
@@ -55,6 +56,15 @@ public class EventPersistenceHSQLDBTest {
     @After
     public void tearDown() {
         Services.clean();
+    }
+
+    @Test
+    public void testEventExists() {
+        assertFalse("Event should not exist by default", eventPersistence.eventExists(event1));
+        eventPersistence.insertEvent(event1);
+        assertTrue("The event should now exist", eventPersistence.eventExists(event1));
+        eventPersistence.deleteEvent(event1);
+        assertFalse("The event should no longer exist", eventPersistence.eventExists(event1));
     }
 
     @Test
@@ -151,6 +161,52 @@ public class EventPersistenceHSQLDBTest {
 
         assertEquals("New attributes should match", date,
                 eventPersistence.getEventByID(event1.getID()).getTargetFinishTime());
+    }
+
+    @Test
+    public void testSetEventStatus() {
+        event1 = eventPersistence.insertEvent(event1);
+        event2 = eventPersistence.insertEvent(event2);
+
+        assertFalse("event1 should not be complete", event1.isDone());
+        assertFalse("event2 should not be complete", event2.isDone());
+
+        event1 = eventPersistence.updateEventStatus(event1, true);
+        assertTrue("event1 should now be complete", event1.isDone());
+        assertFalse("event2 should still not be complete", event2.isDone());
+
+        event1 = eventPersistence.updateEventStatus(event1, false);
+        event2 = eventPersistence.updateEventStatus(event2, false);
+        assertFalse("event1 should be back to not be complete", event1.isDone());
+        assertFalse("event2 should be set as not complete", event2.isDone());
+    }
+
+    @Test (expected = EventNotFoundException.class)
+    public void testSetEventStatusUserException() {
+        eventPersistence.updateEventStatus(event1, true);
+    }
+
+    @Test
+    public void testUpdateEventFavorite() {
+        event1 = eventPersistence.insertEvent(event1);
+        event2 = eventPersistence.insertEvent(event2);
+
+        assertFalse("event1 should not be a favorite", event1.isFavorite());
+        assertFalse("event2 should not be a favorite", event2.isFavorite());
+
+        event1 = eventPersistence.updateEventFavorite(event1, true);
+        assertTrue("event1 should now be a favorite", event1.isFavorite());
+        assertFalse("event2 should still not be a favorite", event2.isFavorite());
+
+        event1 = eventPersistence.updateEventFavorite(event1, false);
+        event2 = eventPersistence.updateEventFavorite(event2, false);
+        assertFalse("event1 should be back to not be a favorite", event1.isFavorite());
+        assertFalse("event2 should be set as not be a favorite", event2.isFavorite());
+    }
+
+    @Test (expected = EventNotFoundException.class)
+    public void testUpdateEventFavoriteException() {
+        eventPersistence.updateEventFavorite(event1, true);
     }
 
     @Test

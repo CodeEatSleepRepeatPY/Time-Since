@@ -53,36 +53,6 @@ public class UserManagerTest {
     }
 
     @Test
-    public void uniqueNameTest() {
-        String user1 = "kevin12@qq.com";
-        String user2 = "admin";
-
-        assertTrue("kevin12 is not exist so it is unique, method returns true.", userManager.uniqueName(user1));
-        assertFalse("admin is exist so it is not unique, returns false", userManager.uniqueName(user2));
-    }
-
-    @Test(expected = PasswordErrorException.class)
-    public void passwordRequirementsTest() {
-        String password1 = "Bob12345";
-        String password2 = "BoB123";
-
-        assertTrue("As Bob12345 has 1 capital letter, and user typed same password for two times should return true"
-                , userManager.passwordRequirements(password1));
-        assertFalse("Bob123 is less than 8 should return false", userManager.passwordRequirements(password2));
-    }
-
-    @Test
-    public void hashPasswordTest() throws NoSuchAlgorithmException {
-        String inputPassword1 = "Kevin12345";
-        String inputPassword2 = "kevin12345";
-        //An expected hash password we get online by sha-256
-        String expectedHashPassword = "5070da9022cc3a82869511c63c48d87d38e36eed9e03c94c619680a0cdeffea0";
-
-        assertEquals("The result returned should equal to the expected hex String.", userManager.hashPassword(inputPassword1), expectedHashPassword);
-        assertNotEquals("As K and k is not same, these two password are not equal.", userManager.hashPassword(inputPassword1), userManager.hashPassword(inputPassword2));
-    }
-
-    @Test
     public void tryRegistrationTest() {
         String newUserName = "Emma@qq.com";
         String existUserName = "admin";
@@ -92,10 +62,10 @@ public class UserManagerTest {
 
         try {
             assertNotNull("Emma@qq.com is not exist in the db, and we typed the same valid " +
-                    "password for twice.", userManager.insertUser(newUserName, password,
+                    "password for twice.", userManager.createUser(newUserName, password,
                     correctConfirmedPassword, null));
             assertNull("The password and confirmed password are not same",
-                    userManager.insertUser(newUserName, password, wrongConfirmedPassword, null));
+                    userManager.createUser(newUserName, password, wrongConfirmedPassword, null));
         } catch (DuplicateUserException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -126,15 +96,15 @@ public class UserManagerTest {
         assertEquals("wow should now have the username 'admin'", "admin", userManager.getUserByEmail("admin").getName());
     }
 
-    @Test
-    public void updateUserPassword() throws NoSuchAlgorithmException {
-        UserDSO result = userManager.updateUserPassword("admin",  "A12345678");
-        assertNotNull("admin's password should've been updated", result);
-
-        assertEquals("admin's password should now be the sha256 hash of 'A12345678'",
-                "3b4e266a89805c9d020f9aca6638ad63e8701fc8c75c0ca1952d14054d1f10cf",
-                userManager.getUserByEmail("admin").getPasswordHash());
-    }
+//    @Test
+//    public void updateUserPassword() throws NoSuchAlgorithmException {
+//        UserDSO result = userManager.updateUserPassword("admin",  "A12345678");
+//        assertNotNull("admin's password should've been updated", result);
+//
+//        assertEquals("admin's password should now be the sha256 hash of 'A12345678'",
+//                "3b4e266a89805c9d020f9aca6638ad63e8701fc8c75c0ca1952d14054d1f10cf",
+//                userManager.getUserByEmail("admin").getPasswordHash());
+//    }
 
     @Test
     public void testAddUserEvent() {

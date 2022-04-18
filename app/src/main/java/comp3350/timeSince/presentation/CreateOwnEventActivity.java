@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -23,11 +24,13 @@ import java.util.List;
 import java.util.Objects;
 
 import comp3350.timeSince.R;
+import comp3350.timeSince.business.UserEventManager;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
+import comp3350.timeSince.persistence.IEventLabelPersistence;
 
 public class CreateOwnEventActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener,
@@ -67,7 +70,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabels = new ArrayList<EventLabelDSO>();
         mCalendar = Calendar.getInstance();
         extras = getIntent().getExtras();
-        eventManager = new EventManager(extras.get("email").toString(), true);
+        eventManager = new EventManager(true);
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,8 +153,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
 
-        userManager = new UserManager(true);
-        List<EventLabelDSO> eventLabels = userManager.getUserLabels(extras.get("email").toString());
+        UserEventManager userEventManager = new UserEventManager(extras.get("email").toString(), true);
+        List<EventLabelDSO> eventLabels = userEventManager.getUserLabels();
         if(eventLabels.size() == 0){
             Toast.makeText(this, "The EventLabel list for the user is empty.", Toast.LENGTH_SHORT).show();
         }
@@ -181,12 +184,12 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
                     description.getText().toString(), mCalendar, favorite);
 
 
-             if(newEvent != null){
-                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                 CreateOwnEventActivity.this.startActivity(nextIntent);
-             }else{
-                 Toast.makeText(this, "The new event is not successfully created.", Toast.LENGTH_SHORT).show();
-             }
+            if(newEvent != null){
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                CreateOwnEventActivity.this.startActivity(nextIntent);
+            }else{
+                Toast.makeText(this, "The new event is not successfully created.", Toast.LENGTH_SHORT).show();
+            }
         }catch(UserNotFoundException exception){
             Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
         }

@@ -4,12 +4,14 @@ import java.util.Calendar;
 import java.util.List;
 
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
-import comp3350.timeSince.business.exceptions.EventDescriptionException;
+import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 
 public interface IEventPersistence {
+
+    boolean eventExists(EventDSO event);
 
     /**
      * @return List of Events (unmodifiable), null if unsuccessful.
@@ -43,9 +45,8 @@ public interface IEventPersistence {
      * @param newDescription The new description of the event.
      * @return The updated event object.
      * @throws EventNotFoundException If the event is not found in the database.
-     * @throws EventDescriptionException If the description is too long (over 100 characters).
      */
-    EventDSO updateEventDescription(EventDSO event, String newDescription) throws EventNotFoundException, EventDescriptionException;
+    EventDSO updateEventDescription(EventDSO event, String newDescription) throws EventNotFoundException;
 
     /**
      * @param event The Event object to be updated in the database.
@@ -56,12 +57,25 @@ public interface IEventPersistence {
     EventDSO updateEventFinishTime(EventDSO event, Calendar newDate) throws EventNotFoundException;
 
     /**
+     * Sets status of the event for the user.
+     *
+     * @param event      the event
+     * @param isComplete mark it as complete (true) or incomplete (false)?
+     * @return the updated user
+     * @throws EventNotFoundException If the Event is not found in the database.
+     */
+    EventDSO updateEventStatus(EventDSO event, boolean isComplete) throws EventNotFoundException;
+
+    EventDSO updateEventFavorite(EventDSO event, boolean isFavorite) throws EventNotFoundException;
+
+    /**
      * @param event The event object to add a label too.
      * @param label The label object to add to the event.
      * @return The updated event object.
      * @throws EventNotFoundException If the event is not found in the database.
+     * @throws EventLabelNotFoundException If the label is not found in the database.
      */
-    EventDSO addLabel(EventDSO event, EventLabelDSO label) throws EventNotFoundException;
+    EventDSO addLabel(EventDSO event, EventLabelDSO label) throws EventNotFoundException, EventLabelNotFoundException;
 
     /**
      * @param event The event object to remove a label from.

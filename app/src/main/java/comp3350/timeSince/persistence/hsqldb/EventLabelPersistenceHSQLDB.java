@@ -13,19 +13,16 @@ import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
+import comp3350.timeSince.persistence.InitialDatabaseState;
 
 public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     private final String dbPath;
     private int nextID;
 
-    private static final String TABLE_LABEL = "labels"; // table name
-    private static final String LABEL_ID = "lid"; // int
-    private static final String LABEL_NAME = "label_name"; // 30 characters, not null
-
     public EventLabelPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
-        nextID = 9; // number of values in the database at creation
+        nextID = InitialDatabaseState.NUM_LABELS; // number of values in the database at creation
     }
 
     private Connection connection() throws SQLException {
@@ -40,15 +37,24 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
      */
     private EventLabelDSO fromResultSet(final ResultSet rs) throws SQLException {
 
-        final int id = rs.getInt(LABEL_ID);
-        final String labelName = rs.getString(LABEL_NAME);
+        final int id = rs.getInt("lid");
+        final String labelName = rs.getString("label_name");
 
         return new EventLabelDSO(id, labelName);
     }
 
     @Override
+    public boolean labelExists(EventLabelDSO label) {
+        try {
+            return getEventLabelByID(label.getID()).equals(label);
+        } catch (EventLabelNotFoundException e) {
+            return false;
+        }
+    }
+
+    @Override
     public List<EventLabelDSO> getEventLabelList() {
-        final String query = "SELECT * FROM " + TABLE_LABEL;
+        final String query = "SELECT * FROM labels";
         List<EventLabelDSO> toReturn = null;
         final List<EventLabelDSO> labels = new ArrayList<>();
 
@@ -73,7 +79,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public EventLabelDSO getEventLabelByID(int labelID) throws EventLabelNotFoundException {
-        final String query = "SELECT * FROM " + TABLE_LABEL + " WHERE " + LABEL_ID + " = ?";
+        final String query = "SELECT * FROM labels WHERE lid = ?";
         EventLabelDSO toReturn = null;
         final String exceptionMessage = "The event label: " + labelID + " could not be found.";
 
@@ -100,14 +106,14 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public EventLabelDSO insertEventLabel(EventLabelDSO newEventLabel) throws DuplicateEventLabelException {
-        final String query = "INSERT INTO " + TABLE_LABEL + " VALUES(?, ?)";
+        final String query = "INSERT INTO labels VALUES(?, ?)";
         EventLabelDSO toReturn = null;
 
         if (newEventLabel != null) {
             final String exceptionMessage = "The event label: " + newEventLabel.getName()
                     + " could not be added.";
 
-            try (Connection c = connection();
+            try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
                 int id = newEventLabel.getID();
@@ -123,6 +129,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
                     }
                 }
             } catch (SQLException e) {
+                System.out.println("TEST");
                 e.printStackTrace();
                 throw new DuplicateEventLabelException(exceptionMessage);
             }
@@ -133,23 +140,23 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
     }
 
     @Override
-    public EventLabelDSO updateEventLabel(EventLabelDSO eventLabel) throws EventLabelNotFoundException {
-        final String query = "UPDATE " + TABLE_LABEL + " SET " + LABEL_NAME
-                + " = ? WHERE " + LABEL_ID + " = ?";
+    public EventLabelDSO updateEventLabelName(EventLabelDSO eventLabel, String newName) throws EventLabelNotFoundException {
+        final String query = "UPDATE labels SET label_name = ? WHERE lid = ?";
         EventLabelDSO toReturn = null;
 
-        if (eventLabel != null) {
-            final String exceptionMessage = "The event label: " + eventLabel.getName()
+        if (eventLabel != null && newName != null) {
+            final String exceptionMessage = "The event label: " + eventLabel.getID()
                     + " could not be updated.";
 
             try (final Connection c = connection();
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
-                statement.setString(1, eventLabel.getName());
+                statement.setString(1, newName);
                 statement.setInt(2, eventLabel.getID());
                 int result = statement.executeUpdate();
 
                 if (result > 0) {
+                    eventLabel.setName(newName);
                     toReturn = eventLabel;
                 } else {
                     throw new EventLabelNotFoundException(exceptionMessage);
@@ -165,7 +172,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public EventLabelDSO deleteEventLabel(EventLabelDSO eventLabel) throws EventLabelNotFoundException {
-        final String query = "DELETE FROM " + TABLE_LABEL + " WHERE " + LABEL_ID + " = ?";
+        final String query = "DELETE FROM labels WHERE lid = ?";
         EventLabelDSO toReturn = null;
 
         if (eventLabel != null) {
@@ -194,7 +201,7 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public int numLabels() {
-        final String query = "SELECT COUNT(*) AS numLabels FROM " + TABLE_LABEL;
+        final String query = "SELECT COUNT(*) AS numLabels FROM labels";
         int toReturn = -1;
 
         try (final Connection c = connection();

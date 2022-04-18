@@ -13,14 +13,14 @@ import comp3350.timeSince.persistence.hsqldb.UserPersistenceHSQLDB;
 /**
  * Access the persistence layer.
  * <p>
- * There are 4 different persistence files: events, event labels,
- * users, and user connections.
+ * There are 3 different persistence files: events, event labels, and users.
  */
 public class Services {
 
     private static IEventPersistence eventPersistence = null;
     private static IEventLabelPersistence eventLabelPersistence = null;
     private static IUserPersistence userPersistence = null;
+
     /**
      * Gets event persistence.
      *

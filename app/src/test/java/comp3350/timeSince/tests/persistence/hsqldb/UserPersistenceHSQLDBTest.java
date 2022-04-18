@@ -1,4 +1,4 @@
-package comp3350.timeSince.tests.persistence;
+package comp3350.timeSince.tests.persistence.hsqldb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,13 +21,13 @@ import java.util.Calendar;
 import java.util.List;
 
 import comp3350.timeSince.application.Services;
-import comp3350.timeSince.business.exceptions.DuplicateEventException;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IUserPersistence;
+import comp3350.timeSince.persistence.InitialDatabaseState;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -39,9 +39,10 @@ public class UserPersistenceHSQLDBTest {
     private EventLabelDSO label1, label2, label3;
     private List<UserDSO> userList;
     private Calendar defaultDate;
-    private static final int initialUserCount = 2;
-    private static final int initialEventCount = 8;
-    private static final int initialLabelCount = 9;
+    private String uid1, uid2, uid3;
+    private static final int initialUserCount = InitialDatabaseState.NUM_USERS;
+    private static final int initialEventCount = InitialDatabaseState.NUM_EVENTS;
+    private static final int initialLabelCount = InitialDatabaseState.NUM_LABELS;
 
     @Rule
     public ExpectedException exceptionRule;
@@ -51,9 +52,12 @@ public class UserPersistenceHSQLDBTest {
         TestUtils.copyDB();
         userDatabase = Services.getUserPersistence(true);
         defaultDate = Calendar.getInstance();
-        user1 = new UserDSO(initialUserCount + 1, "uid1", defaultDate, "hash1");
-        user2 = new UserDSO(initialUserCount + 2, "uid2", defaultDate, "hash2");
-        user3 = new UserDSO(initialUserCount + 3, "uid3", defaultDate, "hash3");
+        uid1 = "uid1@gmail.com";
+        uid2 = "uid2@gmail.com";
+        uid3 = "uid3@gmail.com";
+        user1 = new UserDSO(initialUserCount + 1, uid1, defaultDate, "hash1");
+        user2 = new UserDSO(initialUserCount + 2, uid2, defaultDate, "hash2");
+        user3 = new UserDSO(initialUserCount + 3, uid3, defaultDate, "hash3");
         userList = new ArrayList<>(Arrays.asList(user1, user2, user3));
 
         event1 = new EventDSO(initialEventCount + 1, defaultDate, "event1");
@@ -67,6 +71,15 @@ public class UserPersistenceHSQLDBTest {
     @After
     public void tearDown() {
         Services.clean();
+    }
+
+    @Test
+    public void testUserExists() {
+        assertFalse("The user should not exist by default", userDatabase.userExists(user1));
+        userDatabase.insertUser(user1);
+        assertTrue("The user should now exist", userDatabase.userExists(user1));
+        userDatabase.deleteUser(user1);
+        assertFalse("The user should no longer exist", userDatabase.userExists(user1));
     }
 
     @Test
@@ -98,18 +111,23 @@ public class UserPersistenceHSQLDBTest {
                 user1, actual);
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testGetUserByIDException() {
+        userDatabase.getUserByID(-1);
+    }
+
     @Test
     public void testGetUserByEmail() {
         userDatabase.insertUser(user1);
         userDatabase.insertUser(user2);
-        UserDSO actual = userDatabase.getUserByEmail("uid1");
+        UserDSO actual = userDatabase.getUserByEmail(uid1);
         assertEquals("The correct user should be returned if present",
                 user1, actual);
     }
 
     @Test (expected = UserNotFoundException.class)
-    public void testGetUserByIDException() {
-        userDatabase.getUserByEmail("uid4"); // should not be able to get user not in db
+    public void testGetUserByEmailException() {
+        userDatabase.getUserByEmail(uid1); // should not be able to get user not in db
     }
 
     @Test
@@ -142,11 +160,11 @@ public class UserPersistenceHSQLDBTest {
         userDatabase.insertUser(user1);
         user1 = userDatabase.updateUserName(user1, "hello");
         assertEquals("New attributes should match", "hello",
-                userDatabase.getUserByEmail("uid1").getName());
+                userDatabase.getUserByEmail(uid1).getName());
     }
 
     @Test (expected = UserNotFoundException.class)
-    public void testUpdateUserException() {
+    public void testUpdateUserNameException() {
         userDatabase.updateUserName(user1, "not present"); // should not be able to update user not in db
     }
 
@@ -159,12 +177,22 @@ public class UserPersistenceHSQLDBTest {
         assertEquals(message, newEmail, user1.getEmail());
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testUpdateUserEmailException() {
+        userDatabase.updateUserEmail(user1, "badTest@gmail.com");
+    }
+
     @Test
     public void testUpdateUserPassword() {
         user1 = userDatabase.insertUser(user1);
         String newPassword = "Password12345";
         user1 = userDatabase.updateUserPassword(user1, newPassword);
         assertEquals("The password should be updated", newPassword, user1.getPasswordHash());
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testUpdateUserPasswordException() {
+        userDatabase.updateUserPassword(user3, "BadTestPassword123");
     }
 
     @Test
@@ -188,7 +216,7 @@ public class UserPersistenceHSQLDBTest {
         userDatabase.insertUser(user1);
         userDatabase.insertUser(user2);
         userDatabase.insertUser(user3);
-        userDatabase.deleteUser(new UserDSO(initialUserCount + 4, "uid4", defaultDate, "password"));
+        userDatabase.deleteUser(new UserDSO(initialUserCount + 4, "uid4@gmail.com", defaultDate, "password"));
         assertEquals("Size of database should be " + (initialUserCount + 3),
                 initialUserCount + 3, userDatabase.numUsers());
     }
@@ -247,6 +275,11 @@ public class UserPersistenceHSQLDBTest {
         assertTrue("The user should contain event2", events.contains(event2));
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testGetAllEventsException() {
+        userDatabase.getAllEvents(user2);
+    }
+
     @Test
     public void testGetAllLabels() {
         user1 = userDatabase.insertUser(user1);
@@ -263,7 +296,7 @@ public class UserPersistenceHSQLDBTest {
         assertTrue(result.contains(label1));
         assertTrue(result.contains(label2));
 
-        UserDSO testUser = new UserDSO(initialUserCount + 4, "email2",
+        UserDSO testUser = new UserDSO(initialUserCount + 4, "uid4@gmail.com",
                 Calendar.getInstance(), "1234");
         userDatabase.insertUser(testUser);
         userDatabase.addUserLabel(testUser, label3);
@@ -273,6 +306,11 @@ public class UserPersistenceHSQLDBTest {
         assertTrue(result.contains(label1));
         assertTrue(result.contains(label2));
         assertFalse(result.contains(label3));
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testGetAllLabelsException() {
+        userDatabase.getAllLabels(user3);
     }
 
     @Test
@@ -314,26 +352,9 @@ public class UserPersistenceHSQLDBTest {
                 0, userDatabase.getFavorites(user1).size());
     }
 
-    @Test
-    public void testSetEventStatus() {
-        user1 = userDatabase.insertUser(user1);
-        user1 = userDatabase.addUserEvent(user1, event1);
-        user1 = userDatabase.addUserEvent(user1, event2);
-
-        EventDSO event1 = userDatabase.getAllEvents(user1).get(0);
-        EventDSO event2 = userDatabase.getAllEvents(user1).get(1);
-
-        assertFalse("event1 should not be complete", event1.isDone());
-        assertFalse("event2 should not be complete", event2.isDone());
-
-        user1 = userDatabase.setEventStatus(user1, event1, true);
-        assertTrue("event1 should now be complete", event1.isDone());
-        assertFalse("event2 should still not be complete", event2.isDone());
-
-        user1 = userDatabase.setEventStatus(user1, event1, false);
-        user1 = userDatabase.setEventStatus(user1, event2, false);
-        assertFalse("event1 should be back to not be complete", event1.isDone());
-        assertFalse("event2 should be set as not complete", event2.isDone());
+    @Test (expected = UserNotFoundException.class)
+    public void testGetFavoritesException() {
+        userDatabase.getFavorites(user3);
     }
 
     @Test
@@ -350,6 +371,11 @@ public class UserPersistenceHSQLDBTest {
         assertTrue("User should have event2", user1.getUserEvents().contains(event2));
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testAddUserEventUserException() {
+        userDatabase.addUserEvent(user1, event1);
+    }
+
     @Test
     public void testAddUserLabel() {
         user1 = userDatabase.insertUser(user1);
@@ -359,17 +385,22 @@ public class UserPersistenceHSQLDBTest {
 
         UserDSO result = userDatabase.addUserLabel(user1, label1);
         assertNotNull("The user should not be null after adding label1", result);
-        result = userDatabase.getUserByEmail("uid1");
+        result = userDatabase.getUserByEmail(uid1);
         assertNotNull("The user should be found in the database", result);
         assertEquals("The user should have 1 label", 1, result.getUserLabels().size());
         assertTrue(result.getUserLabels().contains(label1));
 
         result = userDatabase.addUserLabel(user1, label2);
         assertNotNull("The user should not be null after adding label2", result);
-        result = userDatabase.getUserByEmail("uid1");
+        result = userDatabase.getUserByEmail(uid1);
         assertNotNull("The user should be found in the database", result);
         assertEquals("The user should have 2 label", 2, result.getUserLabels().size());
         assertTrue(result.getUserLabels().contains(label2));
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testAddUserLabelException() {
+        userDatabase.addUserLabel(user2, label1);
     }
 
     @Test
@@ -380,9 +411,14 @@ public class UserPersistenceHSQLDBTest {
         assertNotNull("User should not be null after adding event1 as " + "favorite", user1);
         user1 = userDatabase.addUserFavorite(user1, event2);
         assertNotNull("User should not be null after adding event2 as " + "favorite", user1);
-        user1 = userDatabase.getUserByEmail("uid1");
+        user1 = userDatabase.getUserByEmail(uid1);
         assertEquals("User should have 2 favorites",
                 2, userDatabase.getFavorites(user1).size());
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testAddUserFavoriteException() {
+        userDatabase.addUserFavorite(user1, event1);
     }
 
     @Test
@@ -398,6 +434,11 @@ public class UserPersistenceHSQLDBTest {
         assertFalse("User should not have removed event1", user1.getUserEvents().contains(event1));
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testRemoveUserEventException() {
+        userDatabase.removeUserEvent(user1, event1);
+    }
+
     @Test
     public void testRemoveUserLabel() {
         user1 = userDatabase.insertUser(user1);
@@ -411,6 +452,11 @@ public class UserPersistenceHSQLDBTest {
         assertFalse("The user should not contain the removed label1", user1.getUserLabels().contains(label1));
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testRemoveUserLabelException() {
+        userDatabase.removeUserLabel(user1, label1);
+    }
+
     @Test
     public void testRemoveUserFavorite() {
         user1 = userDatabase.insertUser(user1);
@@ -421,7 +467,7 @@ public class UserPersistenceHSQLDBTest {
         assertNotNull("User should not be null after adding event1 as " + "favorite", user1);
         user1 = userDatabase.addUserFavorite(user1, event2);
         assertNotNull("User should not be null after adding event2 as " + "favorite", user1);
-        user1 = userDatabase.getUserByEmail("uid1");
+        user1 = userDatabase.getUserByEmail(uid1);
         assertEquals("User should have 2 favorites",
                 2, userDatabase.getFavorites(user1).size());
         user1 = userDatabase.removeUserFavorite(user1, event1);
@@ -430,6 +476,11 @@ public class UserPersistenceHSQLDBTest {
                 1, userDatabase.getFavorites(user1).size());
         assertTrue("User should have event2 as a favorite", user1.getUserFavorites().contains(event2));
         assertFalse("User should not have removed event1 as a favorite", user1.getUserFavorites().contains(event1));
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testRemoveUserFavoriteException() {
+        userDatabase.removeUserFavorite(user1, event1);
     }
 
 }

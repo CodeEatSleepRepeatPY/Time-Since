@@ -6,8 +6,17 @@ import comp3350.timeSince.objects.EventDSO;
 
 public class AscendingNameComparator implements Comparator<EventDSO> {
 
+    /**
+     * @param event1 NonNull
+     * @param event2 NonNull
+     * @return An int value: 0 if event1 name == event2 name <p>
+     * > 0 if event1 name is later in the alphabet than event2 name  <p>
+     * < 0 if event1 name is earlier in the alphabet than event2 name
+     */
     @Override
     public int compare(EventDSO event1, EventDSO event2) {
-        return event1.getName().compareTo(event2.getName());
+        assert event1 != null;
+        assert event2 != null;
+        return event1.getName().compareToIgnoreCase(event2.getName());
     }
 }

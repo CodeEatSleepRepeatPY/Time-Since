@@ -61,4 +61,3 @@ public class SpinnerEventLabelList extends ArrayAdapter<EventLabelDSO> {
     }
 
 }
-

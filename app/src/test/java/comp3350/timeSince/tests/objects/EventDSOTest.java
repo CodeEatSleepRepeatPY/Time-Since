@@ -168,8 +168,8 @@ public class EventDSOTest {
         assertEquals(message, expected, event.toString());
 
         EventDSO newEvent = new EventDSO(1, date, null);
-        assertEquals("The Event should display as: 'No Named Event' when no name is given.",
-                "No Named Event", newEvent.toString());
+        assertEquals("The Event should display as: 'Invalid Event' when no name is given.",
+                "Invalid Event", newEvent.toString());
     }
 
     @Test

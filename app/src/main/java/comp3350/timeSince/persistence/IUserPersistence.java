@@ -3,12 +3,15 @@ package comp3350.timeSince.persistence;
 import java.util.List;
 
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
+import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 
 public interface IUserPersistence {
+
+    boolean userExists(UserDSO user) throws UserNotFoundException;
 
     /**
      * @return List of Users (unmodifiable), null if unsuccessful.
@@ -86,38 +89,27 @@ public interface IUserPersistence {
      *
      * @param user the user
      * @return the list of events
+     * @throws UserNotFoundException If the User is not found in the database.
      */
-    List<EventDSO> getAllEvents(UserDSO user);
+    List<EventDSO> getAllEvents(UserDSO user) throws UserNotFoundException;
 
     /**
      * Gets all labels for the user.
      *
      * @param user the user
      * @return the list of labels
+     * @throws UserNotFoundException If the User is not found in the database.
      */
-    List<EventLabelDSO> getAllLabels(UserDSO user);
+    List<EventLabelDSO> getAllLabels(UserDSO user) throws UserNotFoundException;
 
     /**
      * Gets all event favorites for the user.
      *
      * @param user the user
      * @return the list of favorite events
+     * @throws UserNotFoundException If the User is not found in the database.
      */
-    List<EventDSO> getFavorites(UserDSO user);
-
-    //----------------------------------------
-    // setters
-    //----------------------------------------
-
-    /**
-     * Sets status of the event for the user.
-     *
-     * @param user       the user
-     * @param event      the event
-     * @param isComplete mark it as complete (true) or incomplete (false)?
-     * @return the updated user
-     */
-    UserDSO setEventStatus(UserDSO user, EventDSO event, boolean isComplete);
+    List<EventDSO> getFavorites(UserDSO user) throws UserNotFoundException;
 
     /**
      * Add an event to the user.
@@ -125,8 +117,10 @@ public interface IUserPersistence {
      * @param user  the user
      * @param event the event
      * @return the updated user
+     * @throws UserNotFoundException If the User is not found in the database.
+     * @throws EventNotFoundException If the Event is not found in the database.
      */
-    UserDSO addUserEvent(UserDSO user, EventDSO event);
+    UserDSO addUserEvent(UserDSO user, EventDSO event) throws UserNotFoundException, EventNotFoundException;
 
     /**
      * Remove an event from the user.
@@ -134,8 +128,9 @@ public interface IUserPersistence {
      * @param user  the user
      * @param event the event
      * @return the updated user
+     * @throws UserNotFoundException If the User is not found in the database.
      */
-    UserDSO removeUserEvent(UserDSO user, EventDSO event);
+    UserDSO removeUserEvent(UserDSO user, EventDSO event) throws UserNotFoundException;
 
     /**
      * Add a label to the user.
@@ -143,8 +138,9 @@ public interface IUserPersistence {
      * @param user  the user
      * @param label the label
      * @return the updated user
+     * @throws UserNotFoundException If the User is not found in the database.
      */
-    UserDSO addUserLabel(UserDSO user, EventLabelDSO label);
+    UserDSO addUserLabel(UserDSO user, EventLabelDSO label) throws UserNotFoundException;
 
     /**
      * Remove label from the user.
@@ -152,8 +148,9 @@ public interface IUserPersistence {
      * @param user  the user
      * @param label the label
      * @return the updated user
+     * @throws UserNotFoundException If the User is not found in the database.
      */
-    UserDSO removeUserLabel(UserDSO user, EventLabelDSO label);
+    UserDSO removeUserLabel(UserDSO user, EventLabelDSO label) throws UserNotFoundException;
 
     /**
      * Add a favorite event to the user.
@@ -161,8 +158,10 @@ public interface IUserPersistence {
      * @param user  the user
      * @param event the event
      * @return the updated user
+     * @throws UserNotFoundException If the User is not found in the database.
+     * @throws EventNotFoundException If the Event is not found in the database.
      */
-    UserDSO addUserFavorite(UserDSO user, EventDSO event);
+    UserDSO addUserFavorite(UserDSO user, EventDSO event) throws UserNotFoundException, EventNotFoundException;
 
     /**
      * Remove a favorite event from the user
@@ -170,7 +169,8 @@ public interface IUserPersistence {
      * @param user  the user
      * @param event the event
      * @return the updated user
+     * @throws UserNotFoundException If the User is not found in the database.
      */
-    UserDSO removeUserFavorite(UserDSO user, EventDSO event);
+    UserDSO removeUserFavorite(UserDSO user, EventDSO event) throws UserNotFoundException;
 
 }

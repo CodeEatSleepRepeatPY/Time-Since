@@ -8,6 +8,8 @@ import comp3350.timeSince.objects.EventLabelDSO;
 
 public interface IEventLabelPersistence {
 
+    boolean labelExists(EventLabelDSO label);
+
     /**
      * @return List of Event Labels (unmodifiable), null if unsuccessful.
      */
@@ -32,7 +34,7 @@ public interface IEventLabelPersistence {
      * @return The Event Label object that was modified, null otherwise.
      * @throws EventLabelNotFoundException If the Event Label is not found in the database.
      */
-    EventLabelDSO updateEventLabel(EventLabelDSO eventLabel) throws EventLabelNotFoundException;
+    EventLabelDSO updateEventLabelName(EventLabelDSO eventLabel, String newName) throws EventLabelNotFoundException;
 
     /**
      * @param eventLabel The Event Label object to be deleted from the database.

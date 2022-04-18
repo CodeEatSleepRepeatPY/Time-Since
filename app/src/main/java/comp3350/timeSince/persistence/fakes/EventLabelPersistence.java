@@ -11,66 +11,76 @@ import comp3350.timeSince.persistence.IEventLabelPersistence;
 
 public class EventLabelPersistence implements IEventLabelPersistence {
 
-    private final List<EventLabelDSO> eventLabels;
+    private final List<EventLabelDSO> LABELS;
     private static int nextID;
 
     public EventLabelPersistence() {
-        this.eventLabels = new ArrayList<>();
+        this.LABELS = new ArrayList<>();
         setDefaults();
-        nextID = eventLabels.size(); // number of values in the database at creation
+        nextID = LABELS.size(); // number of values in the database at creation
+    }
+
+    @Override
+    public boolean labelExists(EventLabelDSO label) {
+        try {
+            return getEventLabelByID(label.getID()).equals(label);
+        } catch (EventLabelNotFoundException e) {
+            return false;
+        }
     }
 
     @Override
     public List<EventLabelDSO> getEventLabelList() {
-        return Collections.unmodifiableList(eventLabels);
+        return Collections.unmodifiableList(LABELS);
     }
 
     public EventLabelDSO getEventLabelByID(int labelID) throws EventLabelNotFoundException {
-        for (int i = 0; i < eventLabels.size(); i++) {
-            if (eventLabels.get(i).getID() == labelID) {
-                return eventLabels.get(i);
+        for (int i = 0; i < LABELS.size(); i++) {
+            if (LABELS.get(i).getID() == labelID) {
+                return LABELS.get(i);
             }
-        }
+        } // else: label is not in the database
         throw new EventLabelNotFoundException("The event label: " + labelID + " could not be found.");
     }
 
     @Override
     public EventLabelDSO insertEventLabel(EventLabelDSO newEventLabel) throws DuplicateEventLabelException {
-        int index = eventLabels.indexOf(newEventLabel);
+        int index = LABELS.indexOf(newEventLabel);
         if (index < 0) {
-            eventLabels.add(newEventLabel);
+            LABELS.add(newEventLabel);
             nextID++;
             return newEventLabel;
-        } // else: duplicate
+        } // else: already exists in the database
         throw new DuplicateEventLabelException("The event label: " + newEventLabel.getName()
                 + " could not be added.");
     }
 
     @Override
-    public EventLabelDSO updateEventLabel(EventLabelDSO eventLabel) throws EventLabelNotFoundException {
-        int index = eventLabels.indexOf(eventLabel);
-        if (index >= 0) {
-            eventLabels.set(index, eventLabel);
+    public EventLabelDSO updateEventLabelName(EventLabelDSO eventLabel, String newName) throws EventLabelNotFoundException {
+        int index = LABELS.indexOf(eventLabel);
+        if (index >= 0 && newName != null) {
+            eventLabel.setName(newName);
+            LABELS.set(index, eventLabel);
             return eventLabel;
-        }
-        throw new EventLabelNotFoundException("The event label: " + eventLabel.getName()
+        } // else: label is not in the database
+        throw new EventLabelNotFoundException("The event label: " + eventLabel.getID()
                 + " could not be updated.");
     }
 
     @Override
     public EventLabelDSO deleteEventLabel(EventLabelDSO eventLabel) throws EventLabelNotFoundException {
-        int index = eventLabels.indexOf(eventLabel);
+        int index = LABELS.indexOf(eventLabel);
         if (index >= 0) {
-            eventLabels.remove(index);
+            LABELS.remove(index);
             return eventLabel;
-        } // else: event is not in list
+        } // else: label is not in the database
         throw new EventLabelNotFoundException("The event label: " + eventLabel.getName()
                 + " could not be deleted.");
     }
 
     @Override
     public int numLabels() {
-        return eventLabels.size();
+        return LABELS.size();
     }
 
     @Override
@@ -79,15 +89,15 @@ public class EventLabelPersistence implements IEventLabelPersistence {
     }
 
     private void setDefaults() {
-        eventLabels.add(new EventLabelDSO(1, "Kitchen"));
-        eventLabels.add(new EventLabelDSO(2, "Bathroom"));
-        eventLabels.add(new EventLabelDSO(3, "Bedroom"));
-        eventLabels.add(new EventLabelDSO(4, "Car"));
-        eventLabels.add(new EventLabelDSO(5, "Fitness"));
-        eventLabels.add(new EventLabelDSO(6, "Health"));
-        eventLabels.add(new EventLabelDSO(7, "Hygiene"));
-        eventLabels.add(new EventLabelDSO(8, "Addiction"));
-        eventLabels.add(new EventLabelDSO(9, "Laundry"));
+        LABELS.add(new EventLabelDSO(1, "Kitchen"));
+        LABELS.add(new EventLabelDSO(2, "Bathroom"));
+        LABELS.add(new EventLabelDSO(3, "Bedroom"));
+        LABELS.add(new EventLabelDSO(4, "Car"));
+        LABELS.add(new EventLabelDSO(5, "Fitness"));
+        LABELS.add(new EventLabelDSO(6, "Health"));
+        LABELS.add(new EventLabelDSO(7, "Hygiene"));
+        LABELS.add(new EventLabelDSO(8, "Addiction"));
+        LABELS.add(new EventLabelDSO(9, "Laundry"));
     }
 
 }

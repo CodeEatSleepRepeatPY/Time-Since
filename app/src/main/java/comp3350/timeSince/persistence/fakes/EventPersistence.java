@@ -5,47 +5,61 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
-import comp3350.timeSince.business.exceptions.EventDescriptionException;
+import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
+import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
 
 public class EventPersistence implements IEventPersistence {
 
-    private final List<EventDSO> eventList;
+    private final List<EventDSO> EVENTS;
+    private final IEventLabelPersistence eventLabelPersistence;
     private static int nextID;
 
     public EventPersistence() {
-        this.eventList = new ArrayList<>();
+        this.EVENTS = new ArrayList<>();
+        this.eventLabelPersistence = Services.getEventLabelPersistence(false);
         setDefaults();
-        nextID = eventList.size(); // number of values in the database at creation
+        nextID = EVENTS.size(); // number of values in the database at creation
+    }
+
+    @Override
+    public boolean eventExists(EventDSO event) {
+        try {
+            return getEventByID(event.getID()).equals(event);
+        } catch (EventNotFoundException e) {
+            return false;
+        }
     }
 
     @Override
     public List<EventDSO> getEventList() {
-        return Collections.unmodifiableList(eventList);
+        return Collections.unmodifiableList(EVENTS);
     }
 
     @Override
     public EventDSO getEventByID(int eventID) throws EventNotFoundException {
-        for (int i = 0; i < eventList.size(); i++) {
-            if (eventList.get(i).getID() == eventID) {
-                return eventList.get(i);
+        for (int i = 0; i < EVENTS.size(); i++) {
+            if (EVENTS.get(i).getID() == eventID) {
+                return EVENTS.get(i);
             }
-        }
+        } // else: event is not in the database
         throw new EventNotFoundException("The event: " + eventID + " could not be found.");
     }
 
     @Override
     public EventDSO insertEvent(EventDSO newEvent) throws DuplicateEventException {
-        int index = eventList.indexOf(newEvent);
+        int index = EVENTS.indexOf(newEvent);
         if (index < 0) {
-            eventList.add(newEvent);
+            EVENTS.add(newEvent);
             nextID++;
             return newEvent;
-        } //else: already exists in database
+        } // else: already exists in the database
         throw new DuplicateEventException("The event: " + newEvent.getName() + " already exists.");
     }
 
@@ -60,11 +74,10 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO updateEventDescription(EventDSO event, String newDescription)
-            throws EventNotFoundException, EventDescriptionException {
+    public EventDSO updateEventDescription(EventDSO event, String newDescription) throws EventNotFoundException {
         EventDSO toReturn = null;
         if (event != null) {
-            event.setDescription(newDescription); // will throw an exception if too long
+            event.setDescription(newDescription);
             toReturn = updateEvent(event); // may throw an exception
         }
         return toReturn;
@@ -81,47 +94,81 @@ public class EventPersistence implements IEventPersistence {
     }
 
     @Override
-    public EventDSO addLabel(EventDSO event, EventLabelDSO label) throws EventNotFoundException {
+    public EventDSO updateEventStatus(EventDSO event, boolean isComplete) throws EventNotFoundException {
         EventDSO toReturn = null;
-        if (event != null && label != null && event.validate() && label.validate()) {
-            event.addLabel(label);
-            toReturn = updateEvent(event); // may throw an exception
+        if (event != null) {
+            int index = EVENTS.indexOf(event);
+            if (index >= 0) {
+                event.setIsDone(isComplete);
+                toReturn = updateEvent(event);
+            } else {
+                throw new EventNotFoundException("The event: " + event.getName() + " could not be found.");
+            }
         }
         return toReturn;
     }
 
     @Override
-    public EventDSO removeLabel(EventDSO event, EventLabelDSO label) throws EventNotFoundException {
+    public EventDSO updateEventFavorite(EventDSO event, boolean isFavorite) throws EventNotFoundException {
+        EventDSO toReturn = null;
+        if (event != null) {
+            int index = EVENTS.indexOf(event);
+            if (index >= 0) {
+                event.setFavorite(isFavorite);
+                toReturn = updateEvent(event);
+            } else {
+                throw new EventNotFoundException("The event: " + event.getName() + " could not be found.");
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
+    public EventDSO addLabel(EventDSO event, EventLabelDSO label) throws EventNotFoundException, EventLabelNotFoundException {
         EventDSO toReturn = null;
         if (event != null && label != null) {
-            event.removeLabel(label);
-            toReturn = updateEvent(event); // may throw an exception
+            if (eventExists(event) && eventLabelPersistence.labelExists(label)) {
+                event.addLabel(label);
+                toReturn = updateEvent(event); // may throw an exception
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
+    public EventDSO removeLabel(EventDSO event, EventLabelDSO label) throws EventNotFoundException, EventLabelNotFoundException {
+        EventDSO toReturn = null;
+        if (event != null && label != null) {
+            if (eventExists(event) && eventLabelPersistence.labelExists(label)) {
+                event.removeLabel(label);
+                toReturn = updateEvent(event); // may throw an exception
+            }
         }
         return toReturn;
     }
 
     private EventDSO updateEvent(EventDSO event) throws EventNotFoundException {
-        int index = eventList.indexOf(event);
+        int index = EVENTS.indexOf(event);
         if (index >= 0) {
-            eventList.set(index, event);
+            EVENTS.set(index, event);
             return event;
-        }
+        } // event is not in the database
         throw new EventNotFoundException("The event: " + event.getName() + " could not be updated.");
     }
 
     @Override
     public EventDSO deleteEvent(EventDSO event) throws EventNotFoundException {
-        int index = eventList.indexOf(event);
+        int index = EVENTS.indexOf(event);
         if (index >= 0) {
-            eventList.remove(index);
+            EVENTS.remove(index);
             return event;
-        } // else: event is not in list
+        } // else: event is not in the database
         throw new EventNotFoundException("The event: " + event.getName() + " could not be deleted.");
     }
 
     @Override
     public int numEvents() {
-        return eventList.size();
+        return EVENTS.size();
     }
 
     @Override
@@ -157,14 +204,14 @@ public class EventPersistence implements IEventPersistence {
         event5.setTargetFinishTime(defaultFinish);
         defaultFinish.set(2022, 9, 22, 12, 30, 0);
 
-        eventList.add(event1);
-        eventList.add(event2);
-        eventList.add(event3);
-        eventList.add(event4);
-        eventList.add(event5);
-        eventList.add(event6);
-        eventList.add(event7);
-        eventList.add(event8);
+        EVENTS.add(event1);
+        EVENTS.add(event2);
+        EVENTS.add(event3);
+        EVENTS.add(event4);
+        EVENTS.add(event5);
+        EVENTS.add(event6);
+        EVENTS.add(event7);
+        EVENTS.add(event8);
     }
 
 }

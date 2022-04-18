@@ -1,4 +1,4 @@
-package comp3350.timeSince.tests.persistence;
+package comp3350.timeSince.tests.persistence.hsqldb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,6 +22,7 @@ import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
+import comp3350.timeSince.persistence.InitialDatabaseState;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -30,7 +31,7 @@ public class LabelPersistenceHSQLDBTest {
     private IEventLabelPersistence labelDatabase;
     private EventLabelDSO label1, label2, label3, label4;
     private List<EventLabelDSO> labelList;
-    private static final int initialCount = 9;
+    private static final int initialCount = InitialDatabaseState.NUM_LABELS;
 
     @Before
     public void setUp() throws IOException {
@@ -117,20 +118,18 @@ public class LabelPersistenceHSQLDBTest {
         labelDatabase.insertEventLabel(label1);
         assertEquals("Size of database should be 1", initialCount + 1,
                 labelDatabase.numLabels());
-        label1.setName("hello");
-        labelDatabase.updateEventLabel(label1);
+        labelDatabase.updateEventLabelName(label1, "hello");
         assertEquals("New attributes should match", "hello",
                 labelDatabase.getEventLabelByID(label1.getID()).getName());
 
-        label1.setName("good-bye");
         assertEquals("Updated label should be returned", "good-bye",
-                labelDatabase.updateEventLabel(label1).getName());
+                labelDatabase.updateEventLabelName(label1, "good-bye").getName());
     }
 
     @Test(expected = EventLabelNotFoundException.class)
     public void testUpdateEventLabelException() {
         // should not be able to update an event label not in db
-        labelDatabase.updateEventLabel(label1);
+        labelDatabase.updateEventLabelName(label1, "badTest");
     }
 
     @Test
