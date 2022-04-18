@@ -138,10 +138,6 @@ public class EventDisplayTest {
 
     @Test
     public void testGetEventsByDateCreated() {
-        System.out.println("Event1: " + event1.getDateCreated().getTime());
-        System.out.println("Event2: " + event2.getDateCreated().getTime());
-        System.out.println("Event3: " + event3.getDateCreated().getTime());
-
         user = userPersistence.addUserEvent(user, event2);
         user = userPersistence.addUserEvent(user, event3);
         user = userPersistence.addUserEvent(user, event1);

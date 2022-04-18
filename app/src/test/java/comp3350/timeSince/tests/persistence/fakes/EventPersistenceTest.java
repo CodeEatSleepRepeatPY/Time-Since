@@ -264,17 +264,21 @@ public class EventPersistenceTest {
                 initialEventCount + 2, event2.getID());
 
         eventDatabase.insertEvent(event3);
-        try {
-            eventDatabase.insertEvent(event3);
-        } catch (DuplicateEventException e) {
-            System.out.println(e.getMessage());
-        }
-        assertEquals("The next ID after three events, with one duplicate attempt should be " + (initialEventCount + 4),
-                initialEventCount + 4, eventDatabase.getNextID());
-
         eventDatabase.deleteEvent(event2);
         assertNotEquals("The next ID after a deletion should not be the deleted ID.",
                 event2.getID(), eventDatabase.getNextID());
         assertEquals("The next ID should be " + (initialEventCount + 4), initialEventCount + 4, eventDatabase.getNextID());
+    }
+
+    @Test (expected = DuplicateEventException.class)
+    public void testGetNextIDException() {
+        assertEquals("The first ID should be " + (initialEventCount + 1),
+                initialEventCount + 1, eventDatabase.getNextID());
+        eventDatabase.insertEvent(event1);
+        assertEquals("The second ID should be " + (initialEventCount + 2),
+                initialEventCount + 2, eventDatabase.getNextID());
+        eventDatabase.insertEvent(event1);
+        assertEquals("The next ID shouldn't be affected by duplicate",
+                initialEventCount + 2, eventDatabase.getNextID());
     }
 }

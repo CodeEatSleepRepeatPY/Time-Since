@@ -173,18 +173,22 @@ public class LabelPersistenceHSQLDBTest {
                 initialCount + 2, label2.getID());
 
         labelDatabase.insertEventLabel(label3);
-        try {
-            labelDatabase.insertEventLabel(label3);
-        } catch (DuplicateEventLabelException e) {
-            System.out.println(e.getMessage());
-        }
-        assertEquals("The next ID after three labels, with one duplicate attempt should be 4.",
-                initialCount + 4, labelDatabase.getNextID());
-
         labelDatabase.deleteEventLabel(label2);
         assertNotEquals("The next ID after a deletion should not be the deleted ID.",
                 label2.getID(), labelDatabase.getNextID());
         assertEquals("The next ID should be 4", initialCount + 4, labelDatabase.getNextID());
+    }
+
+    @Test (expected = DuplicateEventLabelException.class)
+    public void testGetNextIDException() {
+        assertEquals("The nextID should be " + (initialCount + 1),
+                initialCount + 1, labelDatabase.getNextID());
+        labelDatabase.insertEventLabel(label1);
+        assertEquals("The nextID should be " + (initialCount + 2),
+                initialCount + 2, labelDatabase.getNextID());
+        labelDatabase.insertEventLabel(label1);
+        assertEquals("The ID after a duplicate should not change",
+                initialCount + 2, labelDatabase.getNextID());
     }
 
 }

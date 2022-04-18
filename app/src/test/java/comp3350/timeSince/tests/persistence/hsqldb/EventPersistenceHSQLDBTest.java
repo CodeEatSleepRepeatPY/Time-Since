@@ -249,18 +249,22 @@ public class EventPersistenceHSQLDBTest {
                 initialCount + 2, event2.getID());
 
         eventPersistence.insertEvent(event3);
-        try {
-            eventPersistence.insertEvent(event3);
-        } catch (DuplicateEventException e) {
-            System.out.println(e.getMessage());
-        }
-        assertEquals("The next ID after three events, with one duplicate attempt should be " + (initialCount + 4),
-                initialCount + 4, eventPersistence.getNextID());
-
         eventPersistence.deleteEvent(event2);
         assertNotEquals("The next ID after a deletion should not be the deleted ID.",
                 event2.getID(), eventPersistence.getNextID());
         assertEquals("The next ID should be 4", initialCount + 4, eventPersistence.getNextID());
+    }
+
+    @Test (expected = DuplicateEventException.class)
+    public void testGetNextIDException() {
+        assertEquals("The first ID should be " + (initialCount + 1),
+                initialCount + 1, eventPersistence.getNextID());
+        eventPersistence.insertEvent(event1);
+        assertEquals("The second ID should be " + (initialCount + 2),
+                initialCount + 2, eventPersistence.getNextID());
+        eventPersistence.insertEvent(event1);
+        assertEquals("The next ID shouldn't be affected by duplicate",
+                initialCount + 2, eventPersistence.getNextID());
     }
 
     @Test
