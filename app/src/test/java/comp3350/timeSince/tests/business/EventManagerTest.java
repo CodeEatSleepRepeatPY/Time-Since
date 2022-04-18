@@ -237,9 +237,22 @@ public class EventManagerTest {
         eventManager.markEventAsDone(-1, false); //should throw exception
     }
 
-    @Test
+    @Test (expected = EventNotFoundException.class)
     public void testIsDone() {
-        // TODO
+        when(eventPersistence.getEventByID(-1)).thenThrow(EventNotFoundException.class);
+        when(eventPersistence.getEventByID(initialCount + 1)).thenReturn(event1);
+        when(eventPersistence.getEventByID(initialCount + 2)).thenReturn(event2);
+
+        event1.setIsDone(true);
+        event2.setIsDone(false);
+
+        assertTrue("event with id 1 should be done", eventManager.isDone(initialCount + 1));
+        assertFalse("event with id 2 should not be done", eventManager.isDone(initialCount + 2));
+
+        verify(eventPersistence).getEventByID(initialCount + 1);
+        verify(eventPersistence).getEventByID(initialCount + 2);
+
+        eventManager.isDone(-1); // should throw exception
     }
 
     @Test(expected = EventNotFoundException.class)
