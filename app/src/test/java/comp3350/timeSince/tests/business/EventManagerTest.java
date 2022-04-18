@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -43,9 +44,9 @@ public class EventManagerTest {
     private EventDSO event1, event2, event3;
     private UserDSO user;
     private Calendar currDate;
-    private final int initialCount = InitialDatabaseState.NUM_EVENTS;
-    private final int initialUserCount = InitialDatabaseState.NUM_USERS;
-    private final int initialLabelCount = InitialDatabaseState.NUM_LABELS;
+    private static final int initialCount = InitialDatabaseState.NUM_EVENTS;
+    private static final int initialUserCount = InitialDatabaseState.NUM_USERS;
+    private static final int initialLabelCount = InitialDatabaseState.NUM_LABELS;
 
     @Before
     public void setUp() {
@@ -83,11 +84,6 @@ public class EventManagerTest {
                 eventManager.getEventByID(-1));
     }
 
-    @Test
-    public void testSetUser() {
-        // TODO
-    }
-
     @Test(expected = EventNotFoundException.class)
     public void testUpdateEvent() {
         when(eventPersistence.getEventByID(initialCount + 1)).thenReturn(event1);
@@ -111,20 +107,86 @@ public class EventManagerTest {
         eventManager.updateEventFinishTime(currDate, -1); // should throw exception
     }
 
-    @Test
+    @Test (expected = EventNotFoundException.class)
     public void testAddLabelToEvent() {
-        // TODO
+        EventLabelDSO label1 = new EventLabelDSO(initialLabelCount + 1, "Label1");
+        EventLabelDSO label2 = new EventLabelDSO(initialLabelCount + 2, "Label2");
+
+        when(eventLabelPersistence.labelExists(label1)).thenReturn(false);
+        when(eventLabelPersistence.labelExists(label2)).thenReturn(true);
+        when(eventPersistence.eventExists(event1)).thenReturn(false).thenReturn(true).thenReturn(true);
+        when(eventLabelPersistence.insertEventLabel(label1)).thenReturn(label2);
+
+        eventManager.addLabelToEvent(event1, label1); // should throw exception
+
+        when(eventPersistence.addLabel(event1, label1)).thenReturn(event1);
+        EventDSO result = eventManager.addLabelToEvent(event1, label1);
+        assertEquals("Event1 should be returned", event1, result);
+        assertTrue("The event should contain label1", result.getEventLabels().contains(label1));
+
+        when(eventPersistence.addLabel(event1, label2)).thenReturn(event1);
+        result = eventManager.addLabelToEvent(event1, label2);
+        assertEquals("Event1 should be returned", event1, result);
+        assertTrue("The event should contain label1", result.getEventLabels().contains(label1));
+        assertTrue("The event should contain label2", result.getEventLabels().contains(label2));
+
+        verify(eventLabelPersistence, times(2)).labelExists(any(EventLabelDSO.class));
+        verify(eventLabelPersistence, times(1)).insertEventLabel(any(EventLabelDSO.class));
+        verify(eventPersistence, times(3)).eventExists(event1);
+        verify(eventPersistence, times(2)).addLabel(event1, any(EventLabelDSO.class));
     }
 
-
-    @Test
+    @Test (expected = EventNotFoundException.class)
     public void testRemoveLabelFromEvent() {
-        // TODO
+        EventLabelDSO label1 = new EventLabelDSO(initialLabelCount + 1, "Label1");
+        EventLabelDSO label2 = new EventLabelDSO(initialLabelCount + 2, "Label2");
+
+        when(eventLabelPersistence.labelExists(any(EventLabelDSO.class))).thenReturn(true);
+        when(eventPersistence.eventExists(event1)).thenReturn(false).thenReturn(true).thenReturn(true).thenReturn(true);
+        when(eventLabelPersistence.insertEventLabel(label1)).thenReturn(label2);
+        when(eventPersistence.removeLabel(event1, label1)).thenReturn(event1);
+        when(eventPersistence.removeLabel(event1, label2)).thenReturn(event1);
+
+        eventManager.addLabelToEvent(event1, label1); // should throw exception
+
+        when(eventPersistence.addLabel(event1, label1)).thenReturn(event1);
+        when(eventPersistence.addLabel(event1, label2)).thenReturn(event1);
+
+        assertTrue(eventManager.addLabelToEvent(event1, label1).getEventLabels().contains(label1));
+        assertTrue(eventManager.addLabelToEvent(event1, label2).getEventLabels().contains(label2));
+
+        EventDSO result = eventManager.removeLabelFromEvent(event1, label1);
+        assertFalse(result.getEventLabels().contains(label1));
+        result = eventManager.removeLabelFromEvent(event1, label2);
+        assertFalse(result.getEventLabels().contains(label2));
+
+        verify(eventLabelPersistence, times(2)).labelExists(any(EventLabelDSO.class));
+        verify(eventLabelPersistence, times(1)).insertEventLabel(any(EventLabelDSO.class));
+        verify(eventPersistence, times(3)).eventExists(event1);
+        verify(eventPersistence, times(2)).addLabel(event1, any(EventLabelDSO.class));
+        verify(eventPersistence, times(2)).removeLabel(event1, any(EventLabelDSO.class));
     }
 
     @Test
     public void testUpdateEventFavorite() {
-        // TODO
+        EventDSO testEventFav = new EventDSO(event1.getID(), event1.getDateCreated(), event1.getName());
+        EventDSO testEventNotFav = new EventDSO(event1.getID(), event1.getDateCreated(), event1.getName());
+        testEventFav.setFavorite(true);
+        testEventNotFav.setFavorite(false);
+
+        when(eventPersistence.getEventByID(initialCount + 1)).thenReturn(event1);
+
+        when(eventPersistence.updateEventFavorite(event1, true)).thenReturn(testEventFav);
+        when(eventPersistence.updateEventFavorite(event1, false)).thenReturn(testEventNotFav);
+
+        assertEquals("The event should be returned when true", event1, eventManager.updateEventFavorite(true, initialCount + 1));
+        assertEquals("The event should be returned when false", event1, eventManager.updateEventFavorite(false, initialCount + 1));
+        assertTrue("The event should be a favorite", eventManager.updateEventFavorite(true, initialCount + 1).isFavorite());
+        assertFalse("The event should not be a favorite", eventManager.updateEventFavorite(false, initialCount + 1).isFavorite());
+
+        verify(eventPersistence, times(4)).getEventByID(initialCount + 1);
+        verify(eventPersistence, times(2)).updateEventFavorite(event1, true);
+        verify(eventPersistence, times(2)).updateEventFavorite(event1, false);
     }
 
     @Test(expected = EventNotFoundException.class)
@@ -175,6 +237,11 @@ public class EventManagerTest {
         eventManager.markEventAsDone(-1, false); //should throw exception
     }
 
+    @Test
+    public void testIsDone() {
+        // TODO
+    }
+
     @Test(expected = EventNotFoundException.class)
     public void testIsOverdue() {
         Calendar futureDate = Calendar.getInstance();
@@ -193,7 +260,7 @@ public class EventManagerTest {
         verify(eventPersistence).getEventByID(initialCount + 1);
         verify(eventPersistence).getEventByID(initialCount + 2);
 
-        eventManager.isDone(-1); // should throw exception
+        eventManager.isOverdue(-1); // should throw exception
     }
 
     @Test

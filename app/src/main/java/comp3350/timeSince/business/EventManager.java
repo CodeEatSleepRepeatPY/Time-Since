@@ -67,7 +67,7 @@ public class EventManager {
         EventDSO toReturn = null;
         if (event != null && label != null && event.validate() && label.validate()) {
             if (!eventLabelPersistence.labelExists(label)) {
-                eventLabelPersistence.insertEventLabel(label);
+                label = eventLabelPersistence.insertEventLabel(label);
             }
             if (eventPersistence.eventExists(event)) {
                 // add the connection between the event and label
