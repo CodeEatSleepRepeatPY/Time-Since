@@ -1,7 +1,6 @@
 package comp3350.timeSince.business;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -50,23 +49,34 @@ public class UserEventManager {
         } else {
             sorter = new DescendingNameComparator();
         }
-        Collections.sort(allEvents, sorter);
+        allEvents.sort(sorter);
         return allEvents;
     }
 
     public List<EventDSO> sortByDateCreated(boolean recentToOldest) {
         List<EventDSO> allEvents = userPersistence.getAllEvents(user);
-        if (!recentToOldest) {
-            sorter = new OldestDateComparator();
-        } else {
+        if (recentToOldest) {
             sorter = new NewestDateComparator();
+        } else {
+            sorter = new OldestDateComparator();
         }
-        Collections.sort(allEvents, sorter);
+        allEvents.sort(sorter);
         return allEvents;
     }
 
+    /**
+     * @author taken and modified from <a href="https://javadevcentral.com/comparator-nullsfirst-and-nullslast">javadevcentral</a>
+     */
     public List<EventDSO> sortByFinishTime(boolean closestToFurthest) {
-        return null;
+        List<EventDSO> allEvents = userPersistence.getAllEvents(user);
+        if (closestToFurthest) {
+            allEvents.sort(Comparator.comparing(EventDSO::getTargetFinishTime, Comparator
+                    .nullsLast(Comparator.naturalOrder())));
+        } else {
+            allEvents.sort(Comparator.comparing(EventDSO::getTargetFinishTime, Comparator
+                    .nullsLast(Comparator.reverseOrder())));
+        }
+        return allEvents;
     }
 
     public List<EventDSO> filterByLabel(int labelID) throws EventLabelNotFoundException {

@@ -160,7 +160,32 @@ public class EventDisplayTest {
 
     @Test
     public void testGetEventsByDueDate() {
-        // TODO
+        Calendar date1 = Calendar.getInstance();
+        date1.add(Calendar.DATE, 1);
+        Calendar date2 = Calendar.getInstance();
+        date2.add(Calendar.DATE, 2);
+
+        event3.setTargetFinishTime(date1);
+        event1.setTargetFinishTime(date2);
+        // event2 is null
+
+        user = userPersistence.addUserEvent(user, event1);
+        user = userPersistence.addUserEvent(user, event2);
+        user = userPersistence.addUserEvent(user, event3);
+
+        List<EventDSO> result = userEventManager.sortByFinishTime(true);
+        assertNotNull("The returned list should not be null", result);
+        assertEquals("There should be 3 events", 3, result.size());
+        assertEquals("The first event should be event3", event3, result.get(0));
+        assertEquals("The second event should be event1", event1, result.get(1));
+        assertEquals("The third event should be event2", event2, result.get(2));
+
+        result = userEventManager.sortByFinishTime(false);
+        assertNotNull("The returned list should not be null", result);
+        assertEquals("There should be 3 events", 3, result.size());
+        assertEquals("The first event should be event1", event1, result.get(0));
+        assertEquals("The second event should be event3", event3, result.get(1));
+        assertEquals("The third event should be event2", event2, result.get(2));
     }
 
     @Test
