@@ -24,17 +24,12 @@ public class UserEventManager {
     private final IEventPersistence eventPersistence;
     private final IEventLabelPersistence labelPersistence;
     private Comparator<EventDSO> sorter;
-    private UserDSO user;
+    private final UserDSO user;
 
-    public UserEventManager(boolean forProduction) {
+    public UserEventManager(String userEmail, boolean forProduction) throws UserNotFoundException {
         userPersistence = Services.getUserPersistence(forProduction);
         eventPersistence = Services.getEventPersistence(forProduction);
         labelPersistence = Services.getEventLabelPersistence(forProduction);
-        user = new UserDSO(-1, null, null, null); // default, invalid
-    }
-
-    public UserEventManager(String userEmail, boolean forProduction) throws UserNotFoundException {
-        this(forProduction);
         user = userPersistence.getUserByEmail(userEmail);
     }
 

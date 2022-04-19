@@ -69,7 +69,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         isFavorite = findViewById(R.id.favorite);
         eventLabelName = findViewById(R.id.event_label);
         eventLabels = new ArrayList<EventLabelDSO>();
-        mCalendar = Calendar.getInstance();
+        mCalendar = null;
         extras = getIntent().getExtras();
         eventManager = new EventManager(true);
         try {
