@@ -17,6 +17,7 @@ import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.UserEventManager;
+import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
@@ -29,9 +30,7 @@ import comp3350.timeSince.tests.persistence.utils.TestUtils;
 @FixMethodOrder(MethodSorters.JVM)
 public class UserEventManagerTest {
 
-    private UserEventManager userEventManagerBad;
-    private UserEventManager userEventManagerGood;
-    private IUserPersistence userPersistence;
+    private UserEventManager userEventManager;
     private IEventPersistence eventPersistence;
     private IEventLabelPersistence labelPersistence;
     private UserDSO user;
@@ -46,7 +45,7 @@ public class UserEventManagerTest {
     public void setUp() throws IOException {
         TestUtils.copyDB();
 
-        userPersistence = Services.getUserPersistence(true);
+        IUserPersistence userPersistence = Services.getUserPersistence(true);
         eventPersistence = Services.getEventPersistence(true);
         labelPersistence = Services.getEventLabelPersistence(true);
 
@@ -61,9 +60,8 @@ public class UserEventManagerTest {
         label2 = new EventLabelDSO(initialLabelCount + 2, "Label2");
         label3 = new EventLabelDSO(initialLabelCount + 3, "Label3");
 
-        userEventManagerBad = new UserEventManager(true);
         user = userPersistence.insertUser(user);
-        userEventManagerGood = new UserEventManager(testEmail, true);
+        userEventManager = new UserEventManager(testEmail, true);
     }
 
     @After
@@ -71,68 +69,70 @@ public class UserEventManagerTest {
         Services.clean();
     }
 
+    @Test (expected = UserNotFoundException.class)
+    public void testConstructorException() {
+        userEventManager = new UserEventManager("badTest@outlook.com", true);
+    }
+
     @Test
     public void testAddUserEvent() {
-        assertNull("If the user has not been set in the database, should return null", userEventManagerBad.addUserEvent(event1));
-        assertNull("If the event is invalid, should return null", userEventManagerGood.addUserEvent(null));
+        assertNull("If the event is invalid, should return null", userEventManager.addUserEvent(null));
 
-        UserDSO result = userEventManagerGood.addUserEvent(event1);
+        UserDSO result = userEventManager.addUserEvent(event1);
         assertEquals("If the event is not in the database, should add it and return user", user, result);
         assertTrue("The event should be added to the user", result.getUserEvents().contains(event1));
 
         event2 = eventPersistence.insertEvent(event2);
-        result = userEventManagerGood.addUserEvent(event2);
+        result = userEventManager.addUserEvent(event2);
         assertEquals("If the event is in the database, should add it to the user and return user", user, result);
         assertTrue("The event should be added to the user", result.getUserEvents().contains(event2));
     }
 
     @Test
     public void testAddUserFavorite() {
-        assertNull("If the user has not been set in the database, should return null", userEventManagerBad.addUserFavorite(event1));
-        assertNull("If the event is invalid, should return null", userEventManagerGood.addUserFavorite(null));
+        assertNull("If the event is invalid, should return null", userEventManager.addUserFavorite(null));
 
-        UserDSO result = userEventManagerGood.addUserFavorite(event1);
+        UserDSO result = userEventManager.addUserFavorite(event1);
         assertEquals("If the event is not in the database, should add it and return user", user, result);
         assertTrue("The event should be added to the user", result.getUserFavorites().contains(event1));
 
         event2 = eventPersistence.insertEvent(event2);
-        result = userEventManagerGood.addUserFavorite(event2);
+        result = userEventManager.addUserFavorite(event2);
         assertEquals("If the event is in the database, should add it to the user and return user", user, result);
         assertTrue("The event should be added to the user", result.getUserFavorites().contains(event2));
     }
 
     @Test
     public void testAddUserLabel() {
-        assertNull("If the user has not been set in the database, should return null", userEventManagerBad.addUserLabel(label1));
-        assertNull("If the label is invalid, should return null", userEventManagerGood.addUserLabel(null));
+        assertNull("If the label is invalid, should return null", userEventManager.addUserLabel(null));
 
-        UserDSO result = userEventManagerGood.addUserLabel(label1);
+        UserDSO result = userEventManager.addUserLabel(label1);
         assertEquals("If the label is not in the database, should add it and return user", user, result);
         assertTrue("The label should be added to the user", result.getUserLabels().contains(label1));
 
         label2 = labelPersistence.insertEventLabel(label2);
-        result = userEventManagerGood.addUserLabel(label2);
+        result = userEventManager.addUserLabel(label2);
         assertEquals("If the label is in the database, should add it to the user and return user", user, result);
         assertTrue("The label should be added to the user", result.getUserLabels().contains(label2));
     }
 
     @Test
     public void testRemoveUserEvent() {
-        user = userEventManagerGood.addUserEvent(event1);
-        user = userEventManagerGood.addUserEvent(event2);
-        user = userEventManagerGood.addUserEvent(event3);
+        user = userEventManager.addUserEvent(event1);
+        user = userEventManager.addUserEvent(event2);
+        user = userEventManager.addUserEvent(event3);
         assertEquals("The user should have 3 events", 3, user.getUserEvents().size());
 
-        user = userEventManagerGood.removeUserEvent(event1);
+        user = userEventManager.removeUserEvent(event1);
         List<EventDSO> result = user.getUserEvents();
         assertEquals("The user should have 2 events", 2, result.size());
         assertFalse("The user should not contain event1", result.contains(event1));
         assertTrue("The user should contain event2", result.contains(event2));
         assertTrue("The user should contain event3", result.contains(event3));
 
-        user = userEventManagerGood.removeUserEvent(event2);
+        user = userEventManager.removeUserEvent(event2);
         result = user.getUserEvents();
-        user = userEventManagerGood.removeUserEvent(event3);
+        user = userEventManager.removeUserEvent(event3);
         assertEquals("The user should have 0 events", 0, result.size());
         assertFalse("The user should not contain event1", result.contains(event1));
         assertFalse("The user should not contain event2", result.contains(event2));
@@ -141,13 +141,13 @@ public class UserEventManagerTest {
 
     @Test
     public void testRemoveUserFavorite() {
-        user = userEventManagerGood.addUserFavorite(event1);
-        user = userEventManagerGood.addUserFavorite(event2);
-        user = userEventManagerGood.addUserFavorite(event3);
+        user = userEventManager.addUserFavorite(event1);
+        user = userEventManager.addUserFavorite(event2);
+        user = userEventManager.addUserFavorite(event3);
         assertEquals("The user should have 3 events", 3, user.getUserEvents().size());
         assertEquals("The user should have 3 favorites", 3, user.getUserFavorites().size());
 
-        user = userEventManagerGood.removeUserFavorite(event1);
+        user = userEventManager.removeUserFavorite(event1);
         List<EventDSO> result = user.getUserFavorites();
         assertEquals("The user should still have 3 events", 3, user.getUserEvents().size());
         assertEquals("The user should have 2 favorites", 2, result.size());
@@ -155,9 +155,9 @@ public class UserEventManagerTest {
         assertTrue("The user should contain event2", result.contains(event2));
         assertTrue("The user should contain event3", result.contains(event3));
 
-        user = userEventManagerGood.removeUserFavorite(event2);
+        user = userEventManager.removeUserFavorite(event2);
         result = user.getUserFavorites();
-        user = userEventManagerGood.removeUserFavorite(event3);
+        user = userEventManager.removeUserFavorite(event3);
         assertEquals("The user should still have 3 events", 3, user.getUserEvents().size());
         assertEquals("The user should have 0 favorites", 0, result.size());
         assertFalse("The user should not contain event1", result.contains(event1));
@@ -167,21 +167,21 @@ public class UserEventManagerTest {
 
     @Test
     public void testRemoveUserLabel() {
-        user = userEventManagerGood.addUserLabel(label1);
-        user = userEventManagerGood.addUserLabel(label2);
-        user = userEventManagerGood.addUserLabel(label3);
+        user = userEventManager.addUserLabel(label1);
+        user = userEventManager.addUserLabel(label2);
+        user = userEventManager.addUserLabel(label3);
         assertEquals("The user should have 3 labels", 3, user.getUserLabels().size());
 
-        user = userEventManagerGood.removeUserLabel(label1);
+        user = userEventManager.removeUserLabel(label1);
         List<EventLabelDSO> result = user.getUserLabels();
         assertEquals("The user should have 2 labels", 2, result.size());
         assertFalse("The user should not contain label1", result.contains(label1));
         assertTrue("The user should contain label2", result.contains(label2));
         assertTrue("The user should contain label3", result.contains(label3));
 
-        user = userEventManagerGood.removeUserLabel(label2);
+        user = userEventManager.removeUserLabel(label2);
         result = user.getUserLabels();
-        user = userEventManagerGood.removeUserLabel(label3);
+        user = userEventManager.removeUserLabel(label3);
         assertEquals("The user should have 0 labels", 0, result.size());
         assertFalse("The user should not contain label1", result.contains(label1));
         assertFalse("The user should not contain label2", result.contains(label2));
@@ -190,64 +190,56 @@ public class UserEventManagerTest {
 
     @Test
     public void testGetUserEvents() {
-        assertNull("If the user has not been set in the database, should return null",
-                userEventManagerBad.getUserEvents());
         assertEquals("If the user has no events, should return empty list",
-                0, userEventManagerGood.getUserEvents().size());
-        user = userEventManagerGood.addUserEvent(event1);
-        user = userEventManagerGood.addUserEvent(event2);
-        user = userEventManagerGood.addUserEvent(event3);
+                0, userEventManager.getUserEvents().size());
+        user = userEventManager.addUserEvent(event1);
+        user = userEventManager.addUserEvent(event2);
+        user = userEventManager.addUserEvent(event3);
 
         assertEquals("The user should have 3 events",
-                3, userEventManagerGood.getUserEvents().size());
+                3, userEventManager.getUserEvents().size());
         assertTrue("The user should contain event1",
-                userEventManagerGood.getUserEvents().contains(event1));
+                userEventManager.getUserEvents().contains(event1));
         assertTrue("The user should contain event2",
-                userEventManagerGood.getUserEvents().contains(event2));
+                userEventManager.getUserEvents().contains(event2));
         assertTrue("The user should contain event3",
-                userEventManagerGood.getUserEvents().contains(event3));
+                userEventManager.getUserEvents().contains(event3));
     }
 
     @Test
     public void testGetUserLabels() {
-        assertNull("If the user has not been set in the database, should return null",
-                userEventManagerBad.getUserLabels());
-
         assertEquals("If the user has no labels, should return empty list",
-                0, userEventManagerGood.getUserLabels().size());
-        user = userEventManagerGood.addUserLabel(label1);
-        user = userEventManagerGood.addUserLabel(label2);
-        user = userEventManagerGood.addUserLabel(label3);
+                0, userEventManager.getUserLabels().size());
+        user = userEventManager.addUserLabel(label1);
+        user = userEventManager.addUserLabel(label2);
+        user = userEventManager.addUserLabel(label3);
 
         assertEquals("The user should have 3 labels",
-                3, userEventManagerGood.getUserLabels().size());
+                3, userEventManager.getUserLabels().size());
         assertTrue("The user should contain label1",
-                userEventManagerGood.getUserLabels().contains(label1));
+                userEventManager.getUserLabels().contains(label1));
         assertTrue("The user should contain label2",
-                userEventManagerGood.getUserLabels().contains(label2));
+                userEventManager.getUserLabels().contains(label2));
         assertTrue("The user should contain label3",
-                userEventManagerGood.getUserLabels().contains(label3));
+                userEventManager.getUserLabels().contains(label3));
     }
 
     @Test
     public void testGetUserFavorites() {
-        assertNull("If the user has not been set in the database, should return null",
-                userEventManagerBad.getUserFavorites());
-
         assertEquals("If the user has no events, should return empty list",
-                0, userEventManagerGood.getUserFavorites().size());
-        user = userEventManagerGood.addUserFavorite(event1);
-        user = userEventManagerGood.addUserFavorite(event2);
-        user = userEventManagerGood.addUserFavorite(event3);
+                0, userEventManager.getUserFavorites().size());
+        user = userEventManager.addUserFavorite(event1);
+        user = userEventManager.addUserFavorite(event2);
+        user = userEventManager.addUserFavorite(event3);
 
         assertEquals("The user should have 3 favorite events",
-                3, userEventManagerGood.getUserFavorites().size());
+                3, userEventManager.getUserFavorites().size());
         assertTrue("The user should contain event1",
-                userEventManagerGood.getUserFavorites().contains(event1));
+                userEventManager.getUserFavorites().contains(event1));
         assertTrue("The user should contain event2",
-                userEventManagerGood.getUserFavorites().contains(event2));
+                userEventManager.getUserFavorites().contains(event2));
         assertTrue("The user should contain event3",
-                userEventManagerGood.getUserFavorites().contains(event3));
+                userEventManager.getUserFavorites().contains(event3));
     }
 
 }
