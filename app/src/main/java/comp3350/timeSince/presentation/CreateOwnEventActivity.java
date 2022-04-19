@@ -52,6 +52,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private Calendar mCalendar;
     private EventManager eventManager;
     private UserManager userManager;
+    private UserEventManager userEventManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,12 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         mCalendar = Calendar.getInstance();
         extras = getIntent().getExtras();
         eventManager = new EventManager(true);
+        try {
+            userEventManager = new UserEventManager(extras.getString("email"), true);
+        } catch (UserNotFoundException e) {
+            // do something here
+            // TODO
+        }
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,7 +189,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
             }
             newEvent = eventManager.createEvent(eventName.getText().toString(),
                     description.getText().toString(), mCalendar, favorite);
-
+            userEventManager.addUserEvent(newEvent);
 
             if(newEvent != null){
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
