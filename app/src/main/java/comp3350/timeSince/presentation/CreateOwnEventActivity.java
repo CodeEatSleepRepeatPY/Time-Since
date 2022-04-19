@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 
 import comp3350.timeSince.R;
+import comp3350.timeSince.business.UserEventManager;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
@@ -51,6 +52,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private Calendar mCalendar;
     private EventManager eventManager;
     private UserManager userManager;
+    private UserEventManager userEventManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,12 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         mCalendar = Calendar.getInstance();
         extras = getIntent().getExtras();
         eventManager = new EventManager(true);
+        try {
+            userEventManager = new UserEventManager(extras.getString("email"), true);
+        } catch (UserNotFoundException e) {
+            // do something here
+            // TODO
+        }
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,8 +160,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private void loadEventLabelList(){
         SpinnerEventLabelList eventLabelsAdapter;
 
-        userManager = new UserManager(true);
-        List<EventLabelDSO> eventLabels = userManager.getUserLabels(extras.get("email").toString());
+        UserEventManager userEventManager = new UserEventManager(extras.get("email").toString(), true);
+        List<EventLabelDSO> eventLabels = userEventManager.getUserLabels();
         if(eventLabels.size() == 0){
             Toast.makeText(this, "The EventLabel list for the user is empty.", Toast.LENGTH_SHORT).show();
         }
@@ -179,16 +187,16 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
             }else {
                 eventLabelName = eventLabels.get(eventLabels.size() - 1).getName();
             }
-            newEvent = eventManager.insertEvent(extras.get("email").toString(), mCalendar,
-                        eventName.getText().toString(), eventLabelName,
-                        description.getText().toString(), favorite);
+            newEvent = eventManager.createEvent(eventName.getText().toString(),
+                    description.getText().toString(), mCalendar, favorite);
+            userEventManager.addUserEvent(newEvent);
 
-             if(newEvent != null){
-                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                 CreateOwnEventActivity.this.startActivity(nextIntent);
-             }else{
-                 Toast.makeText(this, "The new event is not successfully created.", Toast.LENGTH_SHORT).show();
-             }
+            if(newEvent != null){
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                CreateOwnEventActivity.this.startActivity(nextIntent);
+            }else{
+                Toast.makeText(this, "The new event is not successfully created.", Toast.LENGTH_SHORT).show();
+            }
         }catch(UserNotFoundException exception){
             Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
         }

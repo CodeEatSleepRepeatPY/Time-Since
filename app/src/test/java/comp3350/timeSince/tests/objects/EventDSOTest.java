@@ -2,17 +2,21 @@ package comp3350.timeSince.tests.objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.util.Calendar;
 
 import comp3350.timeSince.business.exceptions.EventDescriptionException;
 import comp3350.timeSince.objects.EventDSO;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class EventDSOTest {
 
     public static EventDSO event;
@@ -102,7 +106,7 @@ public class EventDSOTest {
     }
 
     @Test
-    public void setFavorite() {
+    public void testSetFavorite() {
         event.setFavorite(true);
         assertTrue("The event should be a favorite", event.isFavorite());
 
@@ -163,19 +167,22 @@ public class EventDSOTest {
         String message = "The Event should display as: 'EventID: %d, Name: ?id?, ?eventName?'";
         assertEquals(message, expected, event.toString());
 
-        event.setName(null);
-        assertEquals("The Event should display as: 'No Named Event' when no name is given.",
-                "No Named Event", event.toString());
+        EventDSO newEvent = new EventDSO(1, date, null);
+        assertEquals("The Event should display as: 'Invalid Event' when no name is given.",
+                "Invalid Event", newEvent.toString());
     }
 
     @Test
     public void testEquals() {
-        EventDSO other = new EventDSO(1, date, "Water Plants");
-        assertTrue("Events with the same ID should be equal",
-                event.equals(other));
-        other = new EventDSO(2, date, "Water Plants");
-        assertFalse("Events with different ID's should not be equal",
-                event.equals(other));
+        EventDSO other = new EventDSO(1, date, name);
+        assertEquals("Events with the same ID and name should be equal",
+                other, event);
+        other = new EventDSO(1, date, "Water Plants");
+        assertNotEquals("Events with the same ID but different names should not be equal",
+                other, event);
+        other = new EventDSO(2, date, "Clean Sink");
+        assertNotEquals("Events with different ID's and different names should not be equal",
+                other, event);
     }
 
 }

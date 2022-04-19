@@ -35,10 +35,11 @@ public class SingleEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_single_event);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        Intent i = getIntent();
+
         eventManager = new EventManager(true);
         Calendar eventFinishTime;
         String dateText;
-        Intent i = getIntent();
 
         // initialize event information
         eventID = i.getIntExtra("eventID", -1);

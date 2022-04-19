@@ -2,17 +2,22 @@ package comp3350.timeSince.tests.objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.util.Calendar;
 
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.business.exceptions.UserRegistrationFailedException;
 import comp3350.timeSince.objects.UserDSO;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UserDSOTest {
     private UserDSO userDSO;
     private String id;
@@ -25,7 +30,7 @@ public class UserDSOTest {
         this.passwordHash = "p4ssw0rd";
         defaultDate = Calendar.getInstance();
 
-        this.userDSO = new UserDSO(id, defaultDate, passwordHash);
+        this.userDSO = new UserDSO(1, id, defaultDate, passwordHash);
     }
 
     @Test
@@ -41,7 +46,7 @@ public class UserDSOTest {
         String message = String.format("Initial uuid should be set to %s",
                 this.id);
 
-        Assert.assertEquals(message, this.id, this.userDSO.getID());
+        Assert.assertEquals(message, this.id, this.userDSO.getEmail());
     }
 
 
@@ -74,33 +79,6 @@ public class UserDSOTest {
     }
 
     @Test
-    public void testGetUserLabels() {
-        String message = "Initial user labels should be empty";
-        int size = 0;
-
-        Assert.assertEquals(message, size,
-                this.userDSO.getUserLabels().size());
-    }
-
-    @Test
-    public void testGetUserEvents() {
-        String message = "Initial user events should be empty";
-        int size = 0;
-
-        Assert.assertEquals(message, size,
-                this.userDSO.getUserEvents().size());
-    }
-
-    @Test
-    public void testGetFavoritesList() {
-        String message = "Initial favorites list should be empty";
-        int size = 0;
-
-        Assert.assertEquals(message, size,
-                this.userDSO.getFavoritesList().size());
-    }
-
-    @Test
     public void testSetName() {
         String newName = "Gary";
         String message = String.format("The name should now be set to %s",
@@ -110,29 +88,50 @@ public class UserDSOTest {
         Assert.assertEquals(message, newName, this.userDSO.getName());
     }
 
-    @Test (expected = PasswordErrorException.class)
+    @Test
+    public void testSetNewEmail() {
+        String newEmail = "bobby2@gmail.com";
+        String message = String.format("The email should now be set to %s", newEmail);
+        userDSO.setNewEmail(id, newEmail);
+        assertEquals(message, newEmail, userDSO.getEmail());
+    }
+
+    @Test (expected = UserRegistrationFailedException.class)
+    public void testSetNewEmailException() {
+        userDSO.setNewEmail(id, "badEmail");
+    }
+
+    @Test
     public void testMeetsNewPasswordReq() {
         final int MIN_LENGTH = 8;
-        String newPassword = "Hunter1";
-        String message = String.format("Passwords should require a minimum " +
-                "length of at least %d", MIN_LENGTH);
+        String newPassword = "Hunter12";
 
-        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
-
-        newPassword = "hunter12";
-        message = "Passwords should require a capital.";
-        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
-
-        newPassword = "Hunter12";
-        message = String.format("%s should pass the minimum requirements of " +
+        String message = String.format("%s should pass the minimum requirements of " +
                         "having a capital letter, and being at least %d in length.",
                 newPassword, MIN_LENGTH);
         assertTrue(message, UserDSO.meetsNewPasswordReq(newPassword));
     }
 
+    @Test (expected = PasswordErrorException.class)
+    public void testMeetsNewPasswordReqExceptionA() {
+        final int MIN_LENGTH = 8;
+        String newPassword = "Hunter1";
+        String message = String.format("Passwords should require a minimum " +
+                "length of at least %d", MIN_LENGTH);
+        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
+    }
+
+    @Test (expected = PasswordErrorException.class)
+    public void testMeetsNewPasswordReqExceptionB() {
+        String newPassword = "hunter12";
+        String message = "Passwords should require a capital.";
+        assertFalse(message, UserDSO.meetsNewPasswordReq(newPassword));
+
+    }
+
     @Test
     public void testSetNewPassword() {
-        String newPasswordHash = "11111";
+        String newPasswordHash = "Password1234";
         String message = "setNewPassword should return true when passing in" +
                 "the correct old password hash";
 
@@ -144,45 +143,45 @@ public class UserDSOTest {
         assertEquals(message, this.userDSO.getPasswordHash(), newPasswordHash);
     }
 
-    @Test (expected = PasswordErrorException.class)
+    @Test
     public void testMatchesExistingPassword() {
-        String otherPasswordHash = "Hunter12";
-        String message = "matchesExistingPassword should return false when " +
-                "given a different password hash.";
-
-        assertFalse(message, this.userDSO.matchesExistingPassword(otherPasswordHash));
-
-        message = "matchesExistingPassword should return true when given " +
+        String message = "matchesExistingPassword should return true when given " +
                 "the same password hash";
 
         assertTrue(message, this.userDSO.matchesExistingPassword(this.passwordHash));
     }
 
+    @Test (expected = PasswordErrorException.class)
+    public void testMatchesExistingPasswordException() {
+        String otherPasswordHash = "Hunter12";
+        userDSO.matchesExistingPassword(otherPasswordHash);
+    }
+
     @Test
     public void testToString() {
-        String expected = String.format("Name: %s, UserID: %s",
-                userDSO.getName(), userDSO.getID());
-        String message = "The User should display as: 'Name: ?name?, UserID: ?id?'";
+        String expected = String.format("Name: %s, Email: %s",
+                userDSO.getName(), userDSO.getEmail());
+        String message = "The User should display as: 'Name: ?name?, Email: ?id?'";
         assertEquals(message, expected, userDSO.toString());
 
         userDSO.setName(null);
-        expected = String.format("UserID: %s", userDSO.getID());
-        message = "The User should display as: 'UserID: ?id?' when no name is given.";
+        expected = String.format("Email: %s", userDSO.getEmail());
+        message = "The User should display as: 'Email: ?id?' when no name is given.";
         assertEquals(message, expected, userDSO.toString());
 
-        UserDSO testUser = new UserDSO(null, defaultDate, passwordHash);
+        UserDSO testUser = new UserDSO(-1, null, defaultDate, passwordHash);
         assertEquals("Nothing should be displayed if no name or id.",
                 "", testUser.toString());
     }
 
     @Test
     public void testEquals() {
-        UserDSO other = new UserDSO("bobby_g@gmail.com", defaultDate, "12345");
-        assertTrue("Users with the same ID should be equal",
-                userDSO.equals(other));
-        other = new UserDSO("bobby2_g@gmail.com", defaultDate, "12345");
-        assertFalse("Users with different ID's should not be equal",
-                userDSO.equals(other));
+        UserDSO other = new UserDSO(1, "bobby_g@gmail.com", defaultDate, "12345");
+        assertEquals("Users with the same ID and email should be equal",
+                other, userDSO);
+        other = new UserDSO(2, "bobby2_g@gmail.com", defaultDate, "12345");
+        assertNotEquals("Users with different ID's should not be equal",
+                other, userDSO);
     }
 
 }

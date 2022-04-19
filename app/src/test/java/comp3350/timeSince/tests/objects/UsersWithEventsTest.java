@@ -5,7 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.util.Calendar;
 
@@ -13,6 +15,7 @@ import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UsersWithEventsTest {
 
     private UserDSO user;
@@ -22,7 +25,7 @@ public class UsersWithEventsTest {
     @Before
     public void setUp() {
         Calendar date = Calendar.getInstance();
-        user = new UserDSO("admin", date, "12345");
+        user = new UserDSO(1, "admin", date, "12345");
         event1 = new EventDSO(1, date, "Water Plants");
         event2 = new EventDSO(2, date, "New Toothbrush");
         event3 = new EventDSO(3, date, "Wash Sheets");
@@ -112,25 +115,25 @@ public class UsersWithEventsTest {
     @Test
     public void testAddFavorite() {
         assertEquals("User should have no favorites to start",
-                0, user.getFavoritesList().size());
+                0, user.getUserFavorites().size());
 
         user.addFavorite(event1);
         assertEquals("User should have one favorite",
-                1, user.getFavoritesList().size());
+                1, user.getUserFavorites().size());
         assertTrue("User should have correct favorite",
-                user.getFavoritesList().contains(event1));
+                user.getUserFavorites().contains(event1));
 
         user.addFavorite(event2);
         assertEquals("User should have two favorites",
-                2, user.getFavoritesList().size());
+                2, user.getUserFavorites().size());
         assertTrue("User should have correct unique favorite",
-                user.getFavoritesList().contains(event1));
+                user.getUserFavorites().contains(event1));
 
         user.addFavorite(event1);
         assertEquals("User should have two favorites, no duplicates",
-                2, user.getFavoritesList().size());
+                2, user.getUserFavorites().size());
         assertTrue("User should still have the original duplicate favorite",
-                user.getFavoritesList().contains(event1));
+                user.getUserFavorites().contains(event1));
     }
 
     @Test
@@ -138,19 +141,19 @@ public class UsersWithEventsTest {
         user.addFavorite(event1);
         user.addFavorite(event2);
         assertEquals("User should have 2 favorites",
-                2, user.getFavoritesList().size());
+                2, user.getUserFavorites().size());
 
         user.removeFavorite(event1);
         assertEquals("User should have 1 favorite",
-                1, user.getFavoritesList().size());
+                1, user.getUserFavorites().size());
         assertFalse("Removed favorite should no longer exist",
-                user.getFavoritesList().contains(event1));
+                user.getUserFavorites().contains(event1));
 
         user.removeFavorite(event3);
         assertEquals("Removing a favorite not in the list should do nothing",
-                1, user.getFavoritesList().size());
+                1, user.getUserFavorites().size());
         assertTrue("User should still have a favorite",
-                user.getFavoritesList().contains(event2));
+                user.getUserFavorites().contains(event2));
     }
 
 }

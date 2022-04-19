@@ -4,28 +4,40 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.business.exceptions.UserNotFoundException;
+import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UserManagerTest {
     private UserManager userManager;
-    private File tempDB;
 
     @Before
     public void setUp() throws IOException {
-        tempDB = TestUtils.copyDB();
+        TestUtils.copyDB();
         userManager = new UserManager(true);
+    }
+
+    @After
+    public void tearDown() {
+        Services.clean();
     }
 
     @Test
@@ -43,36 +55,6 @@ public class UserManagerTest {
     }
 
     @Test
-    public void uniqueNameTest() {
-        String user1 = "kevin12@qq.com";
-        String user2 = "admin";
-
-        assertTrue("kevin12 is not exist so it is unique, method returns true.", userManager.uniqueName(user1));
-        assertFalse("admin is exist so it is not unique, returns false", userManager.uniqueName(user2));
-    }
-
-    @Test(expected = PasswordErrorException.class)
-    public void passwordRequirementsTest() {
-        String password1 = "Bob12345";
-        String password2 = "BoB123";
-
-        assertTrue("As Bob12345 has 1 capital letter, and user typed same password for two times should return true"
-                , userManager.passwordRequirements(password1));
-        assertFalse("Bob123 is less than 8 should return false", userManager.passwordRequirements(password2));
-    }
-
-    @Test
-    public void hashPasswordTest() throws NoSuchAlgorithmException {
-        String inputPassword1 = "Kevin12345";
-        String inputPassword2 = "kevin12345";
-        //An expected hash password we get online by sha-256
-        String expectedHashPassword = "5070da9022cc3a82869511c63c48d87d38e36eed9e03c94c619680a0cdeffea0";
-
-        assertEquals("The result returned should equal to the expected hex String.", userManager.hashPassword(inputPassword1), expectedHashPassword);
-        assertNotEquals("As K and k is not same, these two password are not equal.", userManager.hashPassword(inputPassword1), userManager.hashPassword(inputPassword2));
-    }
-
-    @Test
     public void tryRegistrationTest() {
         String newUserName = "Emma@qq.com";
         String existUserName = "admin";
@@ -81,11 +63,11 @@ public class UserManagerTest {
         String wrongConfirmedPassword = "emmahappy99";
 
         try {
-            assertTrue("Emma@qq.com is not exist in the db, and we typed the same valid password for twice.",
-                    userManager.insertUser(newUserName, password, correctConfirmedPassword, null));
-            assertFalse("The password and confirmed password are not same", userManager.insertUser(newUserName, password, wrongConfirmedPassword, null));
-            assertFalse("admin is not exist in the db, should return false.",
-                    userManager.insertUser(existUserName, password, correctConfirmedPassword, null));
+            assertNotNull("Emma@qq.com is not exist in the db, and we typed the same valid " +
+                    "password for twice.", userManager.createUser(newUserName, password,
+                    correctConfirmedPassword, null));
+            assertNull("The password and confirmed password are not same",
+                    userManager.createUser(newUserName, password, wrongConfirmedPassword, null));
         } catch (DuplicateUserException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -94,35 +76,55 @@ public class UserManagerTest {
     @Test
     public void testGetUserByID() {
         assertNotNull("the user admin should exist in the database",
-                userManager.getUserByID("admin"));
+                userManager.getUserByEmail("admin"));
 
         assertNotNull("the user kristjaf@myumanitoba.ca should exist in the database",
-                userManager.getUserByID("kristjaf@myumanitoba.ca"));
+                userManager.getUserByEmail("kristjaf@myumanitoba.ca"));
 
         assertEquals("admin should have the event named New Toothbrush",
                 "New Toothbrush",
-                userManager.getUserByID("admin").getUserEvents().get(0).getName());
+                userManager.getUserByEmail("admin").getUserEvents().get(0).getName());
 
         assertEquals("kristjaf@myumanitoba.ca should have the event named New Toothbrush",
                 "New Toothbrush",
-                userManager.getUserByID("kristjaf@myumanitoba.ca").getUserEvents().get(0).getName());
+                userManager.getUserByEmail("kristjaf@myumanitoba.ca").getUserEvents().get(0).getName());
     }
 
     @Test
     public void updateUserName() {
-        assertTrue("admin's username should've been updated", userManager.updateUserName("admin", "wow"));
-        assertEquals("admin should now have the username 'wow'", "wow", userManager.getUserByID("admin").getName());
-        assertTrue("wow's username should've been updated back to admin", userManager.updateUserName("admin", "admin"));
-        assertEquals("wow should now have the username 'admin'", "admin", userManager.getUserByID("admin").getName());
+        assertNotNull("admin's username should've been updated", userManager.updateUserName("admin", "wow"));
+        assertEquals("admin should now have the username 'wow'", "wow", userManager.getUserByEmail("admin").getName());
+        assertNotNull("wow's username should've been updated back to admin", userManager.updateUserName("admin", "admin"));
+        assertEquals("wow should now have the username 'admin'", "admin", userManager.getUserByEmail("admin").getName());
     }
 
     @Test
-    public void updateUserPassword() throws NoSuchAlgorithmException {
-        assertTrue("admin's password should've been updated", userManager.updateUserPassword("admin", "12345", "A12345678"));
+    public void testUpdateUserPassword() throws NoSuchAlgorithmException {
+        UserDSO result = userManager.updateUserPassword("admin",  "A12345678");
+        assertNotNull("admin's password should've been updated", result);
 
         assertEquals("admin's password should now be the sha256 hash of 'A12345678'",
                 "3b4e266a89805c9d020f9aca6638ad63e8701fc8c75c0ca1952d14054d1f10cf",
-                userManager.getUserByID("admin").getPasswordHash());
+                userManager.getUserByEmail("admin").getPasswordHash());
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testDeleteUser() {
+        String testEmail = "testEmail@outlook.com";
+        try {
+            UserDSO user = userManager.createUser(testEmail, "Password123",
+                    "Password123", "Test Name");
+
+            assertTrue(userManager.deleteUser(testEmail));
+            assertNotEquals(user,userManager.getUserByEmail(testEmail)); // should throw an exception
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test (expected = UserNotFoundException.class)
+    public void testDeleteUserException() {
+        userManager.deleteUser("testUser"); // Trying to remove a user that doesn't exist
     }
 
 }

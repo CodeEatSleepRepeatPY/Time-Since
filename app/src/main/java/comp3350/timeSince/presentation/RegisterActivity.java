@@ -43,7 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
         String strConfirmPassword = editConfirmPassword.getText().toString();
 
         try {
-            if (userManager.insertUser(strUsername, strPassword, strConfirmPassword, null)) {
+            if (userManager.createUser(strUsername, strPassword, strConfirmPassword, null) != null) {
                 Toast.makeText(this, "Registration success!", Toast.LENGTH_LONG).show();
                 userIntent = new Intent(RegisterActivity.this, ViewEventActivity.class);
                 startActivity(userIntent);

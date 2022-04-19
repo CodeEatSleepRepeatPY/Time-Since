@@ -10,20 +10,22 @@ import java.io.InputStreamReader;
 
 import comp3350.timeSince.application.Main;
 
+/**
+ * Taken (and slightly modified) from the sample project, cook-ebook 2, and team rocket 15
+ */
 public class DBHelper {
 
     public static void copyDatabaseToDevice(Context context, String path) {
-        final String DB_PATH = path;
 
         String[] assetNames;
-        File dataDirectory = context.getDir(DB_PATH, Context.MODE_PRIVATE);
+        File dataDirectory = context.getDir(path, Context.MODE_PRIVATE);
         AssetManager assetManager = context.getAssets();
 
         try {
 
-            assetNames = assetManager.list(DB_PATH);
+            assetNames = assetManager.list(path);
             for (int i = 0; i < assetNames.length; i++) {
-                assetNames[i] = DB_PATH + "/" + assetNames[i];
+                assetNames[i] = path + "/" + assetNames[i];
             }
 
             copyAssetsToDirectory(context, assetNames, dataDirectory);
@@ -62,6 +64,6 @@ public class DBHelper {
                 in.close();
             }
         }
-
     }
+
 }

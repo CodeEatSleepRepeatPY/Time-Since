@@ -1,54 +1,75 @@
-/*
- * UserDSO
- *
- * Remarks: Domain Specific Object for a User
- */
-
 package comp3350.timeSince.objects;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
+import comp3350.timeSince.business.exceptions.UserRegistrationFailedException;
 
+/**
+ * UserDSO
+ * <p>
+ * Remarks: Domain Specific Object for a User
+ */
 public class UserDSO {
 
     //----------------------------------------
     // instance variables
     //----------------------------------------
 
-    private final String id; // could be email, or unique name, not null
+    private final int ID;
+    private String email; // could be email, or unique name, not null
     private String name;
-    private final Calendar DATE_REGISTERED; // generated when creating new object, not null
+    private final Calendar DATE_REGISTERED;
     private String passwordHash; // not null
-    private final List<EventDSO> userEvents;
-    private final List<EventDSO> favoritesList; // favorite Events
-    private final List<EventLabelDSO> userLabels;
+    private final List<EventDSO> USER_EVENTS;
+    private final List<EventDSO> USER_FAVORITES;
+    private final List<EventLabelDSO> USER_LABELS;
 
     //----------------------------------------
     // constructor
     //----------------------------------------
 
-    public UserDSO(String id, Calendar date, String passwordHash) {
-        this.id = id;
-        this.name = id; // defaults to the id
-        this.DATE_REGISTERED = date;
+    public UserDSO(int id, String email, Calendar dateRegistered, String passwordHash) {
+        this.ID = id >= 1 ? id : -1;
+        setEmailHelper(email);
+        this.name = email; // defaults to the email
+        this.DATE_REGISTERED = dateRegistered;
         this.passwordHash = passwordHash;
 
         // initialize ArrayLists
-        this.userLabels = new ArrayList<>();
-        this.userEvents = new ArrayList<>();
-        this.favoritesList = new ArrayList<>();
+        this.USER_LABELS = new ArrayList<>();
+        this.USER_EVENTS = new ArrayList<>();
+        this.USER_FAVORITES = new ArrayList<>();
+    }
+
+    private void setEmailHelper(String email) {
+        if (email != null) {
+            if (emailVerification(email) || email.equals("admin")) {
+                this.email = email;
+            }
+        } else {
+            this.email = null;
+        }
     }
 
     //----------------------------------------
     // getters
     //----------------------------------------
 
-    public String getID() {
-        return id;
+    public int getID() {
+        return ID;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public String getName() {
@@ -64,15 +85,15 @@ public class UserDSO {
     }
 
     public List<EventDSO> getUserEvents() {
-        return Collections.unmodifiableList(userEvents);
+        return Collections.unmodifiableList(USER_EVENTS);
     }
 
-    public List<EventDSO> getFavoritesList() {
-        return Collections.unmodifiableList(favoritesList);
+    public List<EventDSO> getUserFavorites() {
+        return Collections.unmodifiableList(USER_FAVORITES);
     }
 
     public List<EventLabelDSO> getUserLabels() {
-        return Collections.unmodifiableList(userLabels);
+        return Collections.unmodifiableList(USER_LABELS);
     }
 
     //----------------------------------------
@@ -83,56 +104,96 @@ public class UserDSO {
         this.name = name;
     }
 
+    public void addEvent(EventDSO newEvent) {
+        if (newEvent != null && !USER_EVENTS.contains(newEvent)) {
+            USER_EVENTS.add(newEvent);
+            if (newEvent.isFavorite()) {
+                addFavorite(newEvent);
+            }
+        }
+    }
+
+    public void removeEvent(EventDSO event) {
+        USER_EVENTS.remove(event);
+    }
+
+    public void addFavorite(EventDSO newFav) {
+        if (newFav != null && !USER_FAVORITES.contains(newFav)) {
+            addEvent(newFav); // should also be in events
+            USER_FAVORITES.add(newFav);
+        }
+    }
+
+    public void removeFavorite(EventDSO event) {
+        USER_FAVORITES.remove(event);
+    }
+
+    public void addLabel(EventLabelDSO newLabel) {
+        if (newLabel != null && !USER_LABELS.contains(newLabel)) {
+            USER_LABELS.add(newLabel);
+        }
+    }
+
+    public void removeLabel(EventLabelDSO label) {
+        USER_LABELS.remove(label);
+    }
+
+    //----------------------------------------
+    // email
+    //----------------------------------------
+
+    public boolean setNewEmail(String oldEmail, String newEmail) throws UserRegistrationFailedException {
+        boolean success = false;
+        if (oldEmail != null && newEmail != null && oldEmail.equals(email)) {
+            if (emailVerification(newEmail)) {
+                email = newEmail;
+                success = true;
+            }
+            else {
+                throw new UserRegistrationFailedException("Not a valid email. " +
+                        "Should be of the form local@domain (ex. username@domain.com)");
+            }
+        }
+        return success;
+    }
+
+    /**
+     * @param email the email address to verify
+     * @return true if of the form: local@domain
+     * @author taken from: <a href="https://www.baeldung.com/java-email-validation-regex">Baeldung</a>
+     */
+    public static boolean emailVerification(String email) {
+        String regexPattern = "^(.+)@(\\S+)$";
+        return Pattern.compile(regexPattern).matcher(email).matches();
+    }
+
+    //----------------------------------------
+    // passwords
+    //----------------------------------------
+
+    public static String hashPassword(String inputPassword) throws NoSuchAlgorithmException {
+        String strHash = "";
+
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(inputPassword.getBytes(StandardCharsets.UTF_8));
+
+        BigInteger notHash = new BigInteger(1, hash);
+        strHash = notHash.toString(16);
+
+        return strHash;
+    }
+
     // confirm the old password before changing to the new password
     public boolean setNewPassword(String oldPasswordHash, String newPasswordHash) {
         boolean success = false;
 
         if (oldPasswordHash.equals(this.passwordHash)) {
             this.passwordHash = newPasswordHash;
+            System.out.println("user set new password, success");
             success = true;
         }
 
         return success;
-    }
-
-    //----------------------------------------
-    // general
-    //----------------------------------------
-
-    public boolean validate() {
-        return (id != null && id.length() > 0
-                && passwordHash != null
-                && DATE_REGISTERED != null);
-    }
-
-    public void addLabel(EventLabelDSO newLabel) {
-        if (newLabel != null && !userLabels.contains(newLabel)) {
-            userLabels.add(newLabel);
-        }
-    }
-
-    public void removeLabel(EventLabelDSO label) {
-        userLabels.remove(label);
-    }
-
-    public void addEvent(EventDSO newEvent) {
-        if (newEvent != null && !userEvents.contains(newEvent)) {
-            userEvents.add(newEvent);
-        }
-    }
-
-    public void removeEvent(EventDSO event) {
-        userEvents.remove(event);
-    }
-
-    public void addFavorite(EventDSO newFav) {
-        if (newFav != null && !favoritesList.contains(newFav)) {
-            favoritesList.add(newFav);
-        }
-    }
-
-    public void removeFavorite(EventDSO event) {
-        favoritesList.remove(event);
     }
 
     // when logging in, have entered the right password?
@@ -149,51 +210,61 @@ public class UserDSO {
     public static boolean meetsNewPasswordReq(String password) throws PasswordErrorException {
         boolean minLength = hasMinLength(password);
         boolean hasCapital = hasCapital(password);
-        if (!minLength) {
-            throw new PasswordErrorException("The length of your password should more than 8 characters.");
-        }
-        if (!hasCapital) {
-            throw new PasswordErrorException("Your password should contains at least one capital letter!");
-        }
-        return true;
+        return (minLength && hasCapital);
     }
 
-    public String toString() {
-        String toReturn = "";
-        if (name != null && id != null) {
-            toReturn = String.format("Name: %s, UserID: %s", name, id);
+    // helper for meetsNewPasswordReq
+    private static boolean hasMinLength(String password) throws PasswordErrorException {
+        final int MIN_LENGTH = 8;
+        if (password.length() >= MIN_LENGTH) {
+            return true;
+        } else {
+            throw new PasswordErrorException("The length of your password should more than 8 characters.");
         }
-        if (name == null && id != null) {
-            toReturn = String.format("UserID: %s", id);
+    }
+
+    // helper for meetsNewPasswordReq
+    private static boolean hasCapital(String password) throws PasswordErrorException {
+        char letter;
+        // checking that the password has a capital letter
+        for (int i = 0; i < password.length(); i++) {
+            letter = password.charAt(i);
+            if (Character.isUpperCase(letter)) {
+                return true;
+            }
+        }
+        throw new PasswordErrorException("Your password should contains at least one capital letter!");
+    }
+
+    //----------------------------------------
+    // general
+    //----------------------------------------
+
+    public boolean validate() {
+        return (email != null
+                && passwordHash != null
+                && DATE_REGISTERED != null);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        boolean toReturn = false;
+        if (other instanceof UserDSO) {
+            toReturn = ID == ((UserDSO) other).getID()
+                    && email.equals(((UserDSO) other).getEmail());
         }
         return toReturn;
     }
 
-    public boolean equals(UserDSO other) {
-        return this.id.equals(other.getID());
-    }
-
-    // helper for meetsNewPasswordReq
-    private static boolean hasMinLength(String password) {
-        final int MIN_LENGTH = 8;
-
-        return password.length() >= MIN_LENGTH;
-    }
-
-    // helper for meetsNewPasswordReq
-    private static boolean hasCapital(String password) {
-        boolean hasCapital = false;
-        char letter;
-
-        // checking that the password has a capital letter
-        for (int i = 0; i < password.length() && !hasCapital; i++) {
-            letter = password.charAt(i);
-            if (Character.isUpperCase(letter)) {
-                hasCapital = true;
-            }
+    public String toString() {
+        String toReturn = "";
+        if (name != null && name.length() > 0 && email != null) {
+            toReturn = String.format("Name: %s, Email: %s", name, email);
         }
-
-        return hasCapital;
+        if ((name == null || name.length() == 0) && email != null) {
+            toReturn = String.format("Email: %s", email);
+        }
+        return toReturn;
     }
 
 }

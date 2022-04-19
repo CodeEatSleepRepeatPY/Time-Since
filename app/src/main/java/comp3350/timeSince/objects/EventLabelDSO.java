@@ -1,18 +1,17 @@
-/*
- * EventLabelDSO
- *
- * Remarks: Domain Specific Object for an Event Label
- */
-
 package comp3350.timeSince.objects;
 
+/**
+ * EventLabelDSO
+ * <p>
+ * Remarks: Domain Specific Object for an Event Label
+ */
 public class EventLabelDSO {
 
     //----------------------------------------
     // instance variables
     //----------------------------------------
 
-    private final int id; // not null, positive integer
+    private final int ID; // not null, positive integer
     private String name; // not null - name of the Event Label
 
     //----------------------------------------
@@ -20,7 +19,7 @@ public class EventLabelDSO {
     //----------------------------------------
 
     public EventLabelDSO(int id, String name) {
-        this.id = id;
+        this.ID = id >= 1 ? id : -1;
         this.name = name;
     }
 
@@ -29,7 +28,7 @@ public class EventLabelDSO {
     //----------------------------------------
 
     public int getID() {
-        return id;
+        return ID;
     }
 
     public String getName() {
@@ -40,18 +39,27 @@ public class EventLabelDSO {
     // setters
     //----------------------------------------
 
+    /**
+     * @param newName NonNull
+     */
     public void setName(String newName) {
-        name = newName;
+        if (newName != null) {
+            name = newName;
+        }
     }
 
     //----------------------------------------
     // general
     //----------------------------------------
 
+    /**
+     * @return true if id >= 1 and the name is at least one character long; false otherwise
+     */
     public boolean validate() {
-        return (id >= 1 && name != null);
+        return (ID >= 1 && name != null && name.length() >= 1);
     }
 
+    @Override
     public String toString() {
         String toReturn = "#";
         if (name != null) {
@@ -60,7 +68,18 @@ public class EventLabelDSO {
         return toReturn;
     }
 
-    public boolean equals(EventLabelDSO other) {
-        return this.id == other.getID();
+    /**
+     * @param other the object to be compared too (EventLabelDSO)
+     * @return true if instanceof EventLabelDSO, id's match, and name's match.
+     */
+    @Override
+    public boolean equals(Object other) {
+        boolean toReturn = false;
+        if (other instanceof EventLabelDSO) {
+            toReturn = this.ID == ((EventLabelDSO) other).getID()
+                    && this.name.equals(((EventLabelDSO) other).getName());
+        }
+        return toReturn;
     }
+
 }

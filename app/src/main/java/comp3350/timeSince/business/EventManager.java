@@ -1,32 +1,33 @@
 package comp3350.timeSince.business;
 
 import java.util.Calendar;
-import java.util.List;
 
-import comp3350.timeSince.application.Main;
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
+import comp3350.timeSince.business.exceptions.EventDescriptionException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
-import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
-import comp3350.timeSince.persistence.IUserPersistence;
-import comp3350.timeSince.persistence.hsqldb.EventPersistenceHSQLDB;
 
 public class EventManager {
 
+//---------------------------------------------------------------------------------------------
+//  Instance Variables
+//---------------------------------------------------------------------------------------------
+
     private final IEventLabelPersistence eventLabelPersistence;
     private final IEventPersistence eventPersistence;
-    private final IUserPersistence userPersistence;
+
+//---------------------------------------------------------------------------------------------
+//  Constructors
+//---------------------------------------------------------------------------------------------
 
     /**
      * Used in production.
      */
     public EventManager(boolean forProduction) {
-        userPersistence = Services.getUserPersistence(forProduction);
         eventPersistence = Services.getEventPersistence(forProduction);
         eventLabelPersistence = Services.getEventLabelPersistence(forProduction);
     }
@@ -34,80 +35,84 @@ public class EventManager {
     /**
      * Used for (mock) testing purposes.
      *
-     * @param usersDB User database.
      * @param eventDB Event database.
      * @param eventLabelsDB Event Label database.
      */
-    public EventManager(IUserPersistence usersDB, IEventPersistence eventDB, IEventLabelPersistence eventLabelsDB) {
-        userPersistence = usersDB;
+    public EventManager(IEventPersistence eventDB, IEventLabelPersistence eventLabelsDB) {
         eventPersistence = eventDB;
         eventLabelPersistence = eventLabelsDB;
     }
 
+//---------------------------------------------------------------------------------------------
+//  Getters
+//---------------------------------------------------------------------------------------------
+
     public EventDSO getEventByID(int eventID) throws EventNotFoundException {
-        return eventPersistence.getEventByID(eventID); // may cause exception
-    }
-
-    public List<EventDSO> getEventList() {
-        return eventPersistence.getEventList();
-    }
-
-    public EventDSO insertEvent(String userID, Calendar dueDate, String eventName,
-                                   String eventLabelName, String eventDesc, boolean favorite)
-            throws UserNotFoundException, DuplicateEventException {
-
         EventDSO toReturn = null;
-        UserDSO databaseUser = userPersistence.getUserByID(userID); // may cause exception
+        if (eventID >= 1) {
+            toReturn = eventPersistence.getEventByID(eventID); // may cause exception
+        }
+        return toReturn;
+    }
 
-        if (databaseUser != null) {
-            Calendar calendar = Calendar.getInstance();
-            EventDSO event = new EventDSO(eventPersistence.getNextID(), calendar,
-                    eventName); // create event object with specified name
-            EventLabelDSO eventLabel = new EventLabelDSO(eventLabelPersistence.getNextID(),
-                    eventLabelName); // create label object with specified name
+    public int numEvents() {
+        return eventPersistence.numEvents();
+    }
 
-            if (event.validate() && eventLabel.validate()) {
-                event.setTargetFinishTime(dueDate); // set event's due date
-                event.addLabel(eventLabel); // add label
-                event.setFavorite(favorite); // set if favorite or not
-                event.setDescription(eventDesc);
+//---------------------------------------------------------------------------------------------
+//  Setters
+//---------------------------------------------------------------------------------------------
 
-                databaseUser.addEvent(event); // add event to user's events list
-                databaseUser.addLabel(eventLabel); // add event label to user's event labels list
-
-                if (favorite) {
-                    databaseUser.addFavorite(event);
-                }
-
-                // insert event into the database, may cause exception
-                eventPersistence.insertEvent(event);
-                // insert the newly created event label into the database, may cause exception
-                eventLabelPersistence.insertEventLabel(eventLabel);
-                toReturn = event; // successful
+    public EventDSO addLabelToEvent(EventDSO event, EventLabelDSO label) throws EventNotFoundException {
+        EventDSO toReturn = null;
+        if (event != null && label != null && event.validate() && label.validate()) {
+            if (!eventLabelPersistence.labelExists(label)) {
+                label = eventLabelPersistence.insertEventLabel(label);
+            }
+            if (eventPersistence.eventExists(event)) {
+                // add the connection between the event and label
+                event = eventPersistence.addLabel(event, label);
+                toReturn = event;
+            } else {
+                throw new EventNotFoundException("The event is not in the database.");
             }
         }
         return toReturn;
     }
+
+    public EventDSO removeLabelFromEvent(EventDSO event, EventLabelDSO label) throws EventNotFoundException {
+        EventDSO toReturn = null;
+        if (event != null && label != null && event.validate()) {
+            if (eventPersistence.eventExists(event)) {
+                // remove the connection between the event and label
+                event = eventPersistence.removeLabel(event, label);
+                toReturn = event;
+            }
+        }
+        return toReturn;
+    }
+
+//---------------------------------------------------------------------------------------------
+//  Updates
+//---------------------------------------------------------------------------------------------
 
     public EventDSO updateEventName(String newName, int eventID) throws EventNotFoundException {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
 
         if (oldEvent != null) {
-            oldEvent.setName(newName);
-            updatedEvent = eventPersistence.updateEvent(oldEvent); // may cause exception
+            updatedEvent = eventPersistence.updateEventName(oldEvent, newName); // may cause exception
         }
 
         return updatedEvent;
     }
 
-    public EventDSO updateEventDescription(String desc, int eventID) throws EventNotFoundException {
+    public EventDSO updateEventDescription(String desc, int eventID) throws EventNotFoundException, EventDescriptionException {
         EventDSO updatedEvent = null;
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
 
         if (oldEvent != null) {
-            oldEvent.setDescription(desc);
-            updatedEvent = eventPersistence.updateEvent(oldEvent); // may cause exception
+            updatedEvent = eventPersistence.updateEventDescription(oldEvent, desc); // may cause exception
         }
 
         return updatedEvent;
@@ -118,23 +123,49 @@ public class EventManager {
         EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
 
         if (oldEvent != null) {
-            oldEvent.setTargetFinishTime(finishTime);
-            updatedEvent = eventPersistence.updateEvent(oldEvent); // may cause exception
+            updatedEvent = eventPersistence.updateEventFinishTime(oldEvent, finishTime); // may cause exception
         }
 
         return updatedEvent;
     }
 
     public EventDSO updateEventFavorite(boolean fav, int eventID) throws EventNotFoundException {
-        EventDSO updatedEvent = null;
-        EventDSO oldEvent = eventPersistence.getEventByID(eventID); // may cause exception
-
-        if (oldEvent != null) {
-            oldEvent.setFavorite(fav);
-            updatedEvent = eventPersistence.updateEvent(oldEvent); // may cause exception
+        EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
+        if (event != null) {
+            event = eventPersistence.updateEventFavorite(event, fav);
         }
+        return event;
+    }
 
-        return updatedEvent;
+    public EventDSO markEventAsDone(int eventID, boolean done) throws EventNotFoundException {
+        EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
+        if (event != null) {
+            event = eventPersistence.updateEventStatus(event, done);
+        }
+        return event;
+    }
+
+//---------------------------------------------------------------------------------------------
+//  General
+//---------------------------------------------------------------------------------------------
+
+    public EventDSO createEvent(String eventName, String description,
+                                Calendar dueDate, boolean favorite)
+            throws DuplicateEventException, EventDescriptionException {
+
+        EventDSO toReturn = null;
+        EventDSO event = new EventDSO(eventPersistence.getNextID(),
+                Calendar.getInstance(), eventName); // create event object with specified name
+        event.setDescription(description); // may cause an exception
+
+        if (event.validate()) {
+            // insert event into the database, may cause exception
+            event = eventPersistence.insertEvent(event);
+            event.setFavorite(favorite); // set if favorite or not
+            event.setTargetFinishTime(dueDate); // set event's due date
+            toReturn = event; // successful
+        }
+        return toReturn;
     }
 
     public EventDSO deleteEvent(int eventID) throws EventNotFoundException {
@@ -148,15 +179,16 @@ public class EventManager {
         return toReturn;
     }
 
-    public void markEventAsDone(int eventID, boolean done) throws EventNotFoundException {
+    public boolean isDone(int eventID) throws EventNotFoundException {
+        boolean toReturn = false;
         EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
-
         if (event != null) {
-            event.setIsDone(done);
+            toReturn = event.isDone();
         }
+        return toReturn;
     }
 
-    public boolean isDone(int eventID) throws EventNotFoundException {
+    public boolean isOverdue(int eventID) throws EventNotFoundException {
         boolean toReturn = false;
         EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
 
@@ -166,10 +198,6 @@ public class EventManager {
             toReturn = currentDate.equals(eventDueDate) || currentDate.after(eventDueDate);
         }
         return toReturn;
-    }
-
-    public int numEvents() {
-        return eventPersistence.numEvents();
     }
 
 }
