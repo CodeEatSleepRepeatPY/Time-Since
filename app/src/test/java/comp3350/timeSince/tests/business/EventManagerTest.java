@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,7 +16,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -111,7 +109,7 @@ public class EventManagerTest {
     }
 
     @Test
-    public void testAddLabelListToEvent() {
+    public void testAddLabelsToEvent() {
         EventLabelDSO label1 = new EventLabelDSO(initialLabelCount + 1, "Label1");
         EventLabelDSO label2 = new EventLabelDSO(initialLabelCount + 2, "Label2");
         EventLabelDSO label3 = new EventLabelDSO(initialLabelCount + 3, "Label3");
@@ -130,7 +128,7 @@ public class EventManagerTest {
         testEvent.addLabel(label4);
         when(eventPersistence.addLabel(event2, label4)).thenReturn(testEvent);
 
-        EventDSO result = eventManager.addLabelsListToEvent(event2, labelsList);
+        EventDSO result = eventManager.addLabelsToEvent(event2, labelsList);
         assertEquals("Event2 should get returned", event2, result);
         assertEquals("The event should have 4 labels", 4, result.getEventLabels().size());
 

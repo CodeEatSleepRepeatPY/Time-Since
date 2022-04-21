@@ -64,7 +64,7 @@ public class EventManager {
 //  Setters
 //---------------------------------------------------------------------------------------------
 
-    public EventDSO addLabelsListToEvent(EventDSO event, List<EventLabelDSO> labels) throws EventNotFoundException {
+    public EventDSO addLabelsToEvent(EventDSO event, List<EventLabelDSO> labels) throws EventNotFoundException {
         EventDSO toReturn = null;
         if (labels != null) {
             for (EventLabelDSO label : labels) {
