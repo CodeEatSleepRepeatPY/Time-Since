@@ -45,7 +45,8 @@ public class RegisterActivity extends AppCompatActivity {
         try {
             if (userManager.createUser(strUsername, strPassword, strConfirmPassword, null) != null) {
                 Toast.makeText(this, "Registration success!", Toast.LENGTH_LONG).show();
-                userIntent = new Intent(RegisterActivity.this, ViewEventActivity.class);
+                userIntent = new Intent(RegisterActivity.this, CreateOwnEventActivity.class);
+                userIntent.putExtra("email", strUsername);
                 startActivity(userIntent);
             } else {
                 userIntent = new Intent(this, RegisterActivity.class);

@@ -242,4 +242,32 @@ public class UserEventManagerTest {
                 userEventManager.getUserFavorites().contains(event3));
     }
 
+    @Test
+    public void testCheckClosingEvents() {
+        assertEquals("If the user has no events, there should be no closing events",
+                0, userEventManager.checkClosingEvents().size());
+
+        Calendar dueDate1 = Calendar.getInstance();
+        Calendar dueDate2 = Calendar.getInstance();
+        Calendar dueDate3 = Calendar.getInstance();
+        dueDate1.add(Calendar.DAY_OF_YEAR, 2);
+        dueDate2.add(Calendar.DAY_OF_YEAR, 8);
+        dueDate3.add(Calendar.DAY_OF_YEAR, -1);
+        event1.setTargetFinishTime(dueDate1);
+        event2.setTargetFinishTime(dueDate2);
+        event3.setTargetFinishTime(dueDate3);
+        user = userEventManager.addUserEvent(event1);
+        user = userEventManager.addUserEvent(event2);
+        user = userEventManager.addUserEvent(event3);
+
+        assertEquals("The user should have 2 coming events in 7 days",
+                2, userEventManager.checkClosingEvents().size() );
+        assertTrue("The user should contain event1",
+                userEventManager.checkClosingEvents().contains(event1));
+        assertFalse("The user should not contain event2",
+                userEventManager.checkClosingEvents().contains(event2));
+        assertTrue("The user should contain event3",
+                userEventManager.checkClosingEvents().contains(event3));
+    }
+
 }

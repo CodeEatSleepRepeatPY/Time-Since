@@ -35,4 +35,5 @@
     <string name="date_hint">yyyy-mm-dd</string>
     <string name="single_event_hint">I keep forgetting to replace my toothbrush, so I created this event to let me know when I need to replace it.</string>
     <string name="hint_single_event_name">Replace Toothbrush</string>
+    <string name="title_activity_view_own_event_list">ViewOwnEventList</string>
 </resources>

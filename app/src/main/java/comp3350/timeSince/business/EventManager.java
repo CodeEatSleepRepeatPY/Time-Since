@@ -160,9 +160,9 @@ public class EventManager {
 
         if (event.validate()) {
             // insert event into the database, may cause exception
-            event = eventPersistence.insertEvent(event);
             event.setFavorite(favorite); // set if favorite or not
             event.setTargetFinishTime(dueDate); // set event's due date
+            event = eventPersistence.insertEvent(event);
             toReturn = event; // successful
         }
         return toReturn;

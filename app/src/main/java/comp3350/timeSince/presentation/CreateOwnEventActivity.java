@@ -5,15 +5,13 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import android.widget.AdapterView;
-import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,21 +22,19 @@ import java.util.List;
 import java.util.Objects;
 
 import comp3350.timeSince.R;
-import comp3350.timeSince.business.UserEventManager;
-import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.EventManager;
+import comp3350.timeSince.business.UserEventManager;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.persistence.IEventLabelPersistence;
 
 public class CreateOwnEventActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener,
-        AdapterView.OnItemSelectedListener
-{
+        AdapterView.OnItemSelectedListener {
     private boolean favorite = false;
     private ArrayList<EventLabelDSO> eventLabels;
+    private List<EventLabelDSO> candidateEventLabels;
     private Bundle extras;
     private TextView eventName;
     private boolean labelNotClicked = true;
@@ -51,8 +47,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private Spinner selectEventLabel;
     private Calendar mCalendar;
     private EventManager eventManager;
-    private UserManager userManager;
     private UserEventManager userEventManager;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +65,16 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         isFavorite = findViewById(R.id.favorite);
         eventLabelName = findViewById(R.id.event_label);
         eventLabels = new ArrayList<EventLabelDSO>();
-        mCalendar = null;
         extras = getIntent().getExtras();
+        userID = extras.get("email").toString();
         eventManager = new EventManager(true);
+
         try {
-            userEventManager = new UserEventManager(extras.getString("email"), true);
+            userEventManager = new UserEventManager(userID, true);
         } catch (UserNotFoundException e) {
-            // do something here
-            // TODO
+            Toast.makeText(this, "The user is not found.",Toast.LENGTH_SHORT).show();
+            Intent homeIntent = new Intent(this, HomeActivity.class);
+            startActivity(homeIntent);
         }
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
@@ -123,7 +121,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onSupportNavigateUp(){
+    public boolean onSupportNavigateUp() {
         finish();
         return true;
     }
@@ -131,25 +129,30 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         EventLabelDSO eventLabelDSO;
-        if(adapterView == findViewById(R.id.select_event_label)){
+
+        if (candidateEventLabels.size() == 0) {
+            Toast.makeText(this, "You haven't made any event labels.", Toast.LENGTH_SHORT).show();
+        }
+
+        if (adapterView == findViewById(R.id.select_event_label)) {
             eventLabelDSO = (EventLabelDSO) adapterView.getItemAtPosition(position);
-            if( labelNotClicked ){
+            if (labelNotClicked) {
                 eventLabels.clear();
                 labelNotClicked = false;
-            }else{
-                eventLabels.add(eventLabelDSO );
+            } else {
+                eventLabels.add(eventLabelDSO);
                 eventLabelName.setText(concatenateLabels());
             }
         }
     }
 
-    private String concatenateLabels(){
+    private String concatenateLabels() {
         StringBuilder sb = new StringBuilder();
 
-        for(EventLabelDSO eventLabel : eventLabels){
-            sb.append(" "+eventLabel.getName() );
+        for (EventLabelDSO eventLabel : eventLabels) {
+            sb.append(" " + eventLabel.getName());
         }
-        return(sb.toString());
+        return (sb.toString());
     }
 
     @Override
@@ -157,47 +160,42 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         eventLabelName.setText("");
     }
 
-    private void loadEventLabelList(){
+    private void loadEventLabelList() {
         SpinnerEventLabelList eventLabelsAdapter;
-
-        UserEventManager userEventManager = new UserEventManager(extras.get("email").toString(), true);
-        List<EventLabelDSO> eventLabels = userEventManager.getUserLabels();
-        if(eventLabels.size() == 0){
-            Toast.makeText(this, "The EventLabel list for the user is empty.", Toast.LENGTH_SHORT).show();
-        }
-
+        candidateEventLabels = userEventManager.getUserLabels();
         eventLabelsAdapter = new SpinnerEventLabelList(this,
-                R.layout.simple_spinner_dropdown_items, eventLabels);
+                R.layout.simple_spinner_dropdown_items, candidateEventLabels);
 
         selectEventLabel.setAdapter(eventLabelsAdapter);
         eventLabelsAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_items);
     }
 
-    private void saveContents(){
+    private void saveContents() {
         extras = getIntent().getExtras();
         EventDSO newEvent;
         String message = "Creation successful! ";
-        Intent nextIntent = new Intent(this, ViewEventActivity.class);
-        String eventLabelName;
+        Intent nextIntent = new Intent(this, ViewOwnEventListActivity.class);
+        nextIntent.putExtra("email", userID);
+        EventLabelDSO eventLabel;
 
         //if the event is successfully created, save information to the database
-        try{
-            if( eventLabels.size() == 0 ){
-                eventLabelName = "";
-            }else {
-                eventLabelName = eventLabels.get(eventLabels.size() - 1).getName();
-            }
+        try {
             newEvent = eventManager.createEvent(eventName.getText().toString(),
                     description.getText().toString(), mCalendar, favorite);
-            userEventManager.addUserEvent(newEvent);
 
-            if(newEvent != null){
+            userEventManager.addUserEvent(newEvent);
+            if (eventLabels.size() > 0) {
+                eventLabel = eventLabels.get(eventLabels.size() - 1);
+                eventManager.addLabelToEvent(newEvent, eventLabel);
+            }
+
+            if (newEvent != null) {
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                 CreateOwnEventActivity.this.startActivity(nextIntent);
-            }else{
+            } else {
                 Toast.makeText(this, "The new event is not successfully created.", Toast.LENGTH_SHORT).show();
             }
-        }catch(UserNotFoundException exception){
+        } catch (UserNotFoundException exception) {
             Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -205,38 +203,43 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     @Override
     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
         Calendar currentTime = Calendar.getInstance();
-
+        if (mCalendar == null) {
+            mCalendar = Calendar.getInstance();
+        }
         mCalendar.set(Calendar.HOUR_OF_DAY, hour);
         mCalendar.set(Calendar.MINUTE, minute);
         SimpleDateFormat mSDF = new SimpleDateFormat("hh:mm a");
-        dueTime.setText( mSDF.format(mCalendar.getTime()) );
+        dueTime.setText(mSDF.format(mCalendar.getTime()));
 
-        if( mCalendar.before(currentTime) ){
+        if (mCalendar.before(currentTime)) {
             Toast.makeText(this, "The due date is before the current datetime!", Toast.LENGTH_LONG).show();
             dueDate.setText("");
             dueTime.setText("");
         }
     }
 
-    private void showPickTimeDialogue(){
-        Calendar mCalendar = Calendar.getInstance();
-        int mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
-        int mMinute = mCalendar.get(Calendar.MINUTE);
-
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
-                this, mHour, mMinute, false);
+    private void showPickTimeDialogue() {
+        TimePickerDialog timePickerDialog = new TimePickerDialog(
+                this,
+                this,
+                Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+                Calendar.getInstance().get(Calendar.MINUTE),
+                false);
         timePickerDialog.show();
     }
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+        if (mCalendar == null) {
+            mCalendar = Calendar.getInstance();
+        }
         mCalendar.set(Calendar.YEAR, year);
         mCalendar.set(Calendar.MONTH, month);
         mCalendar.set(Calendar.DAY_OF_MONTH, day);
-        dueDate.setText(String.format("%d/%d/%d",day, (month+1), year));
+        dueDate.setText(String.format("%d/%d/%d", day, (month + 1), year));
     }
 
-    private void showPickDateDialogue(){
+    private void showPickDateDialogue() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,
                 this,
@@ -247,12 +250,12 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         datePickerDialog.show();
     }
 
-    public void buttonSetEventOnClick(View v){
+    public void buttonSetEventOnClick(View v) {
         updateFavorite();
     }
 
     private void updateFavorite() {
-        if(favoriteBtn != null) {
+        if (favoriteBtn != null) {
             favorite = !favorite;
             if (favorite) {
                 favoriteBtn.setBackgroundResource(R.drawable.heart_filled);
