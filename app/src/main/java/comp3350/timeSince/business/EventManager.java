@@ -1,6 +1,7 @@
 package comp3350.timeSince.business;
 
 import java.util.Calendar;
+import java.util.List;
 
 import comp3350.timeSince.application.Services;
 import comp3350.timeSince.business.exceptions.DuplicateEventException;
@@ -62,6 +63,17 @@ public class EventManager {
 //---------------------------------------------------------------------------------------------
 //  Setters
 //---------------------------------------------------------------------------------------------
+
+    public EventDSO addLabelsToEvent(EventDSO event, List<EventLabelDSO> labels) throws EventNotFoundException {
+        EventDSO toReturn = null;
+        if (labels != null) {
+            for (EventLabelDSO label : labels) {
+                event = addLabelToEvent(event, label); // may throw an exception
+            }
+            toReturn = event;
+        }
+        return toReturn;
+    }
 
     public EventDSO addLabelToEvent(EventDSO event, EventLabelDSO label) throws EventNotFoundException {
         EventDSO toReturn = null;
