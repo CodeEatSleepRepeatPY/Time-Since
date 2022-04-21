@@ -42,6 +42,7 @@ public class SingleEventActivity extends AppCompatActivity {
         String dateText;
 
         // initialize event information
+        //TODO add try catch here
         eventID = i.getIntExtra("eventID", -1);
         eventDSO = eventManager.getEventByID(eventID);
 
@@ -63,14 +64,16 @@ public class SingleEventActivity extends AppCompatActivity {
         name.setText(eventDSO.getName());
         description.setText(eventDSO.getDescription());
         eventFinishTime = eventDSO.getTargetFinishTime();
-        dateText = String.format("%d-%d-%d",
-                eventFinishTime.get(Calendar.YEAR),
-                eventFinishTime.get(Calendar.MONTH),
-                eventFinishTime.get(Calendar.DAY_OF_MONTH));
-        dueDate.setText(dateText);
+        if(eventFinishTime != null){
+            dateText = String.format("%d-%d-%d",
+                    eventFinishTime.get(Calendar.YEAR),
+                    eventFinishTime.get(Calendar.MONTH),
+                    eventFinishTime.get(Calendar.DAY_OF_MONTH));
+            dueDate.setText(dateText);
 
-        // set the color for the due date text to indicate if it's overdue
-        setDateColor(eventFinishTime);
+            // set the color for the due date text to indicate if it's overdue
+            setDateColor(eventFinishTime);
+        }
     }
 
     @Override
@@ -128,6 +131,7 @@ public class SingleEventActivity extends AppCompatActivity {
     public void buttonEventFavoriteOnClick(View v) {
         boolean isFavorite = eventDSO.isFavorite();
 
+        //TODO: to fix: the color does not change in real time
         try{
             favorite_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -173,6 +177,9 @@ public class SingleEventActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Calendar calendar = eventDSO.getTargetFinishTime();
+                    if(calendar == null){
+                        calendar = Calendar.getInstance();
+                    }
                     int year = calendar.get(Calendar.YEAR);
                     int month = calendar.get(Calendar.MONTH);
                     int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -203,8 +210,12 @@ public class SingleEventActivity extends AppCompatActivity {
     // upon leaving, saves the name and description entered in the UI
     @Override
     public boolean onSupportNavigateUp(){
-        eventManager.updateEventName(name.getText().toString(), eventID);
-        eventManager.updateEventDescription(description.getText().toString(), eventID);
+        if(name != null){
+            eventManager.updateEventName(name.getText().toString(), eventID);
+        }
+        if(description != null){
+            eventManager.updateEventDescription(description.getText().toString(), eventID);
+        }
 
         finish();
         return true;

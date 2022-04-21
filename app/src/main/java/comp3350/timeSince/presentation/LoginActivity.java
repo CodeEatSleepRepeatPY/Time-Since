@@ -17,10 +17,10 @@ import comp3350.timeSince.business.exceptions.UserLoginFailedException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 
 public class LoginActivity extends AppCompatActivity {
+    private final UserManager userManager = new UserManager(true);
     private Button login;
     private String email;
     private String password;
-    private final UserManager userManager = new UserManager(true);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
             if (userManager.accountCheck(email, password)) {
                 String message = "Welcome! " + email;
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                nextIntent = new Intent(this, CreateOwnEventActivity.class);
+                nextIntent = new Intent(this, ViewOwnEventListActivity.class);
                 nextIntent.putExtra("email", email);
                 nextIntent.putExtra("password", password);
                 ((EditText) findViewById(R.id.username)).setText("");

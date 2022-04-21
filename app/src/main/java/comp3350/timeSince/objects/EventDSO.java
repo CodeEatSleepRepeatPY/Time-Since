@@ -17,6 +17,7 @@ public class EventDSO {
     private boolean isFavorite;
     private boolean isDone;
     private final List<EventLabelDSO> LABELS;
+    private boolean dueClosing;
 
     //----------------------------------------
     // constructor
@@ -31,6 +32,7 @@ public class EventDSO {
         isFavorite = false;
         isDone = false;
         LABELS = new ArrayList<>();
+        dueClosing = false;
     }
 
     //----------------------------------------
@@ -67,6 +69,10 @@ public class EventDSO {
 
     public List<EventLabelDSO> getEventLabels() {
         return Collections.unmodifiableList(LABELS);
+    }
+
+    public boolean isDueClosing(){
+        return dueClosing;
     }
 
     //----------------------------------------
@@ -144,6 +150,22 @@ public class EventDSO {
         if (eventLabelDSO != null) {
             LABELS.remove(eventLabelDSO);
         }
+    }
+
+    public boolean checkDueClosing(){
+        Calendar closingDate;
+        Calendar currentDate = Calendar.getInstance();
+        int dueDays = -7;
+
+        if(targetFinishTime != null) {
+            closingDate = (Calendar) targetFinishTime.clone();
+            closingDate.add(Calendar.DAY_OF_YEAR, dueDays);
+            dueClosing = closingDate.before(currentDate);
+        }else{
+            dueClosing = false;
+        }
+
+        return dueClosing;
     }
 
     @Override

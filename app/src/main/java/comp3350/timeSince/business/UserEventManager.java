@@ -198,6 +198,20 @@ public class UserEventManager {
         return toReturn;
     }
 
+    public List<EventDSO> checkClosingEvents(){
+        List<EventDSO> comingEvents = new ArrayList<EventDSO>();
+        List<EventDSO> userEvents = getUserEvents();
+
+        if(validateUser(user) && (userEvents!=null) ){
+            for(EventDSO event :userEvents){
+                if( event != null && event.checkDueClosing() ){
+                    comingEvents.add(event);
+                }
+            }
+        }
+        return comingEvents;
+    }
+
 //---------------------------------------------------------------------------------------------
 //  Helpers
 //---------------------------------------------------------------------------------------------

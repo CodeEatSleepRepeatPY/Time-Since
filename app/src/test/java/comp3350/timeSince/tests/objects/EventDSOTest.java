@@ -185,4 +185,18 @@ public class EventDSOTest {
                 other, event);
     }
 
+    @Test
+    public void checkDueClosing() {
+        EventDSO other = new EventDSO(1, date, name);
+        Calendar eightDaysAhead = Calendar.getInstance();
+        eightDaysAhead.add(Calendar.DAY_OF_YEAR, 8);
+        Calendar fourDaysAhead = Calendar.getInstance();
+        fourDaysAhead.add(Calendar.DAY_OF_YEAR, 4);
+
+        other.setTargetFinishTime(eightDaysAhead);
+        assertFalse("Due date is 8 days ahead, closing state should be false.", other.checkDueClosing());
+
+        other.setTargetFinishTime(fourDaysAhead);
+        assertTrue("Due date is 4 days ahead, closing state should be true.",other.checkDueClosing());
+    }
 }
