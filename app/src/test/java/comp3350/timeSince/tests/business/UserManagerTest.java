@@ -65,9 +65,9 @@ public class UserManagerTest {
         try {
             assertNotNull("Emma@qq.com is not exist in the db, and we typed the same valid " +
                     "password for twice.", userManager.createUser(newUserName, password,
-                    correctConfirmedPassword, null));
+                    correctConfirmedPassword));
             assertNull("The password and confirmed password are not same",
-                    userManager.createUser(newUserName, password, wrongConfirmedPassword, null));
+                    userManager.createUser(newUserName, password, wrongConfirmedPassword));
         } catch (DuplicateUserException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -113,7 +113,7 @@ public class UserManagerTest {
         String testEmail = "testEmail@outlook.com";
         try {
             UserDSO user = userManager.createUser(testEmail, "Password123",
-                    "Password123", "Test Name");
+                    "Password123");
 
             assertTrue(userManager.deleteUser(testEmail));
             assertNotEquals(user,userManager.getUserByEmail(testEmail)); // should throw an exception

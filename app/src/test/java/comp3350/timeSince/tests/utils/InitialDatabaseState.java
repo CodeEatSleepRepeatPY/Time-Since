@@ -1,4 +1,4 @@
-package comp3350.timeSince.persistence;
+package comp3350.timeSince.tests.utils;
 
 public class InitialDatabaseState {
 

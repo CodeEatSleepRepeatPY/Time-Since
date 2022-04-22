@@ -71,7 +71,7 @@ public class EventDSO {
         return Collections.unmodifiableList(LABELS);
     }
 
-    public boolean isDueClosing(){
+    public boolean isDueClosing() {
         return dueClosing;
     }
 
@@ -127,8 +127,7 @@ public class EventDSO {
 
     /**
      * @param newDescription what to end to the end of the existing description
-     * @throws EventDescriptionException the addition must not make the description longer than
-     * 100 characters
+     * @throws EventDescriptionException the addition must not make the description longer than 100 characters
      */
     public void appendDescription(String newDescription) throws EventDescriptionException {
         if (newDescription != null) {
@@ -152,16 +151,16 @@ public class EventDSO {
         }
     }
 
-    public boolean checkDueClosing(){
+    public boolean checkDueClosing() {
         Calendar closingDate;
         Calendar currentDate = Calendar.getInstance();
         int dueDays = -7;
 
-        if(targetFinishTime != null) {
+        if (targetFinishTime != null) {
             closingDate = (Calendar) targetFinishTime.clone();
             closingDate.add(Calendar.DAY_OF_YEAR, dueDays);
             dueClosing = closingDate.before(currentDate);
-        }else{
+        } else {
             dueClosing = false;
         }
 

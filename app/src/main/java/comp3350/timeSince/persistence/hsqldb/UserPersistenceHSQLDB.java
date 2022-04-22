@@ -22,20 +22,17 @@ import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
-import comp3350.timeSince.persistence.InitialDatabaseState;
 
 public class UserPersistenceHSQLDB implements IUserPersistence {
 
     private final String dbPath;
     private final IEventPersistence eventPersistence;
     private final IEventLabelPersistence eventLabelPersistence;
-    private int nextID;
 
     public UserPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
         eventPersistence = Services.getEventPersistence(true);
         eventLabelPersistence = Services.getEventLabelPersistence(true);
-        nextID = InitialDatabaseState.NUM_USERS; // number of values in the database at creation
     }
 
     private Connection connection() throws SQLException {
@@ -53,7 +50,8 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
         final int id = rs.getInt("uid");
         final String email = rs.getString("email");
         final String userName = rs.getString("user_name");
-        final Calendar dateRegistered = DateUtils.timestampToCal(rs.getTimestamp("date_registered"));
+        final Calendar dateRegistered = DateUtils.timestampToCal(rs.getTimestamp("date_registered"
+        ));
         final String passwordHash = rs.getString("password_hash");
 
         UserDSO newUser = new UserDSO(id, email, dateRegistered, passwordHash);
@@ -165,7 +163,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                  final PreparedStatement statement = c.prepareStatement(query)) {
 
                 int id = newUser.getID();
-                if (id != -1 && isUnique(newUser.getEmail())) {
+                if (id != -1) {
                     statement.setInt(1, id);
                     statement.setString(2, newUser.getEmail());
                     statement.setString(3, newUser.getName());
@@ -185,7 +183,6 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 throw new DuplicateUserException(exceptionMessage);
             }
         }
-        nextID++;
         return toReturn;
     }
 
@@ -235,7 +232,7 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
                 statement.setInt(2, user.getID());
                 int result = statement.executeUpdate();
 
-                if (result > 0 && user.setNewEmail(user.getEmail(),newEmail)) {
+                if (result > 0 && user.setNewEmail(user.getEmail(), newEmail)) {
                     toReturn = user;
                 }
             } catch (final SQLException e) {
@@ -356,7 +353,20 @@ public class UserPersistenceHSQLDB implements IUserPersistence {
 
     @Override
     public int getNextID() {
-        return nextID + 1;
+        final String query = "SELECT MAX(uid) AS max FROM users";
+        int toReturn = -1;
+
+        try (final Connection c = connection();
+             final Statement statement = c.createStatement();
+             final ResultSet resultSet = statement.executeQuery(query)) {
+
+            if (resultSet.next()) {
+                toReturn = resultSet.getInt("max") + 1;
+            }
+        } catch (final SQLException e) {
+            e.printStackTrace();
+        }
+        return toReturn; // will return -1 if unsuccessful
     }
 
     @Override

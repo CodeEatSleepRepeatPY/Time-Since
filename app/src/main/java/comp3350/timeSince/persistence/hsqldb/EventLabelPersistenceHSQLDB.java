@@ -13,16 +13,13 @@ import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
-import comp3350.timeSince.persistence.InitialDatabaseState;
 
 public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     private final String dbPath;
-    private int nextID;
 
     public EventLabelPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
-        nextID = InitialDatabaseState.NUM_LABELS; // number of values in the database at creation
     }
 
     private Connection connection() throws SQLException {
@@ -134,8 +131,6 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
                 throw new DuplicateEventLabelException(exceptionMessage);
             }
         }
-
-        nextID++;
         return toReturn;
     }
 
@@ -223,7 +218,20 @@ public class EventLabelPersistenceHSQLDB implements IEventLabelPersistence {
 
     @Override
     public int getNextID() {
-        return nextID + 1;
+        final String query = "SELECT MAX(lid) AS max FROM labels";
+        int toReturn = -1;
+
+        try (final Connection c = connection();
+             final Statement statement = c.createStatement();
+             final ResultSet resultSet = statement.executeQuery(query)) {
+
+            if (resultSet.next()) {
+                toReturn = resultSet.getInt("max") + 1;
+            }
+        } catch (final SQLException e) {
+            e.printStackTrace();
+        }
+        return toReturn; // will return -1 if unsuccessful
     }
 
 } //EventLabelPersistenceHSQLDB

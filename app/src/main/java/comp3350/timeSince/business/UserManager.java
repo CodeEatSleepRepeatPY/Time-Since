@@ -24,7 +24,7 @@ public class UserManager {
 
     //This method is called when the register button is hit
     //to show if the user create a new account successfully or not
-    public UserDSO createUser(String userID, String password, String confirmPassword, String name)
+    public UserDSO createUser(String userID, String password, String confirmPassword)
             throws NoSuchAlgorithmException, DuplicateUserException, PasswordErrorException {
 
         UserDSO toReturn = null; // default is null if something goes wrong
@@ -36,7 +36,6 @@ public class UserManager {
                     Calendar.getInstance(), hashedPassword);
 
             if (newUser.validate()) {
-                newUser.setName(name);
                 toReturn = userPersistence.insertUser(newUser); // may cause exception
             }
         }

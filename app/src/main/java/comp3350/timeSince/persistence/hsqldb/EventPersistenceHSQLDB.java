@@ -18,21 +18,17 @@ import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
-import comp3350.timeSince.persistence.InitialDatabaseState;
 
 public class EventPersistenceHSQLDB implements IEventPersistence {
 
     private final String dbPath;
     private final IEventLabelPersistence eventLabelPersistence;
-    private int nextID;
 
     public EventPersistenceHSQLDB(final String dbPath) {
         this.dbPath = dbPath;
         this.eventLabelPersistence = Services.getEventLabelPersistence(true);
-        nextID = InitialDatabaseState.NUM_EVENTS; // number of values in the database at creation
     }
 
     private Connection connection() throws SQLException {
@@ -162,7 +158,6 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
                 throw new DuplicateEventException(exceptionMessage);
             }
         }
-        nextID++;
         return toReturn;
     }
 
@@ -421,7 +416,20 @@ public class EventPersistenceHSQLDB implements IEventPersistence {
 
     @Override
     public int getNextID() {
-        return nextID + 1;
+        final String query = "SELECT MAX(eid) AS max FROM events";
+        int toReturn = -1;
+
+        try (final Connection c = connection();
+             final Statement statement = c.createStatement();
+             final ResultSet resultSet = statement.executeQuery(query)) {
+
+            if (resultSet.next()) {
+                toReturn = resultSet.getInt("max") + 1;
+            }
+        } catch (final SQLException e) {
+            e.printStackTrace();
+        }
+        return toReturn; // will return -1 if unsuccessful
     }
 
     /**
