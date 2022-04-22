@@ -22,7 +22,7 @@ import comp3350.timeSince.business.exceptions.DuplicateEventLabelException;
 import comp3350.timeSince.business.exceptions.EventLabelNotFoundException;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
-import comp3350.timeSince.persistence.InitialDatabaseState;
+import comp3350.timeSince.tests.utils.InitialDatabaseState;
 import comp3350.timeSince.tests.persistence.utils.TestUtils;
 
 @FixMethodOrder(MethodSorters.JVM)

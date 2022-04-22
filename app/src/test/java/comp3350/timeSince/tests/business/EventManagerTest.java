@@ -30,7 +30,7 @@ import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
 import comp3350.timeSince.persistence.IUserPersistence;
-import comp3350.timeSince.persistence.InitialDatabaseState;
+import comp3350.timeSince.tests.utils.InitialDatabaseState;
 import comp3350.timeSince.persistence.hsqldb.EventLabelPersistenceHSQLDB;
 import comp3350.timeSince.persistence.hsqldb.EventPersistenceHSQLDB;
 import comp3350.timeSince.persistence.hsqldb.UserPersistenceHSQLDB;
