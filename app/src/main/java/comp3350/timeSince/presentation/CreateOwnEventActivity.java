@@ -37,7 +37,7 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private List<EventLabelDSO> candidateEventLabels;
     private Bundle extras;
     private TextView eventName;
-    private boolean labelNotClicked = true;
+    private boolean labelNotClicked;
     private TextView description;
     private TextView dueDate;
     private TextView dueTime;
@@ -68,11 +68,12 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         extras = getIntent().getExtras();
         userID = extras.get("email").toString();
         eventManager = new EventManager(true);
+        labelNotClicked = true;
 
         try {
             userEventManager = new UserEventManager(userID, true);
         } catch (UserNotFoundException e) {
-            Toast.makeText(this, "The user is not found.",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "The user is not found.", Toast.LENGTH_SHORT).show();
             Intent homeIntent = new Intent(this, HomeActivity.class);
             startActivity(homeIntent);
         }
@@ -90,7 +91,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
                 showPickDateDialogue();
             }
         });
-
 
         findViewById(R.id.select_datetime).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,10 +130,6 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         EventLabelDSO eventLabelDSO;
 
-        if (candidateEventLabels.size() == 0) {
-            Toast.makeText(this, "You haven't made any event labels.", Toast.LENGTH_SHORT).show();
-        }
-
         if (adapterView == findViewById(R.id.select_event_label)) {
             eventLabelDSO = (EventLabelDSO) adapterView.getItemAtPosition(position);
             if (labelNotClicked) {
@@ -141,8 +137,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
                 labelNotClicked = false;
             } else {
                 eventLabels.add(eventLabelDSO);
-                eventLabelName.setText(concatenateLabels());
             }
+            eventLabelName.setText(concatenateLabels());
         }
     }
 
@@ -163,6 +159,10 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
     private void loadEventLabelList() {
         SpinnerEventLabelList eventLabelsAdapter;
         candidateEventLabels = userEventManager.getUserLabels();
+
+        if (candidateEventLabels.size() == 0) {
+            candidateEventLabels.add(new EventLabelDSO(1, "You have no labels yet"));
+        }
         eventLabelsAdapter = new SpinnerEventLabelList(this,
                 R.layout.simple_spinner_dropdown_items, candidateEventLabels);
 
@@ -176,18 +176,13 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
         String message = "Creation successful! ";
         Intent nextIntent = new Intent(this, ViewOwnEventListActivity.class);
         nextIntent.putExtra("email", userID);
-        EventLabelDSO eventLabel;
 
         //if the event is successfully created, save information to the database
         try {
             newEvent = eventManager.createEvent(eventName.getText().toString(),
                     description.getText().toString(), mCalendar, favorite);
-
             userEventManager.addUserEvent(newEvent);
-            if (eventLabels.size() > 0) {
-                eventLabel = eventLabels.get(eventLabels.size() - 1);
-                eventManager.addLabelToEvent(newEvent, eventLabel);
-            }
+            eventManager.addLabelsToEvent(newEvent, eventLabels);
 
             if (newEvent != null) {
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();

@@ -167,7 +167,6 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
                 })
                 .create();
         dialog.show();
-
     }
 
     private void setOnClickListener() {
