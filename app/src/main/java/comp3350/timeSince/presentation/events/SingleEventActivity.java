@@ -18,6 +18,7 @@ import java.util.Objects;
 import comp3350.timeSince.R;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.business.EventManager;
+import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 import comp3350.timeSince.presentation.labels.LabelListActivity;
 
 public class SingleEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
@@ -248,9 +249,8 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
         }
     }
 
-    // upon leaving, saves the name, description, time, done, and favorite info
-    @Override
-    public boolean onSupportNavigateUp(){
+    // saves the name, description, time, done, and favorite info to the database
+    private void saveState(){
         if(name != null){
             eventManager.updateEventName(name.getText().toString(), eventID);
         }
@@ -261,8 +261,16 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
         eventManager.updateEventFinishTime(eventFinishTime, eventID);
         eventManager.markEventAsDone(eventID, eventDSO.isDone());
         eventManager.updateEventFavorite(eventDSO.isFavorite(), eventID);
+    }
 
-        finish();
+    // when leaving, save the state and restart the ViewEventListActivity
+    @Override
+    public boolean onSupportNavigateUp(){
+        saveState();
+
+        Intent intent = new Intent(getApplicationContext(), ViewOwnEventListActivity.class);
+        intent.putExtra("email", email);
+        startActivity(intent);
         return true;
     }
 }
