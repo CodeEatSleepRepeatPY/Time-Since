@@ -1,4 +1,4 @@
-package comp3350.timeSince.presentation;
+package comp3350.timeSince.presentation.eventsList;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,6 +27,8 @@ import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.UserEventManager;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.presentation.events.CreateOwnEventActivity;
+import comp3350.timeSince.presentation.events.SingleEventActivity;
 
 public class ViewOwnEventListActivity extends AppCompatActivity {
     private List<EventDSO> eventList;

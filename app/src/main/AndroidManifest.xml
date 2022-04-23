@@ -9,12 +9,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".presentation.ViewOwnEventListActivity"
+            android:name=".presentation.eventsList.ViewOwnEventListActivity"
             android:exported="true"
             android:label="AllEvents"
             />
         <activity
-            android:name=".presentation.CreateOwnEventActivity"
+            android:name=".presentation.events.CreateOwnEventActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.HomeActivity"
@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.RegisterActivity"
+            android:name=".presentation.users.RegisterActivity"
             android:label="@string/register"
             android:parentActivityName=".presentation.HomeActivity" >
             <meta-data
@@ -34,7 +34,7 @@
                 android:value="comp3350.timeSince.presentation.HomeActivity" />
         </activity>
         <activity
-            android:name=".presentation.LoginActivity"
+            android:name=".presentation.users.LoginActivity"
             android:label="@string/action_login"
             android:parentActivityName=".presentation.HomeActivity" >
             <meta-data
@@ -42,11 +42,18 @@
                 android:value="comp3350.timeSince.presentation.HomeActivity" />
         </activity>
         <activity
-            android:name=".presentation.SingleEventActivity"
-            android:parentActivityName=".presentation.SingleEventActivity" >
+            android:name=".presentation.events.SingleEventActivity"
+            android:parentActivityName=".presentation.events.SingleEventActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="comp3350.timeSince.presentation.SingleEventActivity" />
+                android:value="comp3350.timeSince.presentation.events.SingleEventActivity" />
+        </activity>
+        <activity
+            android:name=".presentation.labels.LabelListActivity"
+            android:parentActivityName=".presentation.events.SingleEventActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="comp3350.timeSince.presentation.labels.LabelListActivity" />
         </activity>
     </application>
 

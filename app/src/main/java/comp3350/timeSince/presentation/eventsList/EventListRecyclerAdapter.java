@@ -1,4 +1,4 @@
-package comp3350.timeSince.presentation;
+package comp3350.timeSince.presentation.eventsList;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;

@@ -1,4 +1,4 @@
-package comp3350.timeSince.presentation;
+package comp3350.timeSince.presentation.events;
 
 import android.content.Context;
 import android.graphics.Color;

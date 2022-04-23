@@ -1,4 +1,4 @@
-package comp3350.timeSince.presentation;
+package comp3350.timeSince.presentation.events;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -18,6 +18,7 @@ import java.util.Objects;
 import comp3350.timeSince.R;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.business.EventManager;
+import comp3350.timeSince.presentation.labels.LabelListActivity;
 
 public class SingleEventActivity extends AppCompatActivity {
     private EventManager eventManager;
@@ -29,6 +30,7 @@ public class SingleEventActivity extends AppCompatActivity {
     private TextView dueDate;
     private EventDSO eventDSO;
     private int eventID;
+    private String email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class SingleEventActivity extends AppCompatActivity {
         //TODO add try catch here
         eventID = i.getIntExtra("eventID", -1);
         eventDSO = eventManager.getEventByID(eventID);
+        email = i.getStringExtra("email");
 
         // Button fields
         done_button = findViewById(R.id.event_done_button);
@@ -113,14 +116,10 @@ public class SingleEventActivity extends AppCompatActivity {
             tags_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // For next iteration:
-                    // The event tag UI isn't created yet.  This will be part
-                    // of another iteration.
-                    // Here's what clicking this button should do:
-                    // It should take you to another page that lists
-                    // all of the tags, and allows you to edit the tags
-                    // associated with this event, as well as edit the
-                    // available tag presets
+                    Intent intent = new Intent(SingleEventActivity.this, LabelListActivity.class);
+                    intent.putExtra("eventID", eventID);
+                    intent.putExtra("email", email);
+                    SingleEventActivity.this.startActivity(intent);
                 }
             });
         }catch(Exception exception){
