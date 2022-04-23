@@ -166,7 +166,7 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     public void buttonEventFavoriteOnClick(View v) {
-        boolean isFavorite = eventDSO.isFavorite();
+        boolean isFavorite = eventManager.isFavorite(eventID);
 
         //TODO: to fix: the color does not change in real time
         eventManager.updateEventFavorite(!isFavorite, eventID);
@@ -174,7 +174,7 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     private void setFavoriteColor(){
-        boolean isFavorite = eventDSO.isFavorite();
+        boolean isFavorite = eventManager.isFavorite(eventID);
 
         // toggle the colour
         if (isFavorite){
