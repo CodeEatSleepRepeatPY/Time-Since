@@ -61,6 +61,7 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
             event = eventManager.addLabelToEvent(event, label);
             labelList = event.getEventLabels();
             allLabels = userEventManager.getUserLabels();
+            notifyDataSetChanged();
         }
     }
 
@@ -69,15 +70,10 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
                 .nullsLast(Comparator.naturalOrder())));
     }
 
-    private void setCheckBox() {
-
-    }
-
     @Override
     public int getItemCount() {
         return allLabels.size();
     }
-
 
     public interface RecyclerViewClickOnListener {
         void onClick(View view, int position);

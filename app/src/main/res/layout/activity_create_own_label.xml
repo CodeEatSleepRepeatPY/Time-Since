@@ -52,6 +52,7 @@
         android:textColor="@color/black"
         android:textSize="@dimen/text_size_small"
         android:textStyle="bold"
+        android:onClick="b"
         app:layout_constraintBottom_toTopOf="@+id/label_name"
         app:layout_constraintStart_toEndOf="@id/label_name"
         app:layout_constraintEnd_toEndOf="parent"

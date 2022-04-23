@@ -84,6 +84,7 @@ public class LabelListActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.add_new_label) {
             Intent intent = new Intent(LabelListActivity.this, CreateOwnLabelActivity.class);
             intent.putExtra("email", userID);
+            intent.putExtra("eventID", eventID);
             LabelListActivity.this.startActivity(intent);
             return true;
         }
@@ -113,6 +114,7 @@ public class LabelListActivity extends AppCompatActivity {
                 intent.putExtra("email", userID);
                 intent.putExtra("eventID", labelList.get(position).getID());
                 LabelListActivity.this.startActivity(intent);
+
             }
         };
     }

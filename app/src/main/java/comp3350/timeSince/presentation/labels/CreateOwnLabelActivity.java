@@ -21,6 +21,7 @@ import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.presentation.HomeActivity;
+import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 
 public class CreateOwnLabelActivity extends AppCompatActivity {
     private Bundle extras;
@@ -62,6 +63,10 @@ public class CreateOwnLabelActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 saveContents();
+                Intent nextIntent = new Intent(CreateOwnLabelActivity.this, LabelListActivity.class);
+                nextIntent.putExtra("email", userID);
+                nextIntent.putExtra("eventID", eventID);
+                CreateOwnLabelActivity.this.startActivity(nextIntent);
             }
         });
     }
@@ -76,22 +81,19 @@ public class CreateOwnLabelActivity extends AppCompatActivity {
         extras = getIntent().getExtras();
         EventLabelDSO newLabel;
         String message = "Creation successful! ";
-        Intent nextIntent = new Intent(this, LabelListActivity.class);
-        nextIntent.putExtra("email", userID);
 
         //if the label is successfully created, save information to the database
         try {
-            newLabel = eventLabelManager.createLabel(labelName.toString());
+            newLabel = eventLabelManager.createLabel(labelName.getText().toString());
             if (newLabel != null && newLabel.validate()) {
                 userEventManager.addUserLabel(newLabel);
                 if (checkBox.isChecked()) {
-                    EventDSO event = eventManager.getEventByID(eventID);
+                    event = eventManager.getEventByID(eventID);
                     if (event != null && event.validate()) {
                         eventManager.addLabelToEvent(event, newLabel);
                     }
                 }
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                CreateOwnLabelActivity.this.startActivity(nextIntent);
             } else {
                 Toast.makeText(this, "The new label is not successfully created.",
                         Toast.LENGTH_SHORT).show();

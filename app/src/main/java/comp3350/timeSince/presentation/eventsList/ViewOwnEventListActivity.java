@@ -177,8 +177,11 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
             public void onClick(View view, int position) {
                 Intent intent = new Intent(getApplicationContext(), SingleEventActivity.class);
                 intent.putExtra("email", userID);
-                intent.putExtra("eventID", eventList.get(position).getID());
-                startActivity(intent);
+                EventDSO event = eventList.get(position);
+                if (event != null && event.validate()) {
+                    intent.putExtra("eventID", event.getID());
+                    startActivity(intent);
+                }
             }
         };
     }

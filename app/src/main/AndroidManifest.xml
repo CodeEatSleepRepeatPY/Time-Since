@@ -50,7 +50,8 @@
         </activity>
         <activity
             android:name=".presentation.labels.LabelListActivity"
-            android:parentActivityName=".presentation.events.SingleEventActivity" >
+            android:parentActivityName=".presentation.events.SingleEventActivity"
+            android:label="All Labels" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="comp3350.timeSince.presentation.labels.LabelListActivity" />
