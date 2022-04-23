@@ -96,6 +96,10 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
         }
     }
 
+    private String getDateString(int day, int month, int year){
+        return String.format("%d/%d/%d", day, (month + 1), year);
+    }
+
     private void initializeListeners(){
         setupDoneListener();
         setupTagsListener();
@@ -154,10 +158,6 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
                 setDateColor(calendar);
             }
         };
-    }
-
-    private String getDateString(int day, int month, int year){
-        return String.format("%d/%d/%d", day, (month + 1), year);
     }
 
     @Override
@@ -248,7 +248,7 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
         }
     }
 
-    // upon leaving, saves the name and description entered in the UI
+    // upon leaving, saves the name, description, time, done, and favorite info
     @Override
     public boolean onSupportNavigateUp(){
         if(name != null){
