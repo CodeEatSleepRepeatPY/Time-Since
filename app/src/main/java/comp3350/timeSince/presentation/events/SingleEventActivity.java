@@ -193,7 +193,6 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
     public void buttonEventFavoriteOnClick(View v) {
         boolean isFavorite = eventDSO.isFavorite();
 
-        //TODO: to fix: the color does not change in real time
         eventDSO.setFavorite(!isFavorite);
         setFavoriteColor(); // change the button color
     }
