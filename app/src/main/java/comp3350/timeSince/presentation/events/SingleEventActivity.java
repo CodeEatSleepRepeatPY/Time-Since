@@ -40,8 +40,6 @@ public class SingleEventActivity extends AppCompatActivity {
         Intent i = getIntent();
 
         eventManager = new EventManager(true);
-        Calendar eventFinishTime;
-        String dateText;
 
         // initialize event information
         //TODO add try catch here
@@ -49,6 +47,11 @@ public class SingleEventActivity extends AppCompatActivity {
         eventDSO = eventManager.getEventByID(eventID);
         email = i.getStringExtra("email");
 
+        setupButtons();
+        setupEditTextFields();
+    }
+
+    private void setupButtons(){
         // Button fields
         done_button = findViewById(R.id.event_done_button);
         tags_button = findViewById(R.id.event_tags_button);
@@ -57,6 +60,11 @@ public class SingleEventActivity extends AppCompatActivity {
         // initialize the colors for the buttons
         setDoneColor();
         setFavoriteColor();
+    }
+
+    private void setupEditTextFields(){
+        Calendar eventFinishTime;
+        String dateText;
 
         // EditText fields
         name = findViewById(R.id.event_name);
