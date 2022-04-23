@@ -55,6 +55,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="comp3350.timeSince.presentation.labels.LabelListActivity" />
         </activity>
+        <activity
+            android:name=".presentation.labels.CreateOwnLabelActivity"
+            android:label="Create Label"
+            android:parentActivityName=".presentation.labels.LabelListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="comp3350.timeSince.presentation.labels.LabelListActivity" />
+        </activity>
     </application>
 
 </manifest>

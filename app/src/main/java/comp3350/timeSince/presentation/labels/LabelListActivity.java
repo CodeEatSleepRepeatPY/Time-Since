@@ -1,9 +1,6 @@
 package comp3350.timeSince.presentation.labels;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,10 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,16 +19,16 @@ import java.util.Objects;
 import comp3350.timeSince.R;
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.UserEventManager;
-import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.presentation.events.CreateOwnEventActivity;
-import comp3350.timeSince.presentation.events.SingleEventActivity;
+import comp3350.timeSince.objects.UserDSO;
+import comp3350.timeSince.presentation.HomeActivity;
 import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 
 public class LabelListActivity extends AppCompatActivity {
     private List<EventLabelDSO> labelList;
+    private List<EventLabelDSO> allLabels;
     private RecyclerView recyclerView;
     private EventManager eventManager;
     private UserEventManager userEventManager;
@@ -42,6 +36,8 @@ public class LabelListActivity extends AppCompatActivity {
     private LabelListRecyclerAdapter.RecyclerViewClickOnListener listener;
     private String userID;
     private int eventID;
+    private UserDSO user;
+    private EventDSO event;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,18 +57,15 @@ public class LabelListActivity extends AppCompatActivity {
 
         try {
             userEventManager = new UserEventManager(userID, true);
-            EventDSO event = eventManager.getEventByID(eventID);
+            event = eventManager.getEventByID(eventID);
             if (event != null) {
                 labelList = event.getEventLabels();
+                allLabels = userEventManager.getUserLabels();
                 setAdapter();
-                //moveBackToList();
             }
         } catch (UserNotFoundException ue) {
             ue.printStackTrace();
             moveBackToHome();
-        } catch (EventNotFoundException ee) {
-            ee.printStackTrace();
-            moveBackToList();
         } catch (Exception e) {
             e.printStackTrace();
             moveBackToList();
@@ -80,7 +73,20 @@ public class LabelListActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_labels, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.add_new_label) {
+            Intent intent = new Intent(LabelListActivity.this, CreateOwnLabelActivity.class);
+            intent.putExtra("email", userID);
+            LabelListActivity.this.startActivity(intent);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -92,7 +98,8 @@ public class LabelListActivity extends AppCompatActivity {
 
     private void setAdapter() {
         setOnClickListener();
-        LabelListRecyclerAdapter adapter = new LabelListRecyclerAdapter(labelList, listener);
+        LabelListRecyclerAdapter adapter = new LabelListRecyclerAdapter(userEventManager,
+                labelList, allLabels, event, listener);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
@@ -118,7 +125,8 @@ public class LabelListActivity extends AppCompatActivity {
     }
 
     private void moveBackToHome() {
-
+        Intent intent = new Intent(LabelListActivity.this, HomeActivity.class);
+        LabelListActivity.this.startActivity(intent);
     }
 
 }
