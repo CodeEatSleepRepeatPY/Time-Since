@@ -20,7 +20,7 @@ import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.presentation.labels.LabelListActivity;
 
-public class SingleEventActivity extends AppCompatActivity {
+public class SingleEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
     private EventManager eventManager;
     private Button done_button;
     private Button tags_button;
@@ -31,6 +31,8 @@ public class SingleEventActivity extends AppCompatActivity {
     private EventDSO eventDSO;
     private int eventID;
     private String email;
+    Calendar eventFinishTime;
+    DatePickerDialog.OnDateSetListener dateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +66,6 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     private void setupEditTextFields(){
-        Calendar eventFinishTime;
-        String dateText;
-
         // EditText fields
         name = findViewById(R.id.event_name);
         description = findViewById(R.id.event_description);
@@ -76,12 +75,21 @@ public class SingleEventActivity extends AppCompatActivity {
         name.setText(eventDSO.getName());
         description.setText(eventDSO.getDescription());
         eventFinishTime = eventDSO.getTargetFinishTime();
-        if(eventFinishTime != null){
-            dateText = String.format("%d-%d-%d",
-                    eventFinishTime.get(Calendar.YEAR),
-                    eventFinishTime.get(Calendar.MONTH),
-                    eventFinishTime.get(Calendar.DAY_OF_MONTH));
-            dueDate.setText(dateText);
+
+        setupDate();
+    }
+
+    private void setupDate(){
+        int day;
+        int month;
+        int year;
+
+        if (eventFinishTime != null){
+            day = eventFinishTime.get(Calendar.DAY_OF_MONTH);
+            month = eventFinishTime.get(Calendar.MONTH);
+            year = eventFinishTime.get(Calendar.YEAR);
+
+            dueDate.setText(getDateString(day, month, year));
 
             // set the color for the due date text to indicate if it's overdue
             setDateColor(eventFinishTime);
@@ -123,16 +131,33 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     private void setupDueDateListener() {
+        setupDueDatePopup();
+
         dueDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
-                // need to figure out how to do this one...
-
-
+                dueDateOnClick(view);
             }
         });
+    }
+
+    private void setupDueDatePopup(){
+        dateListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(year, month, day);
+
+                String displayDate = getDateString(day, month, year);
+                dueDate.setText(displayDate);
+                eventManager.updateEventFinishTime(calendar, eventID);
+                setDateColor(calendar);
+            }
+        };
+    }
+
+    private String getDateString(int day, int month, int year){
+        return String.format("%d/%d/%d", day, (month + 1), year);
     }
 
     @Override
@@ -185,49 +210,38 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     public void dueDateOnClick(View v) {
-        DatePickerDialog.OnDateSetListener listener;
+        Calendar calendar = eventDSO.getTargetFinishTime();
 
-        try{
-            listener = new DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.set(year, month, day);
-
-                    String displayDate = String.format("%d-%d-%d", year, month + 1, day);
-                    dueDate.setText(displayDate);
-                    eventManager.updateEventFinishTime(calendar, eventID);
-                    setDateColor(calendar);
-                }
-            };
-
-            dueDate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Calendar calendar = eventDSO.getTargetFinishTime();
-                    if(calendar == null){
-                        calendar = Calendar.getInstance();
-                    }
-                    int year = calendar.get(Calendar.YEAR);
-                    int month = calendar.get(Calendar.MONTH);
-                    int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-                    DatePickerDialog picker = new DatePickerDialog(
-                            SingleEventActivity.this,
-                            android.R.style.Widget_Holo_ActionBar_Solid,
-                            listener, year, month, day
-                    );
-
-                    picker.show();
-                }
-            });
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        if(calendar == null){
+            calendar = Calendar.getInstance();
         }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                this,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+
+        datePickerDialog.show();
+    }
+
+    @Override
+    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+        if (eventFinishTime == null){
+            eventFinishTime = Calendar.getInstance();
+        }
+
+        eventFinishTime.set(Calendar.YEAR, year);
+        eventFinishTime.set(Calendar.MONTH, month);
+        eventFinishTime.set(Calendar.DAY_OF_MONTH, day);
+        dueDate.setText(getDateString(day, month, year));
+        setDateColor(eventFinishTime);
     }
 
     // sets the date text color based on if the event due date has passed
-    void setDateColor(Calendar calendar){
+    public void setDateColor(Calendar calendar){
         if (calendar.before(Calendar.getInstance())) { // event is due
             dueDate.setTextColor(Color.RED);
         } else {
@@ -245,6 +259,7 @@ public class SingleEventActivity extends AppCompatActivity {
             eventManager.updateEventDescription(description.getText().toString(), eventID);
         }
 
+        eventManager.updateEventFinishTime(eventFinishTime, eventID);
         eventManager.markEventAsDone(eventID, eventDSO.isDone());
         eventManager.updateEventFavorite(eventDSO.isFavorite(), eventID);
 
