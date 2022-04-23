@@ -49,6 +49,7 @@ public class SingleEventActivity extends AppCompatActivity {
 
         setupButtons();
         setupEditTextFields();
+        initializeListeners();
     }
 
     private void setupButtons(){
@@ -87,6 +88,53 @@ public class SingleEventActivity extends AppCompatActivity {
         }
     }
 
+    private void initializeListeners(){
+        setupDoneListener();
+        setupTagsListener();
+        setupFavoriteListener();
+        setupDueDateListener();
+    }
+
+    private void setupDoneListener(){
+        done_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonEventDoneOnClick(view);
+            }
+        });
+    }
+
+    private void setupTagsListener(){
+        tags_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonEventTagsOnClick(view);
+            }
+        });
+    }
+
+    private void setupFavoriteListener() {
+        favorite_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonEventFavoriteOnClick(view);
+            }
+        });
+    }
+
+    private void setupDueDateListener() {
+        dueDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                // need to figure out how to do this one...
+
+
+            }
+        });
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -95,17 +143,8 @@ public class SingleEventActivity extends AppCompatActivity {
     public void buttonEventDoneOnClick(View v) {
         boolean isDone = eventManager.isDone(eventID);
 
-        try{
-            done_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    eventManager.markEventAsDone(eventID, !isDone);
-                    setDoneColor(); // change the button color
-                }
-            });
-        }catch(Exception exception){
-            exception.printStackTrace();
-        }
+        eventManager.markEventAsDone(eventID, !isDone);
+        setDoneColor(); // change the button color
     }
 
     private void setDoneColor(){
@@ -113,43 +152,25 @@ public class SingleEventActivity extends AppCompatActivity {
 
         // toggle the colour
         if (isDone){
-            done_button.setBackgroundColor(Color.BLUE);
+            done_button.setBackgroundColor(Color.GREEN);
         } else {
             done_button.setBackgroundColor(Color.WHITE);
         }
     }
 
     public void buttonEventTagsOnClick(View v) {
-        try{
-            tags_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(SingleEventActivity.this, LabelListActivity.class);
-                    intent.putExtra("eventID", eventID);
-                    intent.putExtra("email", email);
-                    SingleEventActivity.this.startActivity(intent);
-                }
-            });
-        }catch(Exception exception){
-            exception.printStackTrace();
-        }
+        Intent intent = new Intent(SingleEventActivity.this, LabelListActivity.class);
+        intent.putExtra("eventID", eventID);
+        intent.putExtra("email", email);
+        SingleEventActivity.this.startActivity(intent);
     }
 
     public void buttonEventFavoriteOnClick(View v) {
         boolean isFavorite = eventDSO.isFavorite();
 
         //TODO: to fix: the color does not change in real time
-        try{
-            favorite_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    eventManager.updateEventFavorite(!isFavorite, eventID);
-                    setFavoriteColor(); // change the button color
-                }
-            });
-        }catch(Exception exception){
-            exception.printStackTrace();
-        }
+        eventManager.updateEventFavorite(!isFavorite, eventID);
+        setFavoriteColor(); // change the button color
     }
 
     private void setFavoriteColor(){
