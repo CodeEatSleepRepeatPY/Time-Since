@@ -178,7 +178,7 @@ public class SingleEventActivity extends AppCompatActivity {
 
         // toggle the colour
         if (isFavorite){
-            favorite_button.setBackgroundColor(Color.BLUE);
+            favorite_button.setBackgroundColor(Color.GREEN);
         } else {
             favorite_button.setBackgroundColor(Color.WHITE);
         }
