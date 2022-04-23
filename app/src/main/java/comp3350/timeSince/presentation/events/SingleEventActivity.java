@@ -141,14 +141,14 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     public void buttonEventDoneOnClick(View v) {
-        boolean isDone = eventManager.isDone(eventID);
+        boolean isDone = eventDSO.isDone();
 
-        eventManager.markEventAsDone(eventID, !isDone);
+        eventDSO.setIsDone(!isDone);
         setDoneColor(); // change the button color
     }
 
     private void setDoneColor(){
-        boolean isDone = eventManager.isDone(eventID);
+        boolean isDone = eventDSO.isDone();
 
         // toggle the colour
         if (isDone){
@@ -166,15 +166,15 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     public void buttonEventFavoriteOnClick(View v) {
-        boolean isFavorite = eventManager.isFavorite(eventID);
+        boolean isFavorite = eventDSO.isFavorite();
 
         //TODO: to fix: the color does not change in real time
-        eventManager.updateEventFavorite(!isFavorite, eventID);
+        eventDSO.setFavorite(!isFavorite);
         setFavoriteColor(); // change the button color
     }
 
     private void setFavoriteColor(){
-        boolean isFavorite = eventManager.isFavorite(eventID);
+        boolean isFavorite = eventDSO.isFavorite();
 
         // toggle the colour
         if (isFavorite){
@@ -244,6 +244,9 @@ public class SingleEventActivity extends AppCompatActivity {
         if(description != null){
             eventManager.updateEventDescription(description.getText().toString(), eventID);
         }
+
+        eventManager.markEventAsDone(eventID, eventDSO.isDone());
+        eventManager.updateEventFavorite(eventDSO.isFavorite(), eventID);
 
         finish();
         return true;
