@@ -87,6 +87,18 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
                 eventList = userEventManager.sortByFinishTime(true);
                 setAdapter();
                 return true;
+            case R.id.sort_by_creation_date:
+                eventList = userEventManager.sortByDateCreated(true);
+                setAdapter();
+                return true;
+            case R.id.filter_by_complete:
+                eventList = userEventManager.filterByStatus(true);
+                setAdapter();
+                return true;
+            case R.id.filter_by_incomplete:
+                eventList = userEventManager.filterByStatus(false);
+                setAdapter();
+                return true;
             case R.id.delete_event:
                 setDeleteAdapter();
                 return true;

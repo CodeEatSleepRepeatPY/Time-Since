@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../../../../layout/custom_preview.xml" value="0.15" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/drawable-anydpi/ic_action_name.xml" value="0.1" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/drawable/clock.xml" value="0.1" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/drawable/ic_add_event.xml" value="0.1645" />
@@ -30,20 +31,24 @@
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/memu_event_labels.xml" value="0.175" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/menu_event_labels.xml" value="0.175" />
         <entry key="..\:/comp3350Project/sample/time-since-a02-2/app/src/main/res/menu/menu_home.xml" value="0.18020833333333333" />
+        <entry key="app/src/main/res/layout/activity_create_own_label.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_event_labels_list.xml" value="0.2911458333333333" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.24010416666666667" />
         <entry key="app/src/main/res/layout/activity_label_list.xml" value="0.15364583333333334" />
         <entry key="app/src/main/res/layout/activity_view_own_event_list.xml" value="0.2911458333333333" />
         <entry key="app/src/main/res/layout/content_scrolling.xml" value="0.37604166666666666" />
-        <entry key="app/src/main/res/layout/create_own_event_view.xml" value="0.2828125" />
+        <entry key="app/src/main/res/layout/create_own_event_view.xml" value="0.1" />
         <entry key="app/src/main/res/layout/label_list.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/label_list_items.xml" value="0.15364583333333334" />
+        <entry key="app/src/main/res/layout/label_list_items.xml" value="0.33" />
         <entry key="app/src/main/res/layout/list_items.xml" value="0.30625" />
+        <entry key="app/src/main/res/layout/list_items_for_deletion.xml" value="0.1296875" />
+        <entry key="app/src/main/res/layout/simple_spinner_dropdown_items.xml" value="0.1296875" />
         <entry key="app/src/main/res/layout/user_login_view.xml" value="0.2828125" />
         <entry key="app/src/main/res/layout/user_registration_view.xml" value="0.28177083333333336" />
         <entry key="app/src/main/res/layout/view_single_event.xml" value="0.28177083333333336" />
         <entry key="app/src/main/res/menu/events_list_actions.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/menu/menu_event_labels.xml" value="0.30625" />
+        <entry key="app/src/main/res/menu/menu_labels.xml" value="0.2515625" />
       </map>
     </option>
   </component>

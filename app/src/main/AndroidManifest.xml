@@ -11,7 +11,7 @@
         <activity
             android:name=".presentation.eventsList.ViewOwnEventListActivity"
             android:exported="true"
-            android:label="AllEvents"
+            android:label="All Events"
             />
         <activity
             android:name=".presentation.events.CreateOwnEventActivity"
@@ -50,7 +50,16 @@
         </activity>
         <activity
             android:name=".presentation.labels.LabelListActivity"
-            android:parentActivityName=".presentation.events.SingleEventActivity" >
+            android:parentActivityName=".presentation.events.SingleEventActivity"
+            android:label="All Labels" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="comp3350.timeSince.presentation.labels.LabelListActivity" />
+        </activity>
+        <activity
+            android:name=".presentation.labels.CreateOwnLabelActivity"
+            android:label="Create Label"
+            android:parentActivityName=".presentation.labels.LabelListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="comp3350.timeSince.presentation.labels.LabelListActivity" />

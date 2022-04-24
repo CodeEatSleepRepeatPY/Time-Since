@@ -3,6 +3,12 @@ package comp3350.timeSince.business;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
+/**
+ * Adapter: convert between calendar and timestamp.
+ * <p>
+ * Database layer stores values as a timestamp, and the presentation layer stores
+ * the values as a calendar.
+ */
 public class DateUtils {
 
     public static Timestamp calToTimestamp(Calendar calendar) {
