@@ -36,4 +36,14 @@
     <string name="single_event_hint">Give me a description!</string>
     <string name="hint_single_event_name">Replace Toothbrush</string>
     <string name="title_activity_view_own_event_list">ViewOwnEventList</string>
+    <string name="create_new_label">Create New Label</string>
+    <string name="save">Save</string>
+    <string name="add_to_current_event">Add to current event?</string>
+    <string name="create_your_label">Create Your Label</string>
+    <string name="label_name">Label Name</string>
+    <string name="event_description">Event description</string>
+    <string name="favorite">Favorite:</string>
+    <string name="due_time">Due Time</string>
+    <string name="sort_by_name">Sort By Name</string>
+    <string name="sort_by_due_date">Sort By Due Date</string>
 </resources>
