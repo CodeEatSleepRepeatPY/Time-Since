@@ -38,7 +38,7 @@ public class EventLabelManager {
 
     public EventLabelDSO insertLabel(EventLabelDSO label) throws DuplicateEventLabelException {
         EventLabelDSO toReturn = null;
-        if (label != null && label.validate()) {
+        if (label != null && label.validate() && !eventLabelPersistence.labelExists(label)) {
             toReturn = eventLabelPersistence.insertEventLabel(label); // may throw an exception
         }
         return toReturn;

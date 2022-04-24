@@ -9,7 +9,6 @@ import comp3350.timeSince.business.exceptions.EventDescriptionException;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.persistence.IEventLabelPersistence;
 import comp3350.timeSince.persistence.IEventPersistence;
 
 public class EventManager {
@@ -18,7 +17,6 @@ public class EventManager {
 //  Instance Variables
 //---------------------------------------------------------------------------------------------
 
-    private final IEventLabelPersistence eventLabelPersistence;
     private final IEventPersistence eventPersistence;
 
 //---------------------------------------------------------------------------------------------
@@ -30,7 +28,6 @@ public class EventManager {
      */
     public EventManager(boolean forProduction) {
         eventPersistence = Services.getEventPersistence(forProduction);
-        eventLabelPersistence = Services.getEventLabelPersistence(forProduction);
     }
 
     /**
@@ -39,9 +36,8 @@ public class EventManager {
      * @param eventDB Event database.
      * @param eventLabelsDB Event Label database.
      */
-    public EventManager(IEventPersistence eventDB, IEventLabelPersistence eventLabelsDB) {
+    public EventManager(IEventPersistence eventDB) {
         eventPersistence = eventDB;
-        eventLabelPersistence = eventLabelsDB;
     }
 
 //---------------------------------------------------------------------------------------------
@@ -78,9 +74,6 @@ public class EventManager {
     public EventDSO addLabelToEvent(EventDSO event, EventLabelDSO label) throws EventNotFoundException {
         EventDSO toReturn = null;
         if (event != null && label != null && event.validate() && label.validate()) {
-            if (!eventLabelPersistence.labelExists(label)) {
-                label = eventLabelPersistence.insertEventLabel(label);
-            }
             if (eventPersistence.eventExists(event)) {
                 // add the connection between the event and label
                 event = eventPersistence.addLabel(event, label);

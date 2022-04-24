@@ -54,7 +54,7 @@ public class EventManagerTest {
         userPersistence = mock(UserPersistenceHSQLDB.class);
         eventPersistence = mock(EventPersistenceHSQLDB.class);
         eventLabelPersistence = mock(EventLabelPersistenceHSQLDB.class);
-        eventManager = new EventManager(eventPersistence, eventLabelPersistence);
+        eventManager = new EventManager(eventPersistence);
 
         currDate = Calendar.getInstance();
         event1 = new EventDSO(initialCount + 1, currDate, "event1");
