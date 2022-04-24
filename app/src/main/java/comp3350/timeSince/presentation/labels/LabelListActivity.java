@@ -1,19 +1,16 @@
 package comp3350.timeSince.presentation.labels;
 
-import static comp3350.timeSince.R.color.*;
+import static comp3350.timeSince.R.color.lightGreen;
+import static comp3350.timeSince.R.color.time_since_green;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -29,28 +26,23 @@ import java.util.Objects;
 import comp3350.timeSince.R;
 import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.UserEventManager;
+import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.presentation.HomeActivity;
 import comp3350.timeSince.presentation.events.SingleEventActivity;
 import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 
 public class LabelListActivity extends AppCompatActivity {
-    private List<EventLabelDSO> labelList;
-    private List<EventLabelDSO> allLabels;
+    private List<EventLabelDSO> eventLabels;
+    private List<EventLabelDSO> userLabels;
     private List<EventLabelDSO> tempList;
-    private List<EventLabelDSO> labelsToAdd;
-    private List<EventLabelDSO> labelsToRemove;
     private RecyclerView recyclerView;
     private EventManager eventManager;
-    private UserEventManager userEventManager;
-    private Bundle extras;
     private LabelListRecyclerAdapter.RecyclerViewClickOnListener listener;
     private String userID;
     private int eventID;
-    private UserDSO user;
     private EventDSO event;
 
     @Override
@@ -63,34 +55,39 @@ public class LabelListActivity extends AppCompatActivity {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        extras = getIntent().getExtras();
-        userID = extras.get("email").toString();
-        eventID = extras.getInt("eventID");
+        Intent intent = getIntent();
+        userID = intent.getStringExtra("email");
+        eventID = intent.getIntExtra("eventID", -1);
 
+        setUpManagers();
+        setAdapter();
+    }
+
+    private void setUpManagers() {
         eventManager = new EventManager(true);
-
         try {
-            userEventManager = new UserEventManager(userID, true);
+            UserEventManager userEventManager = new UserEventManager(userID, true);
             event = eventManager.getEventByID(eventID);
             if (event != null) {
-                labelList = event.getEventLabels();
-                allLabels = userEventManager.getUserLabels();
-                labelsToAdd = new ArrayList<>();
-                labelsToAdd.addAll(labelList);
-                labelsToRemove = new ArrayList<>();
-                labelsToRemove.addAll(allLabels);
-                labelsToRemove.removeAll(labelsToAdd);
-                tempList = new ArrayList<>();
-                tempList.addAll(labelList);
-                setAdapter();
+                setUpLists(userEventManager);
             }
         } catch (UserNotFoundException ue) {
-            ue.printStackTrace();
+            String message = "Something went wrong with your account, sorry! Please try logging " +
+                    "in again.";
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             moveBackToHome();
-        } catch (Exception e) {
-            e.printStackTrace();
-            moveBackToList();
+        } catch (EventNotFoundException e) {
+            String message = "Something went wrong with the event, sorry! Please try again.";
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            moveBackToEventList();
         }
+    }
+
+    private void setUpLists(UserEventManager userEventManager) {
+        eventLabels = event.getEventLabels();
+        userLabels = userEventManager.getUserLabels();
+        tempList = new ArrayList<>();
+        tempList.addAll(eventLabels);
     }
 
     @Override
@@ -105,19 +102,45 @@ public class LabelListActivity extends AppCompatActivity {
         boolean ret_value = true;
 
         if (item.getItemId() == R.id.add_new_label) {
-            Intent intent = new Intent(LabelListActivity.this, CreateOwnLabelActivity.class);
-            intent.putExtra("email", userID);
-            intent.putExtra("eventID", eventID);
-            finish();
-            LabelListActivity.this.startActivity(intent);
+            moveToCreateLabel();
         } else {
             ret_value = super.onOptionsItemSelected(item);
         }
         return ret_value;
     }
 
+    private void setAdapter() {
+        setOnClickListener();
+        LabelListRecyclerAdapter adapter = new LabelListRecyclerAdapter(eventLabels,
+                userLabels, listener);
+
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void setOnClickListener() {
+        listener = new LabelListRecyclerAdapter.RecyclerViewClickOnListener() {
+            @Override
+            public void onClick(View view, int position) {
+                setLabelOnClick(view);
+            }
+        };
+    }
+
+    private void setLabelOnClick(View view) {
+        CardView card = view.findViewById(R.id.label_card);
+        EventLabelDSO label = userLabels.get((int) card.getTag());
+        if (tempList.contains(label)) {
+            tempList.remove(label);
+            card.setBackgroundColor(ContextCompat.getColor(this, lightGreen));
+        } else if (!tempList.contains(label)) {
+            tempList.add(label);
+            card.setBackgroundColor(ContextCompat.getColor(this, time_since_green));
+        }
+    }
+
     private void saveState() {
-        for (EventLabelDSO label : allLabels) {
+        for (EventLabelDSO label : userLabels) {
             if (tempList.contains(label)) {
                 event = eventManager.addLabelToEvent(event, label);
             }
@@ -129,73 +152,40 @@ public class LabelListActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
+        moveBackToSingleEvent();
+        return true;
+    }
+
+    private void moveToCreateLabel() {
+        saveState();
+        Intent intent = new Intent(getApplicationContext(), CreateOwnLabelActivity.class);
+        intent.putExtra("email", userID);
+        intent.putExtra("eventID", eventID);
+        finish(); // end this activity before starting the next
+        startActivity(intent);
+    }
+
+    private void moveBackToSingleEvent() {
         saveState();
         Intent intent = new Intent(getApplicationContext(), SingleEventActivity.class);
         intent.putExtra("email", userID);
         intent.putExtra("eventID", eventID);
-        finish();  // end this activity before starting the next
+        finish(); // end this activity before starting the next
         startActivity(intent);
-        return true;
     }
 
-    private void setAdapter() {
-        setOnClickListener();
-        LabelListRecyclerAdapter adapter = new LabelListRecyclerAdapter(labelList,
-                allLabels,  listener);
-
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapter);
-    }
-
-    private void setOnClickListener() {
-        listener = new LabelListRecyclerAdapter.RecyclerViewClickOnListener() {
-            @Override
-            public void onClick(View view, int position) {
-                cardOnClick(view);
-            }
-        };
-    }
-
-    private void setCardOnClickListener() {
-
-    }
-
-    public void cardOnClick(View view) {
-        CardView card = view.findViewById(R.id.label_card);
-        EventLabelDSO label = allLabels.get((int) card.getTag());
-        if (tempList.contains(label)) {
-            tempList.remove(label);
-            card.setBackgroundColor(ContextCompat.getColor(this, lightGreen));
-        } else if (!tempList.contains(label)) {
-            tempList.add(label);
-            card.setBackgroundColor(ContextCompat.getColor(this, time_since_green));
-        }
-    }
-
-    private void setLabelColor(View view) {
-        CardView card = view.findViewById(R.id.label_card);
-        for (EventLabelDSO label : allLabels) {
-            if (labelList.contains(label) || labelsToAdd.contains(label)) {
-                card.setBackgroundColor(ContextCompat.getColor(this, time_since_green));
-            }
-            if (!labelList.contains(label) || labelsToRemove.contains(label)) {
-                card.setBackgroundColor(ContextCompat.getColor(this, lightGreen));
-            }
-        }
-    }
-
-    private void moveBackToList() {
-        Intent intent = new Intent(LabelListActivity.this, ViewOwnEventListActivity.class);
+    private void moveBackToEventList() {
+        Intent intent = new Intent(getApplicationContext(), ViewOwnEventListActivity.class);
         intent.putExtra("email", userID);
         intent.putExtra("eventID", eventID);
-        finish();
-        LabelListActivity.this.startActivity(intent);
+        finish(); // end this activity before starting the next
+        startActivity(intent);
     }
 
     private void moveBackToHome() {
-        Intent intent = new Intent(LabelListActivity.this, HomeActivity.class);
-        finish();
-        LabelListActivity.this.startActivity(intent);
+        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+        finish(); // end this activity before starting the next
+        startActivity(intent);
     }
 
 }

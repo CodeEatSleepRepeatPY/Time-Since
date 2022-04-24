@@ -1,13 +1,8 @@
 package comp3350.timeSince.presentation.labels;
 
 import static comp3350.timeSince.R.color.lightGreen;
-import static comp3350.timeSince.R.color.mediumGreen;
 import static comp3350.timeSince.R.color.time_since_green;
 
-import comp3350.timeSince.R;
-
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Comparator;
 import java.util.List;
 
+import comp3350.timeSince.R;
 import comp3350.timeSince.objects.EventLabelDSO;
 
 public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecyclerAdapter.MyViewHolder> {
@@ -47,15 +43,17 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
         return new MyViewHolder(itemView);
     }
 
-    @SuppressLint("ResourceAsColor")
     @Override
     public void onBindViewHolder(@NonNull LabelListRecyclerAdapter.MyViewHolder holder,
                                  int position) {
+
         Context context = holder.labelCard.getContext();
         EventLabelDSO label = allLabels.get(position);
         String name = label.toString();
-        holder.labelName.setText(name);
-        holder.labelCard.setTag(position);
+        holder.labelName.setText(name); // the label name
+        holder.labelCard.setTag(position); // to be able to identify which label
+
+        // set the label color
         if (labelList.contains(label)) {
             holder.labelCard.setBackgroundColor(ContextCompat.getColor(context, time_since_green));
         } else {
@@ -93,4 +91,5 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
             listener.onClick(view, getAdapterPosition());
         }
     }
+
 }
