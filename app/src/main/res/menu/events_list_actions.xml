@@ -29,6 +29,9 @@
                 <item
                     android:id="@+id/filter_by_incomplete"
                     android:title="@string/show_incomplete" />
+                <item
+                    android:id="@+id/filter_by_favorite"
+                    android:title="@string/show_favorites" />
             </group>
         </menu>
     </item>
