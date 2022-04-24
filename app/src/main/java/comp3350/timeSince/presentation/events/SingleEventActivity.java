@@ -168,6 +168,7 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
     public void buttonEventDoneOnClick(View v) {
         boolean isDone = eventDSO.isDone();
 
+        eventFinishTime = null;
         eventDSO.setIsDone(!isDone);
         setDoneColor(); // change the button color
     }
