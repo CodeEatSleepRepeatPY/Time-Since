@@ -80,29 +80,44 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
             startActivity(homeIntent);
         }
 
+        //set button listeners, spinner, and load the eventLabel database from the database
+        setFavoriteButtonListener();
+        setSelectDateButtonListener();
+        setSelectTimeButtonListener();
+        selectEventLabel.setOnItemSelectedListener(this);
+        setClearLabelsButtonListener();
+        setSaveContentButtonListener();
+        loadEventLabelList();
+    }
+
+    protected void setFavoriteButtonListener() {
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 updateFavorite();
             }
         });
+    }
 
+    protected void setSelectDateButtonListener() {
         findViewById(R.id.select_date).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showPickDateDialogue();
             }
         });
+    }
 
+    protected void setSelectTimeButtonListener() {
         findViewById(R.id.select_datetime).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showPickTimeDialogue();
             }
         });
+    }
 
-        selectEventLabel.setOnItemSelectedListener(this);
-
+    protected void setClearLabelsButtonListener() {
         findViewById(R.id.clear_event_labels).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,16 +125,15 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
                 eventLabelName.setText(concatenateLabels());
             }
         });
+    }
 
+    protected void setSaveContentButtonListener() {
         findViewById(R.id.save_event).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 saveContents();
             }
         });
-
-        //load the eventLabel database from the database
-        loadEventLabelList();
     }
 
     @Override
@@ -164,6 +178,8 @@ public class CreateOwnEventActivity extends AppCompatActivity implements
 
         if (candidateEventLabels.size() == 0) {
             candidateEventLabels.add(new EventLabelDSO(1, "You have no labels yet"));
+        }else{
+            candidateEventLabels.add(0, new EventLabelDSO(1, ""));
         }
         eventLabelsAdapter = new SpinnerEventLabelList(this,
                 R.layout.simple_spinner_dropdown_items, candidateEventLabels);
