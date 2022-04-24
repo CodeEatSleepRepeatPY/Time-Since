@@ -3,6 +3,7 @@ package comp3350.timeSince.presentation.labels;
 import static comp3350.timeSince.R.color.*;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,9 +13,11 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,6 +40,7 @@ import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 public class LabelListActivity extends AppCompatActivity {
     private List<EventLabelDSO> labelList;
     private List<EventLabelDSO> allLabels;
+    private List<EventLabelDSO> tempList;
     private List<EventLabelDSO> labelsToAdd;
     private List<EventLabelDSO> labelsToRemove;
     private RecyclerView recyclerView;
@@ -72,7 +76,12 @@ public class LabelListActivity extends AppCompatActivity {
                 labelList = event.getEventLabels();
                 allLabels = userEventManager.getUserLabels();
                 labelsToAdd = new ArrayList<>();
+                labelsToAdd.addAll(labelList);
                 labelsToRemove = new ArrayList<>();
+                labelsToRemove.addAll(allLabels);
+                labelsToRemove.removeAll(labelsToAdd);
+                tempList = new ArrayList<>();
+                tempList.addAll(labelList);
                 setAdapter();
             }
         } catch (UserNotFoundException ue) {
@@ -109,10 +118,10 @@ public class LabelListActivity extends AppCompatActivity {
 
     private void saveState() {
         for (EventLabelDSO label : allLabels) {
-            if (labelsToAdd.contains(label)) {
+            if (tempList.contains(label)) {
                 event = eventManager.addLabelToEvent(event, label);
             }
-            if (labelsToRemove.contains(label)) {
+            if (!tempList.contains(label)) {
                 event = eventManager.removeLabelFromEvent(event, label);
             }
         }
@@ -123,7 +132,7 @@ public class LabelListActivity extends AppCompatActivity {
         saveState();
         Intent intent = new Intent(getApplicationContext(), SingleEventActivity.class);
         intent.putExtra("email", userID);
-        intent.putExtra("eventID", event.getID());
+        intent.putExtra("eventID", eventID);
         finish();  // end this activity before starting the next
         startActivity(intent);
         return true;
@@ -154,14 +163,12 @@ public class LabelListActivity extends AppCompatActivity {
     public void cardOnClick(View view) {
         CardView card = view.findViewById(R.id.label_card);
         EventLabelDSO label = allLabels.get((int) card.getTag());
-        if (!labelList.contains(label) || labelsToRemove.contains(label)) {
-            labelsToAdd.add(label);
-            labelsToRemove.remove(label);
-            card.setBackgroundColor(getResources().getColor(mediumGreen, null));
-        } else if (labelList.contains(label) || labelsToAdd.contains(label)) {
-            labelsToRemove.add(label);
-            labelsToAdd.remove(label);
-            card.setBackgroundColor(getResources().getColor(lightGreen, null));
+        if (tempList.contains(label)) {
+            tempList.remove(label);
+            card.setBackgroundColor(ContextCompat.getColor(this, lightGreen));
+        } else if (!tempList.contains(label)) {
+            tempList.add(label);
+            card.setBackgroundColor(ContextCompat.getColor(this, time_since_green));
         }
     }
 
@@ -169,10 +176,10 @@ public class LabelListActivity extends AppCompatActivity {
         CardView card = view.findViewById(R.id.label_card);
         for (EventLabelDSO label : allLabels) {
             if (labelList.contains(label) || labelsToAdd.contains(label)) {
-                card.setBackgroundColor(getResources().getColor(mediumGreen, null));
+                card.setBackgroundColor(ContextCompat.getColor(this, time_since_green));
             }
             if (!labelList.contains(label) || labelsToRemove.contains(label)) {
-                card.setBackgroundColor(getResources().getColor(lightGreen, null));
+                card.setBackgroundColor(ContextCompat.getColor(this, lightGreen));
             }
         }
     }
