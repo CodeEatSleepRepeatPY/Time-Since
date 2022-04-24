@@ -45,7 +45,6 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
         eventManager = new EventManager(true);
 
         // initialize event information
-        //TODO add try catch here
         eventID = i.getIntExtra("eventID", -1);
         eventDSO = eventManager.getEventByID(eventID);
         email = i.getStringExtra("email");
@@ -223,7 +222,6 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
-
         datePickerDialog.show();
     }
 

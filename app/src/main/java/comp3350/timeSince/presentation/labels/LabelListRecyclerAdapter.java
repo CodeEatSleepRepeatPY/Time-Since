@@ -52,12 +52,10 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView labelName;
-        //private TextView selectLabel;
 
         public MyViewHolder(final View view) {
             super(view);
             labelName = view.findViewById(R.id.label_tile);
-            //selectLabel = view.findViewById(R.id.label_check_box);
             view.setOnClickListener(this);
         }
 
