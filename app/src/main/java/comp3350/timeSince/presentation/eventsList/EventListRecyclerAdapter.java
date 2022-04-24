@@ -15,6 +15,7 @@ import java.util.List;
 
 import comp3350.timeSince.R;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.objects.EventLabelDSO;
 
 public class EventListRecyclerAdapter extends RecyclerView.Adapter<EventListRecyclerAdapter.MyViewHolder> {
     private List<EventDSO> eventList;
@@ -34,20 +35,30 @@ public class EventListRecyclerAdapter extends RecyclerView.Adapter<EventListRecy
 
     @Override
     public void onBindViewHolder(@NonNull EventListRecyclerAdapter.MyViewHolder holder, int position) {
-        String name = eventList.get(position).getName();
+        EventDSO event = eventList.get(position);
+        String name = event.getName();
         holder.eventName.setText(name);
 
-        Calendar dueDateTime = eventList.get(position).getTargetFinishTime();
+        Calendar dueDateTime = event.getTargetFinishTime();
         if (dueDateTime != null) {
             holder.eventDueDateTime.setText(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(dueDateTime.getTime()));
         } else {
             holder.eventDueDateTime.setText("Not set");
         }
-
-        if (eventList.get(position).checkDueClosing()) {
+        holder.labelList.setText(setLabelList(event));
+        if (event.checkDueClosing()) {
             holder.eventName.setTextColor(Color.RED);
             holder.eventDueDateTime.setTextColor(Color.RED);
         }
+    }
+
+    private String setLabelList(EventDSO event) {
+        String showLabels = "";
+        List<EventLabelDSO> labels = event.getEventLabels();
+        for (EventLabelDSO label : labels) {
+            showLabels += label.toString() + " ";
+        }
+       return showLabels;
     }
 
     @Override
@@ -62,11 +73,13 @@ public class EventListRecyclerAdapter extends RecyclerView.Adapter<EventListRecy
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView eventName;
         private TextView eventDueDateTime;
+        private TextView labelList;
 
         public MyViewHolder(final View view) {
             super(view);
             eventName = view.findViewById(R.id.event_tile);
             eventDueDateTime = view.findViewById(R.id.event_due_time);
+            labelList = view.findViewById(R.id.list_event_labels);
             view.setOnClickListener(this);
         }
 
