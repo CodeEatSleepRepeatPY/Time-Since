@@ -19,9 +19,7 @@ import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
-import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.presentation.HomeActivity;
-import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 
 public class CreateOwnLabelActivity extends AppCompatActivity {
     private Bundle extras;
@@ -33,8 +31,6 @@ public class CreateOwnLabelActivity extends AppCompatActivity {
     private UserEventManager userEventManager;
     private String userID;
     private int eventID;
-    private UserDSO user;
-    private EventDSO event;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +50,10 @@ public class CreateOwnLabelActivity extends AppCompatActivity {
         try {
             userEventManager = new UserEventManager(userID, true);
         } catch (UserNotFoundException e) {
-            Toast.makeText(this, "The user is not found.", Toast.LENGTH_SHORT).show();
-            Intent homeIntent = new Intent(this, HomeActivity.class);
-            startActivity(homeIntent);
+            String message = "Something went wrong with your account, sorry! Please try logging " +
+                    "in again.";
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            moveBackToHome();
         }
 
         findViewById(R.id.save_label).setOnClickListener(new View.OnClickListener() {
@@ -93,7 +90,7 @@ public class CreateOwnLabelActivity extends AppCompatActivity {
             if (newLabel != null && newLabel.validate()) {
                 userEventManager.addUserLabel(newLabel);
                 if (checkBox.isChecked()) {
-                    event = eventManager.getEventByID(eventID);
+                    EventDSO event = eventManager.getEventByID(eventID);
                     if (event != null && event.validate()) {
                         eventManager.addLabelToEvent(event, newLabel);
                     }
@@ -111,6 +108,12 @@ public class CreateOwnLabelActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    private void moveBackToHome() {
+        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+        finish(); // end this activity before starting the next
+        startActivity(intent);
     }
 
 }

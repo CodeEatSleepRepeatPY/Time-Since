@@ -21,14 +21,15 @@ import comp3350.timeSince.R;
 import comp3350.timeSince.objects.EventLabelDSO;
 
 public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecyclerAdapter.MyViewHolder> {
-    private final List<EventLabelDSO> labelList;
-    private final List<EventLabelDSO> allLabels;
+    private final List<EventLabelDSO> eventLabels;
+    private final List<EventLabelDSO> userLabels;
     private final RecyclerViewClickOnListener listener;
 
-    public LabelListRecyclerAdapter(List<EventLabelDSO> labelList, List<EventLabelDSO> allLabels,
+    public LabelListRecyclerAdapter(List<EventLabelDSO> eventLabels, List<EventLabelDSO> userLabels,
                                     RecyclerViewClickOnListener listener) {
-        this.labelList = labelList;
-        this.allLabels = allLabels;
+
+        this.eventLabels = eventLabels;
+        this.userLabels = userLabels;
         this.listener = listener;
         sortLabels();
     }
@@ -48,13 +49,13 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
                                  int position) {
 
         Context context = holder.labelCard.getContext();
-        EventLabelDSO label = allLabels.get(position);
+        EventLabelDSO label = userLabels.get(position);
         String name = label.toString();
         holder.labelName.setText(name); // the label name
         holder.labelCard.setTag(position); // to be able to identify which label
 
         // set the label color
-        if (labelList.contains(label)) {
+        if (eventLabels.contains(label)) {
             holder.labelCard.setBackgroundColor(ContextCompat.getColor(context, time_since_green));
         } else {
             holder.labelCard.setBackgroundColor(ContextCompat.getColor(context, lightGreen));
@@ -62,13 +63,13 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
     }
 
     private void sortLabels() {
-        allLabels.sort(Comparator.comparing(EventLabelDSO::getName, Comparator
+        userLabels.sort(Comparator.comparing(EventLabelDSO::getName, Comparator
                 .nullsLast(String::compareToIgnoreCase)));
     }
 
     @Override
     public int getItemCount() {
-        return allLabels.size();
+        return userLabels.size();
     }
 
     public interface RecyclerViewClickOnListener {

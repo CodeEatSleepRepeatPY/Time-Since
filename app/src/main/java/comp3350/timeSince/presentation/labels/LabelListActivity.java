@@ -142,10 +142,10 @@ public class LabelListActivity extends AppCompatActivity {
     private void saveState() {
         for (EventLabelDSO label : userLabels) {
             if (tempList.contains(label)) {
-                event = eventManager.addLabelToEvent(event, label);
+                eventManager.addLabelToEvent(event, label);
             }
             if (!tempList.contains(label)) {
-                event = eventManager.removeLabelFromEvent(event, label);
+                eventManager.removeLabelFromEvent(event, label);
             }
         }
     }
