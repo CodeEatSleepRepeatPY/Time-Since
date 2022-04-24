@@ -46,4 +46,6 @@
     <string name="due_time">Due Time</string>
     <string name="sort_by_name">Sort By Name</string>
     <string name="sort_by_due_date">Sort By Due Date</string>
+    <string name="sort_by_creation_date">Sort by Creation Date</string>
+    <string name="show_incomplete">Show Incomplete</string>
 </resources>
