@@ -92,6 +92,10 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
                 setAdapter();
                 return true;
             case R.id.filter_by_complete:
+                eventList = userEventManager.filterByStatus(true);
+                setAdapter();
+                return true;
+            case R.id.filter_by_incomplete:
                 eventList = userEventManager.filterByStatus(false);
                 setAdapter();
                 return true;

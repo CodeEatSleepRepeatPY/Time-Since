@@ -25,6 +25,9 @@
                     android:title="@string/sort_by_creation_date" />
                 <item
                     android:id="@+id/filter_by_complete"
+                    android:title="@string/show_complete" />
+                <item
+                    android:id="@+id/filter_by_incomplete"
                     android:title="@string/show_incomplete" />
             </group>
         </menu>
