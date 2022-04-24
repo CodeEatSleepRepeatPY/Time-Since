@@ -99,6 +99,10 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
                 eventList = userEventManager.filterByStatus(false);
                 setAdapter();
                 return true;
+            case R.id.filter_by_favorite:
+                eventList = userEventManager.getUserFavorites();
+                setAdapter();
+                return true;
             case R.id.delete_event:
                 setDeleteAdapter();
                 return true;
