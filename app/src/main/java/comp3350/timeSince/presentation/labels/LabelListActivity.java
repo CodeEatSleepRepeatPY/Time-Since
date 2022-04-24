@@ -1,18 +1,25 @@
 package comp3350.timeSince.presentation.labels;
 
+import static comp3350.timeSince.R.color.*;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,11 +31,14 @@ import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 import comp3350.timeSince.objects.UserDSO;
 import comp3350.timeSince.presentation.HomeActivity;
+import comp3350.timeSince.presentation.events.SingleEventActivity;
 import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 
 public class LabelListActivity extends AppCompatActivity {
     private List<EventLabelDSO> labelList;
     private List<EventLabelDSO> allLabels;
+    private List<EventLabelDSO> labelsToAdd;
+    private List<EventLabelDSO> labelsToRemove;
     private RecyclerView recyclerView;
     private EventManager eventManager;
     private UserEventManager userEventManager;
@@ -61,6 +71,8 @@ public class LabelListActivity extends AppCompatActivity {
             if (event != null) {
                 labelList = event.getEventLabels();
                 allLabels = userEventManager.getUserLabels();
+                labelsToAdd = new ArrayList<>();
+                labelsToRemove = new ArrayList<>();
                 setAdapter();
             }
         } catch (UserNotFoundException ue) {
@@ -95,17 +107,32 @@ public class LabelListActivity extends AppCompatActivity {
         return ret_value;
     }
 
+    private void saveState() {
+        for (EventLabelDSO label : allLabels) {
+            if (labelsToAdd.contains(label)) {
+                event = eventManager.addLabelToEvent(event, label);
+            }
+            if (labelsToRemove.contains(label)) {
+                event = eventManager.removeLabelFromEvent(event, label);
+            }
+        }
+    }
+
     @Override
     public boolean onSupportNavigateUp() {
-        finish();
-        // TODO go through the temporary list, and compare with the labelList then save the changes to the database (way faster to save once)
+        saveState();
+        Intent intent = new Intent(getApplicationContext(), SingleEventActivity.class);
+        intent.putExtra("email", userID);
+        intent.putExtra("eventID", event.getID());
+        finish();  // end this activity before starting the next
+        startActivity(intent);
         return true;
     }
 
     private void setAdapter() {
         setOnClickListener();
-        LabelListRecyclerAdapter adapter = new LabelListRecyclerAdapter(userEventManager,
-                labelList, allLabels, event, listener);
+        LabelListRecyclerAdapter adapter = new LabelListRecyclerAdapter(labelList,
+                allLabels,  listener);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
@@ -115,10 +142,39 @@ public class LabelListActivity extends AppCompatActivity {
         listener = new LabelListRecyclerAdapter.RecyclerViewClickOnListener() {
             @Override
             public void onClick(View view, int position) {
-                // TODO figure out what to do here.  Change the colors of the item in the list when clicked, and save to the event
-                // make a separate temporary list based off what was clicked
+                cardOnClick(view);
             }
         };
+    }
+
+    private void setCardOnClickListener() {
+
+    }
+
+    public void cardOnClick(View view) {
+        CardView card = view.findViewById(R.id.label_card);
+        EventLabelDSO label = allLabels.get((int) card.getTag());
+        if (!labelList.contains(label) || labelsToRemove.contains(label)) {
+            labelsToAdd.add(label);
+            labelsToRemove.remove(label);
+            card.setBackgroundColor(getResources().getColor(mediumGreen, null));
+        } else if (labelList.contains(label) || labelsToAdd.contains(label)) {
+            labelsToRemove.add(label);
+            labelsToAdd.remove(label);
+            card.setBackgroundColor(getResources().getColor(lightGreen, null));
+        }
+    }
+
+    private void setLabelColor(View view) {
+        CardView card = view.findViewById(R.id.label_card);
+        for (EventLabelDSO label : allLabels) {
+            if (labelList.contains(label) || labelsToAdd.contains(label)) {
+                card.setBackgroundColor(getResources().getColor(mediumGreen, null));
+            }
+            if (!labelList.contains(label) || labelsToRemove.contains(label)) {
+                card.setBackgroundColor(getResources().getColor(lightGreen, null));
+            }
+        }
     }
 
     private void moveBackToList() {

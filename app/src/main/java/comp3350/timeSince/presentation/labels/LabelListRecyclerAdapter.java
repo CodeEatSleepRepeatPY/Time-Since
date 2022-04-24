@@ -1,41 +1,35 @@
 package comp3350.timeSince.presentation.labels;
 
+import comp3350.timeSince.R;
+
+
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Comparator;
 import java.util.List;
 
-import comp3350.timeSince.R;
-import comp3350.timeSince.business.EventManager;
-import comp3350.timeSince.business.UserEventManager;
-import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
 
 public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecyclerAdapter.MyViewHolder> {
-    private List<EventLabelDSO> labelList;
-    private List<EventLabelDSO> allLabels;
-    private RecyclerViewClickOnListener listener;
-    private EventDSO event;
-    private EventManager eventManager;
-    private UserEventManager userEventManager;
+    private final List<EventLabelDSO> labelList;
+    private final List<EventLabelDSO> allLabels;
+    private final RecyclerViewClickOnListener listener;
 
-    public LabelListRecyclerAdapter(UserEventManager userEventManager,
-                                    List<EventLabelDSO> labelList, List<EventLabelDSO> allLabels,
-                                    EventDSO event, RecyclerViewClickOnListener listener) {
-        this.userEventManager = userEventManager;
+    public LabelListRecyclerAdapter(List<EventLabelDSO> labelList, List<EventLabelDSO> allLabels,
+                                    RecyclerViewClickOnListener listener) {
         this.labelList = labelList;
         this.allLabels = allLabels;
-        sortLabels();
-        this.event = event;
         this.listener = listener;
-        eventManager = new EventManager(true);
+        sortLabels();
     }
 
     @NonNull
@@ -48,20 +42,18 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
         return new MyViewHolder(itemView);
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onBindViewHolder(@NonNull LabelListRecyclerAdapter.MyViewHolder holder,
                                  int position) {
         EventLabelDSO label = allLabels.get(position);
         String name = label.toString();
         holder.labelName.setText(name);
+        holder.labelCard.setTag(position);
         if (labelList.contains(label)) {
-            holder.selectLabel.setChecked(true);
-        }
-        if (holder.selectLabel.isChecked() && !labelList.contains(label)) {
-            event = eventManager.addLabelToEvent(event, label);
-            labelList = event.getEventLabels();
-            allLabels = userEventManager.getUserLabels();
-            sortLabels();
+            holder.labelCard.setCardBackgroundColor(R.color.mediumGreen);
+        } else {
+            holder.labelCard.setCardBackgroundColor(R.color.lightGreen);
         }
     }
 
@@ -80,19 +72,18 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView labelName;
-        private CheckBox selectLabel;
+        private final TextView labelName;
+        private final CardView labelCard;
 
         public MyViewHolder(final View view) {
             super(view);
             labelName = view.findViewById(R.id.label_tile);
-            selectLabel = view.findViewById(R.id.event_has_label_checkbox);
+            labelCard = view.findViewById(R.id.label_card);
             view.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            sortLabels();
             listener.onClick(view, getAdapterPosition());
         }
     }
