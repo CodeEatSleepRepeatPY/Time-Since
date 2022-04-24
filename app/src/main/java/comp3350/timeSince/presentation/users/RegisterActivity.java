@@ -1,4 +1,4 @@
-package comp3350.timeSince.presentation;
+package comp3350.timeSince.presentation.users;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,7 @@ import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.DuplicateUserException;
 import comp3350.timeSince.business.exceptions.PasswordErrorException;
 import comp3350.timeSince.business.exceptions.UserRegistrationFailedException;
+import comp3350.timeSince.presentation.events.CreateOwnEventActivity;
 
 public class RegisterActivity extends AppCompatActivity {
     private final UserManager userManager = new UserManager(true);

@@ -1,4 +1,4 @@
-package comp3350.timeSince.presentation;
+package comp3350.timeSince.presentation.events;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -27,6 +27,8 @@ import comp3350.timeSince.business.UserEventManager;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.objects.EventLabelDSO;
+import comp3350.timeSince.presentation.HomeActivity;
+import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 
 public class CreateOwnEventActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener,

@@ -1,4 +1,4 @@
-package comp3350.timeSince.presentation;
+package comp3350.timeSince.presentation.users;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,7 @@ import comp3350.timeSince.R;
 import comp3350.timeSince.business.UserManager;
 import comp3350.timeSince.business.exceptions.UserLoginFailedException;
 import comp3350.timeSince.business.exceptions.UserNotFoundException;
+import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 
 public class LoginActivity extends AppCompatActivity {
     private final UserManager userManager = new UserManager(true);

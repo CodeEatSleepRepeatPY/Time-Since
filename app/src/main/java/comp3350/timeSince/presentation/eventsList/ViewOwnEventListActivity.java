@@ -1,4 +1,4 @@
-package comp3350.timeSince.presentation;
+package comp3350.timeSince.presentation.eventsList;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,6 +27,8 @@ import comp3350.timeSince.business.EventManager;
 import comp3350.timeSince.business.UserEventManager;
 import comp3350.timeSince.business.exceptions.EventNotFoundException;
 import comp3350.timeSince.objects.EventDSO;
+import comp3350.timeSince.presentation.events.CreateOwnEventActivity;
+import comp3350.timeSince.presentation.events.SingleEventActivity;
 
 public class ViewOwnEventListActivity extends AppCompatActivity {
     private List<EventDSO> eventList;
@@ -55,9 +57,11 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
         userEventManager = new UserEventManager(userID, true);
         eventList = userEventManager.getUserEvents();
 
-        //sort and highlight any event if they are closed (7 days)
-        checkComingEvents();
-        setAdapter();
+        // setup listener
+        setOnClickListener();
+
+        // sort and highlight any event if they are closed (7 days)
+        updateList();
     }
 
     @Override
@@ -116,7 +120,6 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
     }
 
     private void setAdapter() {
-        setOnClickListener();
         EventListRecyclerAdapter adapter = new EventListRecyclerAdapter(eventList, listener);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -173,12 +176,21 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
         listener = new EventListRecyclerAdapter.RecyclerViewClickOnListener() {
             @Override
             public void onClick(View view, int position) {
-                Intent intent = new Intent(getApplicationContext(), SingleEventActivity.class);
-                intent.putExtra("email", userID);
-                intent.putExtra("eventID", eventList.get(position).getID());
-                startActivity(intent);
+                openEvent(position);
             }
         };
     }
 
+    private void openEvent(int position){
+        Intent intent = new Intent(getApplicationContext(), SingleEventActivity.class);
+        intent.putExtra("email", userID);
+        intent.putExtra("eventID", eventList.get(position).getID());
+        finish();  // end this activity before starting the next
+        startActivity(intent);
+    }
+
+    private void updateList(){
+        checkComingEvents();
+        setAdapter();
+    }
 }

@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import comp3350.timeSince.R;
 import comp3350.timeSince.persistence.utils.DBHelper;
-import comp3350.timeSince.presentation.RegisterActivity;
-import comp3350.timeSince.presentation.LoginActivity;
+import comp3350.timeSince.presentation.users.LoginActivity;
+import comp3350.timeSince.presentation.users.RegisterActivity;
 
 public class HomeActivity extends AppCompatActivity {
 
