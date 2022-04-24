@@ -63,18 +63,22 @@ public class CreateOwnLabelActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 saveContents();
-                Intent nextIntent = new Intent(CreateOwnLabelActivity.this, LabelListActivity.class);
-                nextIntent.putExtra("email", userID);
-                nextIntent.putExtra("eventID", eventID);
-                finish();
-                CreateOwnLabelActivity.this.startActivity(nextIntent);
+                moveToLabelList();
             }
         });
     }
 
+    private void moveToLabelList(){
+        Intent nextIntent = new Intent(getApplicationContext(), LabelListActivity.class);
+        nextIntent.putExtra("email", userID);
+        nextIntent.putExtra("eventID", eventID);
+        finish();
+        startActivity(nextIntent);
+    }
+
     @Override
     public boolean onSupportNavigateUp() {
-        finish();
+        moveToLabelList();
         return true;
     }
 

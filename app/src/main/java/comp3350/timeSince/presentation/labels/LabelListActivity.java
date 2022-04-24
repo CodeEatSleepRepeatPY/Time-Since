@@ -87,6 +87,7 @@ public class LabelListActivity extends AppCompatActivity {
             Intent intent = new Intent(LabelListActivity.this, CreateOwnLabelActivity.class);
             intent.putExtra("email", userID);
             intent.putExtra("eventID", eventID);
+            finish();
             LabelListActivity.this.startActivity(intent);
         } else {
             ret_value = super.onOptionsItemSelected(item);
@@ -97,6 +98,7 @@ public class LabelListActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
         finish();
+        // TODO go through the temporary list, and compare with the labelList then save the changes to the database (way faster to save once)
         return true;
     }
 
@@ -113,7 +115,8 @@ public class LabelListActivity extends AppCompatActivity {
         listener = new LabelListRecyclerAdapter.RecyclerViewClickOnListener() {
             @Override
             public void onClick(View view, int position) {
-                // figure out what to do here.
+                // TODO figure out what to do here.  Change the colors of the item in the list when clicked, and save to the event
+                // make a separate temporary list based off what was clicked
             }
         };
     }
