@@ -113,8 +113,8 @@ public class LabelListActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), LabelListActivity.class);
                 intent.putExtra("email", userID);
                 intent.putExtra("eventID", labelList.get(position).getID());
+                finish();
                 LabelListActivity.this.startActivity(intent);
-
             }
         };
     }

@@ -66,6 +66,7 @@ public class CreateOwnLabelActivity extends AppCompatActivity {
                 Intent nextIntent = new Intent(CreateOwnLabelActivity.this, LabelListActivity.class);
                 nextIntent.putExtra("email", userID);
                 nextIntent.putExtra("eventID", eventID);
+                finish();
                 CreateOwnLabelActivity.this.startActivity(nextIntent);
             }
         });

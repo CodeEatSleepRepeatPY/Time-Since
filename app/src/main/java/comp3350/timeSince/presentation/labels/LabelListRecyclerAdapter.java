@@ -61,13 +61,13 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
             event = eventManager.addLabelToEvent(event, label);
             labelList = event.getEventLabels();
             allLabels = userEventManager.getUserLabels();
-            notifyDataSetChanged();
+            sortLabels();
         }
     }
 
     private void sortLabels() {
         allLabels.sort(Comparator.comparing(EventLabelDSO::getName, Comparator
-                .nullsLast(Comparator.naturalOrder())));
+                .nullsLast(String::compareToIgnoreCase)));
     }
 
     @Override
@@ -92,6 +92,7 @@ public class LabelListRecyclerAdapter extends RecyclerView.Adapter<LabelListRecy
 
         @Override
         public void onClick(View view) {
+            sortLabels();
             listener.onClick(view, getAdapterPosition());
         }
     }
