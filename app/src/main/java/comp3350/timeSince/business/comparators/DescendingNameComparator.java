@@ -17,6 +17,6 @@ public class DescendingNameComparator implements Comparator<EventDSO> {
     public int compare(EventDSO event1, EventDSO event2) {
         assert event1 != null;
         assert event2 != null;
-        return event2.getName().compareTo(event1.getName());
+        return event2.getName().compareToIgnoreCase(event1.getName());
     }
 }
