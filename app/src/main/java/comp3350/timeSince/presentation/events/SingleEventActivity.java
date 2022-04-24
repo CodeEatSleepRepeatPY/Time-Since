@@ -267,9 +267,9 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
     @Override
     public boolean onSupportNavigateUp(){
         saveState();
-
         Intent intent = new Intent(getApplicationContext(), ViewOwnEventListActivity.class);
         intent.putExtra("email", email);
+        finish();  // end this activity before starting the next
         startActivity(intent);
         return true;
     }
