@@ -212,4 +212,12 @@ public class EventManager {
         return toReturn;
     }
 
+    public boolean isFavorite(int eventID) throws EventNotFoundException {
+        boolean toReturn = false;
+        EventDSO event = eventPersistence.getEventByID(eventID); // may cause exception
+        if (event != null) {
+            toReturn = event.isFavorite();
+        }
+        return toReturn;
+    }
 }

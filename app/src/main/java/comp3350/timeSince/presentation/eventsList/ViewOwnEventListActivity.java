@@ -57,9 +57,11 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
         userEventManager = new UserEventManager(userID, true);
         eventList = userEventManager.getUserEvents();
 
-        //sort and highlight any event if they are closed (7 days)
-        checkComingEvents();
-        setAdapter();
+        // setup listener
+        setOnClickListener();
+
+        // sort and highlight any event if they are closed (7 days)
+        updateList();
     }
 
     @Override
@@ -118,7 +120,6 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
     }
 
     private void setAdapter() {
-        setOnClickListener();
         EventListRecyclerAdapter adapter = new EventListRecyclerAdapter(eventList, listener);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -175,15 +176,21 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
         listener = new EventListRecyclerAdapter.RecyclerViewClickOnListener() {
             @Override
             public void onClick(View view, int position) {
-                Intent intent = new Intent(getApplicationContext(), SingleEventActivity.class);
-                intent.putExtra("email", userID);
-                EventDSO event = eventList.get(position);
-                if (event != null && event.validate()) {
-                    intent.putExtra("eventID", event.getID());
-                    startActivity(intent);
-                }
+                openEvent(position);
             }
         };
     }
 
+    private void openEvent(int position){
+        Intent intent = new Intent(getApplicationContext(), SingleEventActivity.class);
+        intent.putExtra("email", userID);
+        intent.putExtra("eventID", eventList.get(position).getID());
+        finish();  // end this activity before starting the next
+        startActivity(intent);
+    }
+
+    private void updateList(){
+        checkComingEvents();
+        setAdapter();
+    }
 }

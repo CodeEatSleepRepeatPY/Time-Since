@@ -18,9 +18,10 @@ import java.util.Objects;
 import comp3350.timeSince.R;
 import comp3350.timeSince.objects.EventDSO;
 import comp3350.timeSince.business.EventManager;
+import comp3350.timeSince.presentation.eventsList.ViewOwnEventListActivity;
 import comp3350.timeSince.presentation.labels.LabelListActivity;
 
-public class SingleEventActivity extends AppCompatActivity {
+public class SingleEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
     private EventManager eventManager;
     private Button done_button;
     private Button tags_button;
@@ -31,6 +32,8 @@ public class SingleEventActivity extends AppCompatActivity {
     private EventDSO eventDSO;
     private int eventID;
     private String email;
+    Calendar eventFinishTime;
+    DatePickerDialog.OnDateSetListener dateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,15 +43,18 @@ public class SingleEventActivity extends AppCompatActivity {
         Intent i = getIntent();
 
         eventManager = new EventManager(true);
-        Calendar eventFinishTime;
-        String dateText;
 
         // initialize event information
-        //TODO add try catch here
         eventID = i.getIntExtra("eventID", -1);
         eventDSO = eventManager.getEventByID(eventID);
         email = i.getStringExtra("email");
 
+        setupButtons();
+        setupEditTextFields();
+        initializeListeners();
+    }
+
+    private void setupButtons(){
         // Button fields
         done_button = findViewById(R.id.event_done_button);
         tags_button = findViewById(R.id.event_tags_button);
@@ -57,7 +63,9 @@ public class SingleEventActivity extends AppCompatActivity {
         // initialize the colors for the buttons
         setDoneColor();
         setFavoriteColor();
+    }
 
+    private void setupEditTextFields(){
         // EditText fields
         name = findViewById(R.id.event_name);
         description = findViewById(R.id.event_description);
@@ -67,16 +75,89 @@ public class SingleEventActivity extends AppCompatActivity {
         name.setText(eventDSO.getName());
         description.setText(eventDSO.getDescription());
         eventFinishTime = eventDSO.getTargetFinishTime();
-        if(eventFinishTime != null){
-            dateText = String.format("%d-%d-%d",
-                    eventFinishTime.get(Calendar.YEAR),
-                    eventFinishTime.get(Calendar.MONTH),
-                    eventFinishTime.get(Calendar.DAY_OF_MONTH));
-            dueDate.setText(dateText);
+
+        setupDate();
+    }
+
+    private void setupDate(){
+        int day;
+        int month;
+        int year;
+
+        if (eventFinishTime != null){
+            day = eventFinishTime.get(Calendar.DAY_OF_MONTH);
+            month = eventFinishTime.get(Calendar.MONTH);
+            year = eventFinishTime.get(Calendar.YEAR);
+
+            dueDate.setText(getDateString(day, month, year));
 
             // set the color for the due date text to indicate if it's overdue
             setDateColor(eventFinishTime);
         }
+    }
+
+    private String getDateString(int day, int month, int year){
+        return String.format("%d/%d/%d", day, (month + 1), year);
+    }
+
+    private void initializeListeners(){
+        setupDoneListener();
+        setupTagsListener();
+        setupFavoriteListener();
+        setupDueDateListener();
+    }
+
+    private void setupDoneListener(){
+        done_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonEventDoneOnClick(view);
+            }
+        });
+    }
+
+    private void setupTagsListener(){
+        tags_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonEventTagsOnClick(view);
+            }
+        });
+    }
+
+    private void setupFavoriteListener() {
+        favorite_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonEventFavoriteOnClick(view);
+            }
+        });
+    }
+
+    private void setupDueDateListener() {
+        setupDueDatePopup();
+
+        dueDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dueDateOnClick(view);
+            }
+        });
+    }
+
+    private void setupDueDatePopup(){
+        dateListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(year, month, day);
+
+                String displayDate = getDateString(day, month, year);
+                dueDate.setText(displayDate);
+                eventManager.updateEventFinishTime(calendar, eventID);
+                setDateColor(calendar);
+            }
+        };
     }
 
     @Override
@@ -85,63 +166,35 @@ public class SingleEventActivity extends AppCompatActivity {
     }
 
     public void buttonEventDoneOnClick(View v) {
-        boolean isDone = eventManager.isDone(eventID);
+        boolean isDone = eventDSO.isDone();
 
-        try{
-            done_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    eventManager.markEventAsDone(eventID, !isDone);
-                    setDoneColor(); // change the button color
-                }
-            });
-        }catch(Exception exception){
-            exception.printStackTrace();
-        }
+        eventDSO.setIsDone(!isDone);
+        setDoneColor(); // change the button color
     }
 
     private void setDoneColor(){
-        boolean isDone = eventManager.isDone(eventID);
+        boolean isDone = eventDSO.isDone();
 
         // toggle the colour
         if (isDone){
-            done_button.setBackgroundColor(Color.BLUE);
+            done_button.setBackgroundColor(Color.GREEN);
         } else {
             done_button.setBackgroundColor(Color.WHITE);
         }
     }
 
     public void buttonEventTagsOnClick(View v) {
-        try{
-            tags_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(SingleEventActivity.this, LabelListActivity.class);
-                    intent.putExtra("eventID", eventID);
-                    intent.putExtra("email", email);
-                    SingleEventActivity.this.startActivity(intent);
-                }
-            });
-        }catch(Exception exception){
-            exception.printStackTrace();
-        }
+        Intent intent = new Intent(SingleEventActivity.this, LabelListActivity.class);
+        intent.putExtra("eventID", eventID);
+        intent.putExtra("email", email);
+        SingleEventActivity.this.startActivity(intent);
     }
 
     public void buttonEventFavoriteOnClick(View v) {
         boolean isFavorite = eventDSO.isFavorite();
 
-        //TODO: to fix: the color does not change in real time
-        try{
-            favorite_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    eventManager.updateEventFavorite(!isFavorite, eventID);
-                    setFavoriteColor(); // change the button color
-                }
-            });
-        }catch(Exception exception){
-            exception.printStackTrace();
-        }
+        eventDSO.setFavorite(!isFavorite);
+        setFavoriteColor(); // change the button color
     }
 
     private void setFavoriteColor(){
@@ -149,56 +202,44 @@ public class SingleEventActivity extends AppCompatActivity {
 
         // toggle the colour
         if (isFavorite){
-            favorite_button.setBackgroundColor(Color.BLUE);
+            favorite_button.setBackgroundColor(Color.GREEN);
         } else {
             favorite_button.setBackgroundColor(Color.WHITE);
         }
     }
 
     public void dueDateOnClick(View v) {
-        DatePickerDialog.OnDateSetListener listener;
+        Calendar calendar = eventDSO.getTargetFinishTime();
 
-        try{
-            listener = new DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.set(year, month, day);
-
-                    String displayDate = String.format("%d-%d-%d", year, month + 1, day);
-                    dueDate.setText(displayDate);
-                    eventManager.updateEventFinishTime(calendar, eventID);
-                    setDateColor(calendar);
-                }
-            };
-
-            dueDate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Calendar calendar = eventDSO.getTargetFinishTime();
-                    if(calendar == null){
-                        calendar = Calendar.getInstance();
-                    }
-                    int year = calendar.get(Calendar.YEAR);
-                    int month = calendar.get(Calendar.MONTH);
-                    int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-                    DatePickerDialog picker = new DatePickerDialog(
-                            SingleEventActivity.this,
-                            android.R.style.Widget_Holo_ActionBar_Solid,
-                            listener, year, month, day
-                    );
-
-                    picker.show();
-                }
-            });
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        if(calendar == null){
+            calendar = Calendar.getInstance();
         }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                this,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
+    }
+
+    @Override
+    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+        if (eventFinishTime == null){
+            eventFinishTime = Calendar.getInstance();
+        }
+
+        eventFinishTime.set(Calendar.YEAR, year);
+        eventFinishTime.set(Calendar.MONTH, month);
+        eventFinishTime.set(Calendar.DAY_OF_MONTH, day);
+        dueDate.setText(getDateString(day, month, year));
+        setDateColor(eventFinishTime);
     }
 
     // sets the date text color based on if the event due date has passed
-    void setDateColor(Calendar calendar){
+    public void setDateColor(Calendar calendar){
         if (calendar.before(Calendar.getInstance())) { // event is due
             dueDate.setTextColor(Color.RED);
         } else {
@@ -206,9 +247,8 @@ public class SingleEventActivity extends AppCompatActivity {
         }
     }
 
-    // upon leaving, saves the name and description entered in the UI
-    @Override
-    public boolean onSupportNavigateUp(){
+    // saves the name, description, time, done, and favorite info to the database
+    private void saveState(){
         if(name != null){
             eventManager.updateEventName(name.getText().toString(), eventID);
         }
@@ -216,7 +256,19 @@ public class SingleEventActivity extends AppCompatActivity {
             eventManager.updateEventDescription(description.getText().toString(), eventID);
         }
 
-        finish();
+        eventManager.updateEventFinishTime(eventFinishTime, eventID);
+        eventManager.markEventAsDone(eventID, eventDSO.isDone());
+        eventManager.updateEventFavorite(eventDSO.isFavorite(), eventID);
+    }
+
+    // when leaving, save the state and restart the ViewEventListActivity
+    @Override
+    public boolean onSupportNavigateUp(){
+        saveState();
+        Intent intent = new Intent(getApplicationContext(), ViewOwnEventListActivity.class);
+        intent.putExtra("email", email);
+        finish();  // end this activity before starting the next
+        startActivity(intent);
         return true;
     }
 }
