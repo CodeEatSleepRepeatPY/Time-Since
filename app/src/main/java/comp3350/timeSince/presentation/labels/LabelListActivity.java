@@ -81,14 +81,17 @@ public class LabelListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        boolean ret_value = true;
+
         if (item.getItemId() == R.id.add_new_label) {
             Intent intent = new Intent(LabelListActivity.this, CreateOwnLabelActivity.class);
             intent.putExtra("email", userID);
             intent.putExtra("eventID", eventID);
             LabelListActivity.this.startActivity(intent);
-            return true;
+        } else {
+            ret_value = super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
+        return ret_value;
     }
 
     @Override
@@ -110,11 +113,7 @@ public class LabelListActivity extends AppCompatActivity {
         listener = new LabelListRecyclerAdapter.RecyclerViewClickOnListener() {
             @Override
             public void onClick(View view, int position) {
-                Intent intent = new Intent(getApplicationContext(), LabelListActivity.class);
-                intent.putExtra("email", userID);
-                intent.putExtra("eventID", labelList.get(position).getID());
-                finish();
-                LabelListActivity.this.startActivity(intent);
+                // figure out what to do here.
             }
         };
     }
@@ -123,11 +122,13 @@ public class LabelListActivity extends AppCompatActivity {
         Intent intent = new Intent(LabelListActivity.this, ViewOwnEventListActivity.class);
         intent.putExtra("email", userID);
         intent.putExtra("eventID", eventID);
+        finish();
         LabelListActivity.this.startActivity(intent);
     }
 
     private void moveBackToHome() {
         Intent intent = new Intent(LabelListActivity.this, HomeActivity.class);
+        finish();
         LabelListActivity.this.startActivity(intent);
     }
 
