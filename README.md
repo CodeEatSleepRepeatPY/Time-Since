@@ -12,4 +12,6 @@
 
 [Iteration 2 Worksheet](docs/i2_worksheet.md)
 
-[website](website/index.html)
+[Iteration 3 Worksheet](docs/i3_worksheet.md)
+
+[Website](website/index.html)
