@@ -72,6 +72,7 @@ the test will break. So what we did to make the test not flaky is just always re
 3 events (or less if there are less events in the database) and instead add the 3 new
 events which are "event1", "event2" and "event3" so this way, they're always guranteed to
 appear in the database/view-all-events list. [Link To Test](https://code.cs.umanitoba.ca/winter-2022-a02/group-2/time-since-a02-2/-/blob/main/app/src/androidTest/java/comp3350/timeSince/ViewAllEventsSystemTest.java) 
+
 [Link To How We Counter The Flaky Test](https://code.cs.umanitoba.ca/winter-2022-a02/group-2/time-since-a02-2/-/blob/main/app/src/androidTest/java/comp3350/timeSince/utils/TestUtils.java)
 
 Acceptance test, untestable
