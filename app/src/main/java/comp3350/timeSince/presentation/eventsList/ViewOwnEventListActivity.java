@@ -173,6 +173,7 @@ public class ViewOwnEventListActivity extends AppCompatActivity {
                         eventManager.deleteEvent(eventList.get(position).getID());
                         dialogInterface.dismiss();
 
+                        finish();
                         Intent intent2 = new Intent(getApplicationContext(), ViewOwnEventListActivity.class);
                         intent2.putExtra("email", userID);
                         startActivity(intent2);
