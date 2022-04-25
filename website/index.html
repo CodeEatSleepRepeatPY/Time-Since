@@ -3,7 +3,6 @@
     <head>
         <meta charset="utf-8">
         <title>Time Since</title>
-
         <style >
             body {background-color: white;} 
             *{
@@ -12,8 +11,8 @@
                 box-sizing: border-box;
             }
             .header{
-                background-image:url(./images/time.jpg);
-                height:500px;
+                background-image: radial-gradient(circle at 20% 40%,#1a1d1d 20%, #828291 40%, #bebeaa 60%, #afbaba 80%);
+                height:400px;
             }
             .column {
             float: left;
@@ -26,10 +25,17 @@
                 display: table;
                 clear: both;
             }
-            .title{
-                background-color: rgb(238, 237, 237);
-                text-align:center;
-                line-height:120px;
+            .vision{
+                background-image: linear-gradient(to bottom right, red, yellow);
+                height:150px;
+                border:10px solid rgb(137, 148, 148);
+                border-radius:50px;
+                text-align: center;
+                color: white;
+                position:relative;
+                top: 30px;
+                left:10%;
+                width:50%;
             }
             .content{
                 text-align:center;
@@ -41,50 +47,82 @@
             }
             .round{
                 margin:0 auto;
-                background: rgb(35, 31, 32);
-                height:200px;
-                border:2px solid rgb(72, 152, 152);
-                border-radius:40px;
+                background-image: radial-gradient(closest-side at 40% 40%, #99CCCC, #7171B7);
+                height:300px;
+                border:10px solid rgb(137, 148, 148);
+                border-radius:50px;
                 text-align: center;
+                position:relative;
                 color: white;
-                /* line-height: 200px; */
+                left:20%;
                 width:50%;
-                float:left;
             }
             .AboutUS{
                 text-align:center;
                 height:500px;
             }
-            
+            .question{
+                margin-top: 100px;
+                height: 500px;
+                text-align: center;
+                line-height:50px;
+            }
+            .postmortem{
+                background-image: linear-gradient(#b02828, #1a2be9);
+                height:500px;
+                border-radius:20px;
+                text-align: center;
+                color: white;
+                position: relative;
+                top: 50px;
+                left: 10%;
+                width:80%;
+                line-height:50px;
+            }
+            .footer{
+                margin-top: 100px;
+                background-image: linear-gradient(to right, black, white, black);
+                height:80px;
+                width: 100%;
+            }
+  
         </style>
-        
 
         <body>
             <div id="container">
                 <div class="header" >
-                    <h1 style="text-align:center;font-family:verdana;line-height:250px;color: rgb(28, 157, 56); font-size: 50px;">Time Since</h1>
-                    <p style="text-align:center;font-family:arial;color: rgb(28, 157, 56);font-size: 20px;">Let <strong>Time Since</strong> to help you remember what you should do in your life.
+                    <h1>
+                        <a class="site-title" href="../new web/index.html" style="margin-left: 100px; float: left;">Home</a>
+                        <a class="videolink" href="" style="float:left;position: relative;left: 100px;">Video</a>
+                       
+                    </h1>
+                    <h1 style="margin-left:10%;font-family:verdana;line-height:250px;color: rgb(28, 157, 56); font-size: 50px;">Time Since</h1>
+                    <p style="margin-left:10%;font-family:arial;color: rgb(28, 157, 56);font-size: 20px;">Let <strong>Time Since</strong> to help you remember what you should do in your life.
                     </p>
+                    <img src="./images/mainpage.png" alt="mainpage of Time Since" style="margin-left:60%;position:absolute;left:200px;top:50px;height: 500px;;">
                 </div>
 
                 <div class="menu" style="height: 200px;background-color: rgb(238, 237, 237);">
-                    <!-- <img src="zrx.png" alt="rock" width="300" height="250">-->
-                  <h1 class="title">Our Vision</h1>
-                  <p style="text-align:center">Time Since is an application to keep track of when the user last did something.</p>
+                  <div class="vision">
+                    <h1 class="column">Our Vision</h1>
+                    <p style="margin-top: 30px;font-size: 20px;">Time Since is an application to keep track of when the user last did something.</p>
+                  </div>
 
                 </div>
 
-                <div id="IntentUser" style="height:300px">
-                    <h1 class="title" >Target Users</h1>
-                    <p style="text-align:center;background-color: rgb(238, 237, 237);line-height:30px;  ">
-                        Time Since is designed for anyone who wants to keep their lives organized, and
-                        stay on top of daily, monthly, or yearly chores. 
-                        <br>
-                        This application can also be extremely beneficial for people with early-onset Dementia, people with
-                        Attention Deficit Hyperactive Disorder (ADHD), 
-                        <br>or those with poor memories for any reason. Time Since can also be used to help people build good habits, 
-                        or to try and break bad ones. <br>Addicts can use it to encourage themselves on their
-                        lifelong road of recovery, and reward themselves at certain milestones.</p>
+                <div id="IntentUser" style="height:300px;background-color: rgb(238, 237, 237);">
+                        <div class="round">
+                            <h1 class="title" >Target Users</h1>
+                            <p style="text-align:center;line-height:30px;  ">
+                                Time Since is designed for anyone who wants to keep their lives organized, and
+                                stay on top of daily, monthly, or yearly chores. 
+                                <br>
+                                This application can also be extremely beneficial for people with early-onset Dementia, people with
+                                Attention Deficit Hyperactive Disorder (ADHD), 
+                                <br>or those with poor memories for any reason. Time Since can also be used to help people build good habits, 
+                                or to try and break bad ones. <br>Addicts can use it to encourage themselves on their
+                                lifelong road of recovery, and reward themselves at certain milestones.</p>
+                        </div>
                 </div>
 
                 
@@ -94,66 +132,86 @@
                         <h2 class="subtitle">Remember things for User</h2>
             
                        <p style="line-height:30px;">Keeping track of user-defined events so that the users don't have to remember everything</p> 
-                        <img src="./images/Dontforget.jpg" alt="Dont forget picture" width="200" height="200" style="text-align:center;">
+                        <img src="./images/Dontforget.jpg" alt="Dont forget picture" width="200" height="200" style="text-align:center;margin-top: 40px;">
                     </div>
                     <div style="width:33.3%; text-align:center;float:left;">
                         <h2 class="subtitle">Form a habit</h2>
             
                         <p style="line-height:40px;">Help in adopting good habits, or quitting bad ones</p>
-                        <img src="./images/habbit.jpg" alt="habbit picture" width="200" height="200" style="text-align:center;">
+                        <img src="./images/habbit.jpg" alt="habbit picture" width="200" height="200" style="text-align:center;margin-top: 40px;">
                     </div>
                     <div style="width:33.3%; text-align:center;float:left;">
                         <h2 class="subtitle"> lifestyle application</h2>
             
                         <p style="line-height:40px;">It can be used for reminders, self-help, and life tracking</p>
-                        <img src="./images/helper.jpg" alt="habbit picture" width="200" height="200" style="text-align:center;">
-
-
-
+                        <img src="./images/helper.jpg" alt="habbit picture" width="200" height="200" style="text-align:center;margin-top: 40px;">
                     </div>
                 </div>
 
                     <P id="About" style="font-size:50px;line-height:120px;text-align: center;">
                         Members
                     </P>
-                    <div class="column" style="background-color: rgb(238, 237, 237);">
+                    <div class="column" style="background-color:#aaa;">
                         <h1 id="member1"style="text-align:center;"><strong>Steven </strong></h1>
                         <p style="text-align:center;line-height:30px">description Steven's specific special development skills that each team member gained</p>
                     </div>
-                    <div class="column" style="background-color: rgb(238, 237, 237);">
+                    <div class="column" style="background-color: #bbb;">
                         <h1 id="member2" style="text-align:center;"><strong>Sean</strong></h1>
                         <p style="text-align:center;line-height:30px">description Sean's specific special development skills that each team member gained</p>
                     </div>
-                    <div class="column" style="background-color: rgb(238, 237, 237);">
+                    <div class="column" style="background-color: #ccc;">
                         <h1 id="member3" style="text-align:center;"><strong>Frejya</strong></h1>       
                         <p style="text-align:center;line-height:30px">description Frejya's specific special development skills that each team member gained</p>
                     </div>
-                    <div class="column" style="background-color: rgb(238, 237, 237);">
+                    <div class="column" style="background-color: #ddd;">
                         <h1 id="member4" style="text-align:center;"><strong>Zhiyi</strong></h1>
                         <p style="text-align:center;line-height:30px">
-                        <li>During the development of this application with all my teammates, I have learned that the most important
-                            thing is the communication with others.</li>
-                        <li>Having a good plan before the actually task is much more useful than do anything by yourself. Besides, 
-                            this development process increased my knowledge about SOLID principles and design pattern. </li>
-                        <li>In the pervious course, what I used is just unit test to test
-                            if a method meet the requirements or not. But in this course I learnt integration test and system test.</li>
+                            
+                                <li>During the development of this application with all my teammates, I have learned that the most important
+                                    thing is the communication with others.</li>
+                                <li>Having a good plan before the actually task is much more useful than do anything by yourself. Besides, 
+                                    this development process increased my knowledge about SOLID principles and design pattern. </li>
+                                <li>In the pervious course, what I used is just unit test to test
+                                    if a method meet the requirements or not. But in this course I learnt integration test and system test.</li>
+                            
                          </p>
                     </div>
                     <div class="column" style="background-color: rgb(238, 237, 237);">
                         <h1 id="member5" style="text-align:center;"><strong>Da</strong></h1>
-                        <p style="text-align:center; line-height:30px">description Da's specific special development skills that each team member gained</p>
+                        <p style="text-align:center; line-height:30px">
+                            
+                                <li>Mostly the principle and good habits for writing softwares, for example the SOLID, low coupling and high cohesion rule, 
+                                    the many design patterns for complex structure of big softwares. </li>
+                                <li>Also my experience of working as a team member has been improved: on project management skills, iteration planning and retrospective for a team work.</li>
+                                <li>In addition, my experience in communication has been improved.</li>
+                            
                     </div>
-                
 
-                <!-- <div class="footer" style="height:100px; background-color: black;line-height:120px;">
-                    <ul class="AboutUs">
-                        <h2 style="text-align:center;color: white;"><li><a class="post-link" href="../new web/AboutUs.html">Members</a></li></h2>
-                    </ul>
-                </div> -->
-
-                    <div class="round"><p>Postmortem</p></div>
-                    
             </div>
+                <div class="question" >
+                    <h2>What took the most time? The least? Any surprises?</h2>
+                    <p>During the development of our project, the database adjustment took the most time. The layout for the application took least.</p>
+                    <h2>What went right in the development process?</h2>
+                    <h2></h2>
+                </div>
+
+                <div class="postmortem" >
+                    <h1 style="font-size: 50px;"><b>Postmortem</b></h1>
+                    <h2>Postive point:</h2>
+                    <p>We have a good working environment. Everyone is willing to offer help for people who meet problems. There is no any complaints during the whole project 
+                        development. Even someone of our group is in the difference time zone, what we do is trying to coordinate our time so that everyone can participate in the group
+                        meeting.
+                    </p>
+                    <h2>Negative Point:</h2>
+                        <p>In the iteration 2, we made a poorly estimation for how long dev task should be done.</p>
+                    <h2>Improvement after iteration 2 retrospective:</h2>
+                    <p>During the iteration 3, we have more group coding session via discord. The all the issues we created were asigned to individual team members this time. 
+                        We merged earlier in iteration 3 so that we can have more time to review and fix errors.
+                    </p>
+                </div>
+
+                <div class="footer"></div>
+                
         </body>
     </head>
 </html>
