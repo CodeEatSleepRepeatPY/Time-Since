@@ -34,7 +34,6 @@ public class EventManager {
      * Used for (mock) testing purposes.
      *
      * @param eventDB Event database.
-     * @param eventLabelsDB Event Label database.
      */
     public EventManager(IEventPersistence eventDB) {
         eventPersistence = eventDB;
