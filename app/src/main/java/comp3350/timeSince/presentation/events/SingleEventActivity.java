@@ -195,6 +195,7 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
         boolean isFavorite = eventDSO.isFavorite();
 
         eventDSO.setFavorite(!isFavorite);
+
         setFavoriteColor(); // change the button color
     }
 
@@ -265,11 +266,20 @@ public class SingleEventActivity extends AppCompatActivity implements DatePicker
     // when leaving, save the state and restart the ViewEventListActivity
     @Override
     public boolean onSupportNavigateUp(){
+        leaveCurrentIntent();
+        return true;
+    }
+
+    @Override
+    public void onBackPressed(){
+        leaveCurrentIntent();
+    }
+
+    private void leaveCurrentIntent(){
         saveState();
         Intent intent = new Intent(getApplicationContext(), ViewOwnEventListActivity.class);
         intent.putExtra("email", email);
         finish();  // end this activity before starting the next
         startActivity(intent);
-        return true;
     }
 }
